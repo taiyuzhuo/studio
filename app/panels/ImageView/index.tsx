@@ -285,16 +285,24 @@ function ImageView(props: Props) {
   );
 
   // Namespaces represent marker topics based on the camera topic prefix (e.g. "/camera_front_medium")
-  const { allCameraNamespaces, imageTopicsByNamespace } = useMemo(() => {
+  const { cameraTopicDatatype, allCameraNamespaces, imageTopicsByNamespace } = useMemo(() => {
     const imageTopics = (topics ?? []).filter(({ datatype }) =>
-      ["sensor_msgs/Image", "sensor_msgs/CompressedImage"].includes(datatype),
+      [
+        "sensor_msgs/Image",
+        "sensor_msgs/CompressedImage",
+        "theora_image_transport/Packet",
+      ].includes(datatype),
     );
     const topicsByNamespace = groupTopics(imageTopics);
+
+    const cameraTopicDatatype = (topics ?? []).find(({ name }) => name === cameraTopic)?.datatype;
+
     return {
+      cameraTopicDatatype,
       imageTopicsByNamespace: topicsByNamespace,
       allCameraNamespaces: [...topicsByNamespace.keys()],
     };
-  }, [topics]);
+  }, [topics, cameraTopic]);
 
   const imageMarkerDatatypes = useMemo(
     () => [
@@ -419,11 +427,18 @@ function ImageView(props: Props) {
   const cameraInfoTopic = getCameraInfoTopic(cameraTopic);
   const cameraInfo = PanelAPI.useMessageReducer<CameraInfo | undefined>({
     topics: cameraInfoTopic != undefined ? [cameraInfoTopic] : [],
-    restore: useCallback((value) => value, []),
-    addMessage: useCallback(
-      (_value, { message }: MessageEvent<unknown>) => message as CameraInfo,
-      [],
-    ),
+    restore: useCallback((value) => {
+      if (cameraTopicDatatype === "/theora_image_transport/Packet") {
+        // Add theora logic here
+      }
+      return value;
+    }, []),
+    addMessage: useCallback((_value, { message }: MessageEvent<unknown>) => {
+      if (cameraTopicDatatype === "/theora_image_transport/Packet") {
+        // Add theora logic here
+      }
+      return message as CameraInfo;
+    }, []),
   });
 
   const shouldSynchronize = config.synchronize && enabledMarkerTopics.length > 0;
@@ -556,8 +571,15 @@ function ImageView(props: Props) {
   // Improve perf by hiding the ImageCanvas while seeking, instead of unmounting and remounting it.
   const imageMessageToRender = imageMessage ?? lastImageMessageRef.current;
 
-  const pauseFrame = useMessagePipeline(
-    useCallback((messagePipeline) => messagePipeline.pauseFrame, []),
+  const { currentTime, lastSeekTime, pauseFrame } = useMessagePipeline(
+    useCallback(
+      (messagePipeline) => ({
+        currentTime: messagePipeline.playerState.activeData?.currentTime,
+        lastSeekTime: messagePipeline.playerState.activeData?.lastSeekTime,
+        pauseFrame: messagePipeline.pauseFrame,
+      }),
+      [],
+    ),
   );
   const onStartRenderImage = useCallback(() => {
     const resumeFrame = pauseFrame("ImageView");

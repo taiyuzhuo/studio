@@ -161,6 +161,8 @@ async function decodeMessageToBitmap(
     msg.message.format
   ) {
     image = new Blob([rawData], { type: `image/${msg.message.format}` });
+  } else if (datatype === "theora_image_transport/Packet") {
+    // Add theora image rendering logic here; use decodeYUV
   } else {
     throw new Error(`Message type is not usable for rendering images.`);
   }
