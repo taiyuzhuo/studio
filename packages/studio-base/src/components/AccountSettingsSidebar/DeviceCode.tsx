@@ -22,6 +22,10 @@ const useStyles = makeStyles((theme) => {
 // Show instructions on opening the browser and entering the device code
 export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
   const classes = useStyles();
+  const url = new URL(props.verificationUrl);
+  url.searchParams.append("user_code", props.userCode);
+
+  console.log("url", url, url.toString());
   return (
     <Stack>
       <StackItem>
@@ -29,7 +33,7 @@ export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
       </StackItem>
       <StackItem className={classes.text}>
         <Text variant="large">
-          <a href={props.verificationUrl}>{props.verificationUrl}</a>
+          <a href={url.toString()}>{url.toString()}</a>
         </Text>
       </StackItem>
 

@@ -20,6 +20,7 @@ export default function CurrentUserProvider(props: PropsWithChildren<unknown>): 
   const api = useConsoleApi();
   const [bearerToken] = useLocalStorage<string>("fox.bearer-token");
 
+  console.log("bearerToken", bearerToken);
   const { loading, value, error } = useAsync(async () => {
     if (!isNonEmptyOrUndefined(bearerToken)) {
       return undefined;
@@ -37,6 +38,8 @@ export default function CurrentUserProvider(props: PropsWithChildren<unknown>): 
   if (loading) {
     return <></>;
   }
+
+  console.log("user", value);
 
   return <CurrentUserContext.Provider value={value}>{props.children}</CurrentUserContext.Provider>;
 }

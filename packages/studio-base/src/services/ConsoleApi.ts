@@ -41,6 +41,7 @@ type TokenArgs = {
 type TokenResponse = {
   access_token: string;
   id_token: string;
+  session: Session;
 };
 
 class ConsoleApi {
@@ -60,7 +61,7 @@ class ConsoleApi {
   }
 
   async me(): Promise<CurrentUser> {
-    return await this.get<CurrentUser>("/v1/me");
+    return await this.get<CurrentUser>("/auth/me");
   }
 
   async signin(args: SigninArgs): Promise<Session> {

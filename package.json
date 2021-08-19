@@ -119,5 +119,8 @@
     "webpack-dev-server": "3.11.2",
     "webpack-hot-middleware": "2.25.0",
     "xmldom": "0.6.0"
+  },
+  "dependencies": {
+    "jwt-decode": "3.1.2"
   }
 }

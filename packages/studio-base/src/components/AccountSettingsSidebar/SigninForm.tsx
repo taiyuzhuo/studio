@@ -3,16 +3,15 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { PrimaryButton, Stack, useTheme } from "@fluentui/react";
+import jwtDecode from "jwt-decode";
 import { useCallback, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
 import { useAsync, useAsyncFn, useLocalStorage, useMountedState } from "react-use";
 
 import Logger from "@foxglove/log";
 import { useConsoleApi } from "@foxglove/studio-base/context/ConsoleApiContext";
-import { Org } from "@foxglove/studio-base/services/ConsoleApi";
 
 import DeviceCode from "./DeviceCode";
-import OrgSelect from "./OrgSelect";
 
 const log = Logger.getLogger(__filename);
 
@@ -21,8 +20,21 @@ export default function SigninForm(): JSX.Element {
   const { addToast } = useToasts();
   const api = useConsoleApi();
   const isMounted = useMountedState();
-  const [_, setBearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [bearerToken, setBearerToken] = useLocalStorage<string>("fox.bearer-token");
 
+  useEffect(() => {
+    // const win = window.open(
+    //   "http://localhost:3000/api/auth/login?redirect_uri=http%3A%2F%2Flocalhost%2Fcallback",
+    //   "_blank",
+    //   "minimizable=false,frame=false,top=500,left=200",
+    // );
+    // const onload = win?.onload ?? (() => undefined);
+    // console.log("LOADING");
+    // // @ts-ignore
+    // onload((e: Event) => {
+    //   console.log(e);
+    // });
+  }, []);
   const [{ value: deviceCode, error: deviceCodeError, loading }, getDeviceCode] =
     useAsyncFn(async () => {
       return await api.deviceCode({
@@ -80,37 +92,19 @@ export default function SigninForm(): JSX.Element {
     }
   }, [addToast, deviceResponseError]);
 
-  const [{ value: session }, onOrgSelect] = useAsyncFn(
-    async (org: Org) => {
-      if (!deviceResponse) {
-        return;
-      }
-
-      // get a refresh token from the endpoint
-      return await api.signin({
-        id_token: deviceResponse.id_token,
-        org_slug: org.slug,
-      });
-    },
-    [api, deviceResponse],
-  );
-
   useEffect(() => {
-    if (!session) {
+    if (!deviceResponse?.session) {
       return;
     }
 
-    setBearerToken(session.bearer_token);
-    window.location.reload();
-  }, [session, setBearerToken]);
+    console.log("id token", jwtDecode(deviceResponse.id_token));
 
-  if (session) {
+    setBearerToken(deviceResponse.id_token);
+    // window.location.reload();
+  }, [deviceResponse, setBearerToken]);
+
+  if (deviceResponse?.session) {
     return <div>Success!</div>;
-  }
-
-  // if deviceResponse idtoken, show the orgs select list
-  if (deviceResponse) {
-    return <OrgSelect idToken={deviceResponse.id_token} onSelect={onOrgSelect} />;
   }
 
   if (deviceCode) {
