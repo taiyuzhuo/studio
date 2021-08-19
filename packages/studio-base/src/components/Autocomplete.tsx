@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyles } from "@fluentui/react";
 import cx from "classnames";
 import { maxBy } from "lodash";
 import React, { CSSProperties, PureComponent, RefObject } from "react";
@@ -19,9 +20,7 @@ import { createPortal } from "react-dom";
 import textMetrics from "text-metrics";
 
 import fuzzyFilter from "@foxglove/studio-base/util/fuzzyFilter";
-import { fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
-
-import styles from "./Autocomplete.module.scss";
+import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 const fontFamily = fonts.SANS_SERIF;
 const fontSize = "12px";
@@ -33,7 +32,64 @@ function measureText(text: string): number {
   return textMeasure.width(text) + 3;
 }
 
-const rowHeight = parseInt(styles.rowHeight ?? "24");
+const ROW_HEIGHT = 24;
+
+const styles = {
+  root: mergeStyles({
+    borderRadius: 3,
+    borderTopLeftRadius: 0,
+    boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
+    position: "fixed",
+    overflow: "auto",
+    background: colors.DARK3,
+    zIndex: 1,
+    marginLeft: -6,
+  }),
+  input: mergeStyles({
+    background: "transparent !important",
+    borderRadius: 0,
+    border: "none",
+    color: "inherit",
+    flexGrow: 1,
+    fontSize: "1rem",
+    margin: 0,
+    padding: 0,
+    textAlign: "left",
+    //   @include ff-sans-serif;
+    //
+    "&.disabled": {
+      color: colors.TEXT_INPUT_DISABLED,
+      backgroundColor: "rgba(255, 255, 255, 0.3)",
+    },
+    "&:focus": {
+      backgroundColor: "rgba(255, 255, 255, 0.075)",
+      outline: "none",
+    },
+    "&::placeholder": {
+      color: colors.TEXT_MUTED,
+    },
+  }),
+  inputPlaceholder: mergeStyles({
+    color: colors.TEXT_MUTED,
+  }),
+  inputError: mergeStyles({
+    color: colors.RED2,
+  }),
+  autocompleteItem: mergeStyles({
+    padding: 6,
+    cursor: "pointer",
+    minHeight: ROW_HEIGHT,
+    lineHeight: ROW_HEIGHT - 10,
+    overflowWrap: "break-word",
+    color: colors.TEXT_NORMAL,
+  }),
+  selected: mergeStyles({
+    backgroundColor: colors.DARK5,
+  }),
+  highlighted: mergeStyles({
+    backgroundColor: colors.DARK4,
+  }),
+};
 
 // <Autocomplete> is a Studio-specific autocomplete with support for things like multiple
 // autocompletes that seamlessly transition into each other, e.g. when building more complex
@@ -280,7 +336,6 @@ export default class Autocomplete<T = unknown> extends PureComponent<
     if (!open) {
       this._ignoreBlur = false;
     }
-
     const selectedItemValue = selectedItem != undefined ? getItemValue(selectedItem) : undefined;
     return (
       <ReactAutocomplete
@@ -295,8 +350,8 @@ export default class Autocomplete<T = unknown> extends PureComponent<
               data-highlighted={isHighlighted}
               data-test-auto-item
               className={cx(styles.autocompleteItem, {
-                [styles.highlighted!]: isHighlighted,
-                [styles.selected!]:
+                [styles.highlighted]: isHighlighted,
+                [styles.selected]:
                   selectedItemValue != undefined && itemValue === selectedItemValue,
               })}
             >
@@ -309,8 +364,8 @@ export default class Autocomplete<T = unknown> extends PureComponent<
         value={value ?? ""}
         inputProps={{
           className: cx(styles.input, {
-            [styles.inputError!]: hasError,
-            [styles.placeholder!]: value == undefined || value.length === 0,
+            [styles.inputError]: hasError,
+            [styles.inputPlaceholder]: value == undefined || value.length === 0,
           }),
           autoCorrect: "off",
           autoCapitalize: "off",
@@ -336,7 +391,7 @@ export default class Autocomplete<T = unknown> extends PureComponent<
           // Hacky virtualization. Either don't show all menuItems (typical when the user is still
           // typing in the autcomplete), or do show them all (once the user scrolls). Not the most
           // sophisticated, but good enough!
-          const maxNumberOfItems = Math.ceil(window.innerHeight / rowHeight + 10);
+          const maxNumberOfItems = Math.ceil(window.innerHeight / ROW_HEIGHT + 10);
           const menuItemsToShow =
             this.state.showAllItems || menuItems.length <= maxNumberOfItems * 2
               ? menuItems
