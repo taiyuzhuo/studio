@@ -58,7 +58,7 @@ export const SLeft = styled.div`
 `;
 
 const SErrorCount = styled.small`
-  color: ${colors.RED};
+  color: ${colors.RED2};
   width: ${MAX_GROUP_ERROR_WIDTH}px;
 `;
 

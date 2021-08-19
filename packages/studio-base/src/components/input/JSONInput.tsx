@@ -32,7 +32,7 @@ export function JSONInput(props: {
   const isValid = parsedValue != undefined;
   return (
     <LegacyInput
-      style={{ color: isValid ? "white" : colors.RED }}
+      style={{ color: isValid ? "white" : colors.RED2 }}
       data-test={props.dataTest ?? "json-input"}
       type="text"
       value={internalValue}

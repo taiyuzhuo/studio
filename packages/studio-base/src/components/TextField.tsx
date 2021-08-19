@@ -131,7 +131,7 @@ export default function TextField({
 
   // only show red border when there is some input and it's not valid
   const errorStyle =
-    inputStr.length > 0 && error != undefined ? { border: `1px solid ${colors.RED}` } : {};
+    inputStr.length > 0 && error != undefined ? { border: `1px solid ${colors.RED2}` } : {};
 
   return (
     <STextField style={style}>

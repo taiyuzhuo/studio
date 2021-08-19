@@ -29,7 +29,7 @@ export function ValidatedResizingInput(props: {
   }
   return (
     <ReactInputAutosize
-      style={{ color: !props.invalidInputs.includes(internalValue) ? "white" : colors.RED }}
+      style={{ color: !props.invalidInputs.includes(internalValue) ? "white" : colors.RED2 }}
       value={`$${internalValue}`}
       data-test={props.dataTest}
       onChange={(event) => {

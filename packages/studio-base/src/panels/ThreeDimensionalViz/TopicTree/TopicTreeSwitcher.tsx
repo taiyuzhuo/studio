@@ -41,7 +41,7 @@ const SErrorsBadge = styled.div`
   width: 10px;
   height: 10px;
   border-radius: 5px;
-  background-color: ${colors.RED};
+  background-color: ${colors.RED2};
 `;
 
 /* TODO(Audrey): stay consistent with other buttons in the 3D panel, will consolidate later. */
