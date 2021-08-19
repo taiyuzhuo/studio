@@ -7,8 +7,6 @@ import { makeStyles } from "@fluentui/react";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 const spacing = 15;
-// @import "@foxglove/studio-base/styles/colors.module.scss";
-// @import "@foxglove/studio-base/styles/mixins.module.scss";
 
 export default makeStyles({
   // container for the entire panel

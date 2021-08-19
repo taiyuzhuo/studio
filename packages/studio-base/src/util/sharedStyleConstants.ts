@@ -137,3 +137,10 @@ export const rounded = {
   PILL: "999px",
   CIRCLE: "50%",
 };
+
+export const fonts = {
+  // Keep in sync with fonts.module.scss
+  // We tried importing scss vars directly in JS, but style-loader doesn't support web workers
+  SANS_SERIF: `-apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", sans-serif`,
+  MONOSPACE: `"Roboto Mono"`,
+};
