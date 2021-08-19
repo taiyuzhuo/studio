@@ -23,7 +23,7 @@ import styled from "styled-components";
 import Autocomplete from "@foxglove/studio-base/components/Autocomplete";
 import Button from "@foxglove/studio-base/components/Button";
 import Icon from "@foxglove/studio-base/components/Icon";
-import styles from "@foxglove/studio-base/panels/ThreeDimensionalViz/Layout.module.scss";
+import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import colors from "@foxglove/studio-base/styles/colors.module.scss";
 
 import Transforms, { Transform } from "./Transforms";
@@ -127,6 +127,7 @@ const arePropsEqual = (prevProps: Props, nextProps: Props) => {
 };
 
 const FollowTFControl = memo<Props>((props: Props) => {
+  const classes = useLayoutStyles();
   const { transforms, tfToFollow, followOrientation, onFollowChange } = props;
   const [forceShowFrameList, setForceShowFrameList] = useState(false);
   const [hovering, setHovering] = useState(false);
@@ -264,7 +265,7 @@ const FollowTFControl = memo<Props>((props: Props) => {
         </Icon>
       ) : undefined}
       <Button
-        className={styles.iconButton}
+        className={classes.iconButton}
         tooltipProps={{ placement: "top" }}
         onClick={onClickFollowButton}
         tooltip={getFollowButtonTooltip()}

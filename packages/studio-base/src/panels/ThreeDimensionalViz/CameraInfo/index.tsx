@@ -29,12 +29,12 @@ import {
   SValue,
   SLabel,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/styling";
-import styles from "@foxglove/studio-base/panels/ThreeDimensionalViz/Layout.module.scss";
 import {
   getNewCameraStateOnFollowChange,
   TargetPose,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/threeDimensionalVizUtils";
 import { ThreeDimensionalVizConfig } from "@foxglove/studio-base/panels/ThreeDimensionalViz/types";
+import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import colors from "@foxglove/studio-base/styles/colors.module.scss";
 import clipboard from "@foxglove/studio-base/util/clipboard";
 import { point2DValidator, cameraStateValidator } from "@foxglove/studio-base/util/validators";
@@ -73,6 +73,7 @@ type CameraInfoProps = {
 } & CameraInfoPropsWithoutCameraState;
 
 function CameraStateInfo({ cameraState, onAlignXYAxis }: CameraStateInfoProps) {
+  const classes = useLayoutStyles();
   return (
     <>
       {(Object.keys(cameraState) as (keyof CameraState)[])
@@ -93,7 +94,7 @@ function CameraStateInfo({ cameraState, onAlignXYAxis }: CameraStateInfoProps) {
             <SLabel width={LABEL_WIDTH}>{key}:</SLabel> <SValue>{val}</SValue>
             {key === "thetaOffset" && (
               <Button
-                className={styles.button}
+                className={classes.button}
                 onClick={onAlignXYAxis}
                 tooltip="Align XY axis by reseting thetaOffset to 0. Will no longer follow orientation."
               >
@@ -118,6 +119,7 @@ export default function CameraInfo({
   autoSyncCameraState,
   defaultSelectedTab,
 }: CameraInfoProps): JSX.Element {
+  const classes = useLayoutStyles();
   const [selectedTab, setSelectedTab] = React.useState(defaultSelectedTab);
   const { updatePanelConfigs, saveConfig } = usePanelContext();
   const [edit, setEdit] = React.useState<boolean>(false);
@@ -155,7 +157,7 @@ export default function CameraInfo({
           <CameraControlIcon />
         </Icon>
       }
-      className={styles.buttons}
+      className={classes.buttons}
       selectedTab={selectedTab}
       onSelectTab={(newSelectedTab) => setSelectedTab(newSelectedTab)}
     >
@@ -163,7 +165,7 @@ export default function CameraInfo({
         <Flex col style={{ minWidth: DEFAULT_CAMERA_INFO_WIDTH }}>
           <Flex row reverse>
             <Button
-              className={styles.button}
+              className={classes.button}
               tooltip="Copy cameraState"
               small
               onClick={() => {
@@ -173,7 +175,7 @@ export default function CameraInfo({
               Copy
             </Button>
             <Button
-              className={styles.button}
+              className={classes.button}
               disabled={isPlaying}
               tooltip={
                 isPlaying
@@ -185,7 +187,7 @@ export default function CameraInfo({
               {edit ? "Done" : "Edit"}
             </Button>
             <Button
-              className={styles.button}
+              className={classes.button}
               tooltip="Sync camera state across all 3D panels"
               onClick={syncCameraState}
             >

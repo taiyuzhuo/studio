@@ -20,8 +20,8 @@ import styled from "styled-components";
 import Dropdown from "@foxglove/studio-base/components/Dropdown";
 import DropdownItem from "@foxglove/studio-base/components/Dropdown/DropdownItem";
 import useGetItemStringWithTimezone from "@foxglove/studio-base/components/JsonTree/useGetItemStringWithTimezone";
-import styles from "@foxglove/studio-base/panels/ThreeDimensionalViz/Layout.module.scss";
 import { getInstanceObj } from "@foxglove/studio-base/panels/ThreeDimensionalViz/threeDimensionalVizUtils";
+import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import { jsonTreeTheme } from "@foxglove/studio-base/util/globalConstants";
 
 import GlobalVariableLink from "./GlobalVariableLink/index";
@@ -57,6 +57,7 @@ export default function ObjectDetails({
   interactionData,
   selectedObject: { object, instanceIndex },
 }: WrapperProps): JSX.Element {
+  const classes = useLayoutStyles();
   const [showInstance, setShowInstance] = React.useState(true);
   const instanceObject = getInstanceObj(object, instanceIndex as number);
   const dropdownText = {
@@ -73,7 +74,7 @@ export default function ObjectDetails({
     <div>
       {instanceObject && (
         <Dropdown
-          btnClassname={styles.button}
+          btnClassname={classes.button}
           position="below"
           value={showInstance}
           text={showInstance ? dropdownText.instance : dropdownText.full}

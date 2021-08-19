@@ -28,7 +28,7 @@ import { useMessagePipeline } from "@foxglove/studio-base/components/MessagePipe
 import Panel from "@foxglove/studio-base/components/Panel";
 import PanelToolbar from "@foxglove/studio-base/components/PanelToolbar";
 import Radio from "@foxglove/studio-base/components/Radio";
-import styles from "@foxglove/studio-base/panels/ThreeDimensionalViz/Layout.module.scss";
+import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import colors from "@foxglove/studio-base/styles/colors.module.scss";
 
 import Graph, { GraphMutation } from "./Graph";
@@ -132,6 +132,7 @@ function unionInto<T>(dest: Set<T>, ...iterables: Set<T>[]): void {
 }
 
 function TopicGraph() {
+  const classes = useLayoutStyles();
   const [selectedTab, setSelectedTab] = useState<"Topics" | undefined>(undefined);
 
   const publishedTopics = useMessagePipeline(
@@ -339,19 +340,19 @@ function TopicGraph() {
     <>
       <PanelToolbar floating helpContent={helpContent} />
       <Toolbar>
-        <div className={styles.buttons}>
-          <Button className={styles.iconButton} tooltip="Zoom Fit" onClick={onZoomFit}>
+        <div className={classes.buttons}>
+          <Button className={classes.iconButton} tooltip="Zoom Fit" onClick={onZoomFit}>
             <Icon style={{ color: "white" }} small>
               <FitToPageIcon />
             </Icon>
           </Button>
-          <Button className={styles.iconButton} tooltip="Orientation" onClick={toggleOrientation}>
+          <Button className={classes.iconButton} tooltip="Orientation" onClick={toggleOrientation}>
             <Icon style={{ color: "white" }} small>
               {lrOrientation ? <ArrowLeftRightIcon /> : <ArrowUpDownIcon />}
             </Icon>
           </Button>
           <Button
-            className={styles.iconButton}
+            className={classes.iconButton}
             tooltip={showServices ? "Showing services" : "Hiding services"}
             onClick={toggleShowServices}
           >
@@ -368,7 +369,7 @@ function TopicGraph() {
               <TopicIcon />
             </Icon>
           }
-          className={styles.buttons}
+          className={classes.buttons}
           selectedTab={selectedTab}
           onSelectTab={(newSelectedTab) => {
             setSelectedTab(newSelectedTab);

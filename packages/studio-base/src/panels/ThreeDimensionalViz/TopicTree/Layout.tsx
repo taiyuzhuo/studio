@@ -47,7 +47,6 @@ import {
   TabType,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions";
 import useLinkedGlobalVariables from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/useLinkedGlobalVariables";
-import styles from "@foxglove/studio-base/panels/ThreeDimensionalViz/Layout.module.scss";
 import LayoutToolbar from "@foxglove/studio-base/panels/ThreeDimensionalViz/LayoutToolbar";
 import SceneBuilder from "@foxglove/studio-base/panels/ThreeDimensionalViz/SceneBuilder";
 import sceneBuilderHooks from "@foxglove/studio-base/panels/ThreeDimensionalViz/SceneBuilder/defaultHooks";
@@ -78,6 +77,7 @@ import {
   getUpdatedGlobalVariablesBySelectedObject,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/threeDimensionalVizUtils";
 import { ThreeDimensionalVizConfig } from "@foxglove/studio-base/panels/ThreeDimensionalViz/types";
+import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import { Frame, Topic } from "@foxglove/studio-base/players/types";
 import inScreenshotTests from "@foxglove/studio-base/stories/inScreenshotTests";
 import { Color, Marker } from "@foxglove/studio-base/types/Messages";
@@ -212,6 +212,7 @@ export default function Layout({
     disableAutoOpenClickedObject = false,
   },
 }: Props): React.ReactElement {
+  const classes = useLayoutStyles();
   const [filterText, setFilterText] = useState(""); // Topic tree text for filtering to see certain topics.
   const containerRef = useRef<HTMLDivElement>(ReactNull);
   const { linkedGlobalVariables } = useLinkedGlobalVariables();
@@ -763,7 +764,7 @@ export default function Layout({
           ref={containerRef}
           onClick={onControlsOverlayClick}
           tabIndex={-1}
-          className={styles.container}
+          className={classes.container}
           style={{ cursor: cursorType }}
           data-test="3dviz-layout"
         >
@@ -821,7 +822,7 @@ export default function Layout({
               )}
             </div>
           </div>
-          <div className={styles.world}>
+          <div className={classes.world}>
             <World
               key={`${callbackInputsRef.current.autoSyncCameraState ? "synced" : "not-synced"}`}
               autoTextBackgroundColor={autoTextBackgroundColor}
