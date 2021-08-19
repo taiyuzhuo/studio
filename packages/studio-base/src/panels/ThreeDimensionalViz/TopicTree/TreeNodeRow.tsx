@@ -265,7 +265,7 @@ export default function TreeNodeRow({
           <SIconWrapper>
             <Icon
               style={{
-                color: colors.RED,
+                color: colors.RED2,
                 fontSize: 14,
                 display: "inline-flex",
                 alignItems: "center",

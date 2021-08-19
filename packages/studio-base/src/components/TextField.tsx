@@ -29,7 +29,7 @@ export const STextFieldLabel = styled.label`
 `;
 
 export const SError = styled.div`
-  color: ${colors.RED};
+  color: ${colors.RED2};
   margin: 4px 0;
 `;
 

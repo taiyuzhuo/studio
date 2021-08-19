@@ -32,7 +32,7 @@ const StyledTextarea = styled(LegacyTextarea)`
   resize: none;
 `;
 const SError = styled.div`
-  color: ${colors.RED};
+  color: ${colors.RED2};
   padding: 8px 4px;
 `;
 

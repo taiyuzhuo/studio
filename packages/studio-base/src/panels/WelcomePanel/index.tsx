@@ -127,9 +127,9 @@ function WelcomePanel() {
           </Button>
           &nbsp;
           {error ? (
-            <span style={{ color: colors.RED }}>{error.toString()}</span>
+            <span style={{ color: colors.RED2 }}>{error.toString()}</span>
           ) : subscribed && !submitState.loading ? (
-            <span style={{ color: colors.GREEN }}>Thanks for signing up!</span>
+            <span style={{ color: colors.GREEN2 }}>Thanks for signing up!</span>
           ) : undefined}
         </div>
       </TextContent>

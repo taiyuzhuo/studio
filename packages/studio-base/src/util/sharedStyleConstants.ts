@@ -51,6 +51,7 @@ const robotStylesColors = {
   GREENL1: "#1abd89",
   GREEN: "#00a375",
   GREEN1: "#008768",
+  GREEN2: "#05d27d",
 
   LIMEL1: "#6bd66f",
   LIME: "#4ac252",
@@ -63,6 +64,7 @@ const robotStylesColors = {
   ORANGEL1: "#fc8942",
   ORANGE: "#f76c1b",
   ORANGE1: "#e5540b",
+  ORANGE2: "#ccb862",
 
   REDL1: "#ff6b82",
   RED: "#f54966",

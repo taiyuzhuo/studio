@@ -61,7 +61,7 @@ const SErrorText = styled.div`
   display: flex;
   align-items: center;
   padding: 4px;
-  color: ${colors.RED};
+  color: ${colors.RED2};
 `;
 
 const SSpan = styled.span`

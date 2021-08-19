@@ -64,7 +64,7 @@ const SErrorMessage = styled.div`
   position: absolute;
   align-items: center;
   justify-content: center;
-  color: ${colors.RED};
+  color: ${colors.RED2};
 `;
 
 const webWorkerManager = new WebWorkerManager(() => {

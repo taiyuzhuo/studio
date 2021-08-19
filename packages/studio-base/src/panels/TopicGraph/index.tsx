@@ -356,7 +356,7 @@ function TopicGraph() {
             tooltip={showServices ? "Showing services" : "Hiding services"}
             onClick={toggleShowServices}
           >
-            <Icon style={{ color: showServices ? colors.RED : "white" }} small>
+            <Icon style={{ color: showServices ? colors.RED2 : "white" }} small>
               <ServiceIcon />
             </Icon>
           </Button>

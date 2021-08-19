@@ -31,7 +31,7 @@ export const LegacyButton = styled.button`
     outline: none;
   }
   &.is-danger {
-    background-color: ${sharedColors.RED};
+    background-color: ${sharedColors.RED2};
   }
   &.is-warning {
     background-color: ${sharedColors.BACKGROUND_CONTROL};

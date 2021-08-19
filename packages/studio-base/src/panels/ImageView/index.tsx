@@ -604,7 +604,7 @@ function ImageView(props: Props) {
           fade
           medium
         >
-          <WavesIcon style={{ color: transformMarkers ? colors.ORANGE : colors.TEXT_BRIGHT }} />
+          <WavesIcon style={{ color: transformMarkers ? colors.ORANGE2 : colors.TEXT_BRIGHT }} />
         </Icon>
       </BottomBar>
     );
