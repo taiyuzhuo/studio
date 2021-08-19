@@ -19,7 +19,7 @@ import TextContent from "@foxglove/studio-base/components/TextContent";
 import TextField from "@foxglove/studio-base/components/TextField";
 import { useAppConfigurationValue } from "@foxglove/studio-base/hooks/useAppConfigurationValue";
 import { useSubscribeContext } from "@foxglove/studio-base/panels/WelcomePanel/SubscribeContext";
-import colors from "@foxglove/studio-base/styles/colors.module.scss";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { isEmail } from "@foxglove/studio-base/util/validators";
 
 const Term = styled.span`
@@ -127,9 +127,9 @@ function WelcomePanel() {
           </Button>
           &nbsp;
           {error ? (
-            <span style={{ color: colors.red }}>{error.toString()}</span>
+            <span style={{ color: colors.RED }}>{error.toString()}</span>
           ) : subscribed && !submitState.loading ? (
-            <span style={{ color: colors.green }}>Thanks for signing up!</span>
+            <span style={{ color: colors.GREEN }}>Thanks for signing up!</span>
           ) : undefined}
         </div>
       </TextContent>

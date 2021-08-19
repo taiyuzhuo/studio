@@ -18,9 +18,9 @@ import { Time, clampTime } from "@foxglove/rostime";
 import CopyText from "@foxglove/studio-base/components/CopyText";
 import Icon from "@foxglove/studio-base/components/Icon";
 import { LegacyInput } from "@foxglove/studio-base/components/LegacyStyledComponents";
-import colors from "@foxglove/studio-base/styles/colors.module.scss";
 import mixins from "@foxglove/studio-base/styles/mixins.module.scss";
 import { formatDate, formatTime, parseTimeStr } from "@foxglove/studio-base/util/formatTime";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { parseRosTimeStr, formatTimeRaw } from "@foxglove/studio-base/util/time";
 
 const SRoot = styled.div`
@@ -33,7 +33,7 @@ const DateWrapper = styled.div`
   font-family: ${mixins.monospaceFont};
   font-size: 14px;
   font-weight: normal;
-  color: ${colors.grey};
+  color: ${colors.GREY};
   margin-left: 8px;
 `;
 
@@ -42,7 +42,7 @@ const TimestampWrapper = styled.div`
   font-family: ${mixins.monospaceFont};
   font-size: 14px;
   font-weight: normal;
-  color: ${colors.grey};
+  color: ${colors.GREY};
   align-items: center;
   flex: 0 0 auto;
 `;
@@ -65,7 +65,7 @@ const ROSText = styled.div`
 const SInput = styled(LegacyInput)`
   min-width: 160px;
   padding: 2px 4px;
-  background-color: transparentize(${colors.textNormal}, 0.2);
+  background-color: transparentize(${colors.TEXT_NORMAL}, 0.2);
 `;
 
 type Props = {

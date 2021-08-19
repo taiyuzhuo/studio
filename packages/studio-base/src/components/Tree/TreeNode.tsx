@@ -27,7 +27,7 @@ import React, { Component } from "react";
 
 import Icon from "@foxglove/studio-base/components/Icon";
 import Tooltip from "@foxglove/studio-base/components/Tooltip";
-import colors from "@foxglove/studio-base/styles/colors.module.scss";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import { Node } from "./Node";
 import styles from "./index.module.scss";
@@ -171,7 +171,7 @@ export default class TreeNode extends Component<Props> {
       <Icon
         fade
         className={cx(styles.extraIcon, { [styles.disabled!]: disabled })}
-        style={{ color: hasEdit ? colors.accent : "#666" }}
+        style={{ color: hasEdit ? colors.ACCENT : "#666" }}
       >
         {icon}
       </Icon>

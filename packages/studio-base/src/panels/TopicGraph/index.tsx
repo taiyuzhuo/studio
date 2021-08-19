@@ -29,7 +29,7 @@ import Panel from "@foxglove/studio-base/components/Panel";
 import PanelToolbar from "@foxglove/studio-base/components/PanelToolbar";
 import Radio from "@foxglove/studio-base/components/Radio";
 import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
-import colors from "@foxglove/studio-base/styles/colors.module.scss";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import Graph, { GraphMutation } from "./Graph";
 import Toolbar from "./Toolbar";
@@ -319,7 +319,7 @@ function TopicGraph() {
   }, [topicVisibility]);
 
   const topicButtonColor = useMemo(() => {
-    return topicVisibility === "none" ? "white" : colors.lightPurple;
+    return topicVisibility === "none" ? "white" : colors.LIGHT_PURPLE;
   }, [topicVisibility]);
 
   const toggleShowServices = useCallback(() => {
@@ -356,7 +356,7 @@ function TopicGraph() {
             tooltip={showServices ? "Showing services" : "Hiding services"}
             onClick={toggleShowServices}
           >
-            <Icon style={{ color: showServices ? colors.red : "white" }} small>
+            <Icon style={{ color: showServices ? colors.RED : "white" }} small>
               <ServiceIcon />
             </Icon>
           </Button>
