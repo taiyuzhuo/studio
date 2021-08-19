@@ -12,7 +12,6 @@
 //   You may not use this file except in compliance with the License.
 
 @import "@foxglove/studio-base/styles/colors.module.scss";
-@import "@foxglove/studio-base/styles/mixins.module.scss";
 
 .panel {
   background-color: $dark;
@@ -31,10 +30,15 @@
 }
 
 .pinIcon {
-  @extend %list-item-icon;
   margin-left: 4px;
   vertical-align: middle;
   visibility: hidden;
+
+  svg {
+    font-size: 16px;
+    position: relative;
+    top: -1px;
+  }
   &.pinned,
   .nodeRow:hover & {
     visibility: visible;
@@ -42,11 +46,21 @@
 }
 
 .nodeRow {
-  @extend %menu-item;
+  text-decoration: none;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: $text-control;
+  user-select: none;
+  display: flex;
+  align-items: center;
   padding: 0;
   line-height: 24px;
-
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+
+  &:hover {
+    color: rgba(255, 255, 255, 1);
+    background-color: $dark5;
+  }
 }

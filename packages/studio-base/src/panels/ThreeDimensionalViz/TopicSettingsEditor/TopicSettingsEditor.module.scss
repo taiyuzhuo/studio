@@ -1,4 +1,3 @@
-@import "@foxglove/studio-base/styles/mixins.module.scss";
 @import "@foxglove/studio-base/styles/colors.module.scss";
 
 .dropdown {
@@ -11,7 +10,9 @@
   @include ff-sans-serif;
 
   .topicName {
-    @extend %modal-subtitle;
+    color: $text-bright;
+    font-size: 16px;
+    line-height: 16px * 1.25;
     word-wrap: break-word;
   }
 
