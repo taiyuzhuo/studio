@@ -29,6 +29,7 @@ const THEME_HUE = 247;
 export default createTheme({
   defaultFontStyle: {
     fontFamily: fonts.SANS_SERIF,
+    fontFeatureSettings: "tnum",
   },
   semanticColors: {
     menuBackground: "#242429",

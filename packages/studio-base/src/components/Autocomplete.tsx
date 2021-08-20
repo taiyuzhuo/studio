@@ -22,12 +22,14 @@ import textMetrics from "text-metrics";
 import fuzzyFilter from "@foxglove/studio-base/util/fuzzyFilter";
 import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-const fontFamily = fonts.SANS_SERIF;
-const fontSize = "12px";
 let textMeasure: textMetrics.TextMeasure;
+
 function measureText(text: string): number {
   if (textMeasure == undefined) {
-    textMeasure = textMetrics.init({ fontFamily, fontSize });
+    textMeasure = textMetrics.init({
+      fontFamily: fonts.SANS_SERIF,
+      fontSize: "12px",
+    });
   }
   return textMeasure.width(text) + 3;
 }
@@ -373,8 +375,8 @@ export default class Autocomplete<T = unknown> extends PureComponent<
           placeholder,
           style: {
             ...inputStyle,
-            fontFamily,
-            fontSize,
+            fontFamily: fonts.SANS_SERIF,
+            fontSize: "12px",
             width: autoSize
               ? Math.max(
                   measureText(value != undefined && value.length > 0 ? value : placeholder ?? ""),

@@ -30,12 +30,14 @@ const MAX_TAB_WIDTH = 100;
 const MIN_ACTIVE_TAB_WIDTH = 40;
 const MIN_OTHER_TAB_WIDTH = 14;
 
-const fontFamily = fonts.SANS_SERIF;
-const fontSize = "12px";
 let textMeasure: textMetrics.TextMeasure;
+
 function measureText(text: string): number {
   if (textMeasure == undefined) {
-    textMeasure = textMetrics.init({ fontFamily, fontSize });
+    textMeasure = textMetrics.init({
+      fontFamily: fonts.SANS_SERIF,
+      fontSize: "12px",
+    });
   }
   return textMeasure.width(text) + 3;
 }

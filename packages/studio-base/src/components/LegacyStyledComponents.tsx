@@ -21,6 +21,7 @@ export const LegacyButton = styled.button`
   font: inherit;
   line-height: 100%;
   font-family: ${fonts.SANS_SERIF};
+  font-feature-settings: tnum;
   font-size: 100%;
   margin: ${spacing.CONTROL_MARGIN};
   padding: 8px 12px;
@@ -68,6 +69,7 @@ export const LegacyInput = styled.input`
   color: ${sharedColors.TEXT_CONTROL};
   font: inherit;
   font-family: ${fonts.SANS_SERIF};
+  font-feature-settings: tnum;
   font-size: 100%;
   margin: ${spacing.CONTROL_MARGIN};
   padding: 8px 12px;
@@ -119,6 +121,7 @@ export const LegacySelect = styled.select`
   color: ${sharedColors.TEXT_CONTROL};
   font: inherit;
   font-family: ${fonts.SANS_SERIF};
+  font-feature-settings: tnum;
   font-size: 100%;
   margin: ${spacing.CONTROL_MARGIN};
   padding: 8px 12px;
