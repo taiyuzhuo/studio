@@ -2,12 +2,13 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import jwtDecode from "jwt-decode";
 import { PropsWithChildren, useEffect } from "react";
 import { useAsync, useLocalStorage } from "react-use";
 
 import Logger from "@foxglove/log";
-import { useConsoleApi } from "@foxglove/studio-base/context/ConsoleApiContext";
 import CurrentUserContext from "@foxglove/studio-base/context/CurrentUserContext";
+import { IdToken } from "@foxglove/studio-base/services/ConsoleApi";
 import { isNonEmptyOrUndefined } from "@foxglove/studio-base/util/emptyOrUndefined";
 
 const log = Logger.getLogger(__filename);
@@ -17,17 +18,15 @@ const log = Logger.getLogger(__filename);
  * session
  */
 export default function CurrentUserProvider(props: PropsWithChildren<unknown>): JSX.Element {
-  const api = useConsoleApi();
-  const [bearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [idToken] = useLocalStorage<string>("fox.id-token");
 
-  console.log("bearerToken", bearerToken);
   const { loading, value, error } = useAsync(async () => {
-    if (!isNonEmptyOrUndefined(bearerToken)) {
+    if (!isNonEmptyOrUndefined(idToken)) {
       return undefined;
     }
-    api.setAuthHeader(`Bearer ${bearerToken}`);
-    return await api.me();
-  }, [api, bearerToken]);
+
+    return jwtDecode<IdToken>(idToken);
+  }, [idToken]);
 
   useEffect(() => {
     if (error) {
@@ -38,8 +37,6 @@ export default function CurrentUserProvider(props: PropsWithChildren<unknown>): 
   if (loading) {
     return <></>;
   }
-
-  console.log("user", value);
 
   return <CurrentUserContext.Provider value={value}>{props.children}</CurrentUserContext.Provider>;
 }

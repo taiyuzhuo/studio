@@ -4,13 +4,11 @@
 
 import { createContext, useContext } from "react";
 
-export interface CurrentUser {
-  email?: string;
-}
+import { IdToken } from "@foxglove/studio-base/services/ConsoleApi";
 
-const CurrentUserContext = createContext<CurrentUser | undefined>(undefined);
+const CurrentUserContext = createContext<IdToken | undefined>(undefined);
 
-export function useCurrentUser(): CurrentUser | undefined {
+export function useCurrentUser(): IdToken | undefined {
   return useContext(CurrentUserContext);
 }
 

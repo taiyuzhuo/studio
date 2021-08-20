@@ -8,22 +8,24 @@ import { useLocalStorage } from "react-use";
 
 import Logger from "@foxglove/log";
 import { useConsoleApi } from "@foxglove/studio-base/context/ConsoleApiContext";
-import { CurrentUser } from "@foxglove/studio-base/context/CurrentUserContext";
+import { IdToken } from "@foxglove/studio-base/services/ConsoleApi";
 
 const log = Logger.getLogger(__filename);
 
-export default function AccountInfo(props: { me?: CurrentUser }): JSX.Element {
+export default function AccountInfo(props: { me?: IdToken }): JSX.Element {
   const theme = useTheme();
   const api = useConsoleApi();
-  const [_, _set, removeBearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [, , removeBearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [, , removeIdToken] = useLocalStorage<string>("fox.id-token");
 
   const onSignoutClick = useCallback(async () => {
     api.signout().catch((err) => {
       log.error(err);
     });
     removeBearerToken();
+    removeIdToken();
     window.location.reload();
-  }, [api, removeBearerToken]);
+  }, [api, removeBearerToken, removeIdToken]);
 
   if (!props.me) {
     return <></>;
@@ -31,7 +33,10 @@ export default function AccountInfo(props: { me?: CurrentUser }): JSX.Element {
 
   return (
     <Stack tokens={{ childrenGap: theme.spacing.s1 }}>
-      <div>Signed in as: {props.me.email ?? "(no email address)"}</div>
+      <h1>{props.me.name}</h1>
+      <div>{props.me.email}</div>
+      <div>{props.me["https://api.foxglove.dev/org_slug"]}</div>
+      <img src={props.me.picture} width={50} height={50} />
       <PrimaryButton onClick={onSignoutClick}>Signout</PrimaryButton>
     </Stack>
   );

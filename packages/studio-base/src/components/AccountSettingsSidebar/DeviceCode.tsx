@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { Stack, StackItem, Text, makeStyles } from "@fluentui/react";
+import { useEffect } from "react";
 
 type DeviceCodePanelProps = {
   userCode: string;
@@ -24,8 +25,12 @@ export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
   const classes = useStyles();
   const url = new URL(props.verificationUrl);
   url.searchParams.append("user_code", props.userCode);
+  const href = url.toString();
 
-  console.log("url", url, url.toString());
+  useEffect(() => {
+    window.open(href, "_blank");
+  }, [href]);
+
   return (
     <Stack>
       <StackItem>
@@ -33,7 +38,7 @@ export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
       </StackItem>
       <StackItem className={classes.text}>
         <Text variant="large">
-          <a href={url.toString()}>{url.toString()}</a>
+          <a href={href}>{href}</a>
         </Text>
       </StackItem>
 

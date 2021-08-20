@@ -44,6 +44,24 @@ type TokenResponse = {
   session: Session;
 };
 
+export type IdToken = {
+  aud: string;
+  email: string;
+  email_verified: boolean;
+  exp: number;
+  family_name: string;
+  given_name: string;
+  "https://api.foxglove.dev/org_slug": string;
+  iat: number;
+  iss: string;
+  locale: string;
+  name: string;
+  nickname: string;
+  picture: string;
+  sub: string;
+  updated_at: string;
+};
+
 class ConsoleApi {
   private _baseUrl: string;
   private _authHeader?: string;
@@ -61,7 +79,7 @@ class ConsoleApi {
   }
 
   async me(): Promise<CurrentUser> {
-    return await this.get<CurrentUser>("/auth/me");
+    return await this.get<CurrentUser>("/v1/me");
   }
 
   async signin(args: SigninArgs): Promise<Session> {

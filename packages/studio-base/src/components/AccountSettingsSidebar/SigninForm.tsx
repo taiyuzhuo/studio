@@ -3,7 +3,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { PrimaryButton, Stack, useTheme } from "@fluentui/react";
-import jwtDecode from "jwt-decode";
 import { useCallback, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
 import { useAsync, useAsyncFn, useLocalStorage, useMountedState } from "react-use";
@@ -20,21 +19,9 @@ export default function SigninForm(): JSX.Element {
   const { addToast } = useToasts();
   const api = useConsoleApi();
   const isMounted = useMountedState();
-  const [bearerToken, setBearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [, setBearerToken] = useLocalStorage<string>("fox.bearer-token");
+  const [, setIdToken] = useLocalStorage<string>("fox.id-token");
 
-  useEffect(() => {
-    // const win = window.open(
-    //   "http://localhost:3000/api/auth/login?redirect_uri=http%3A%2F%2Flocalhost%2Fcallback",
-    //   "_blank",
-    //   "minimizable=false,frame=false,top=500,left=200",
-    // );
-    // const onload = win?.onload ?? (() => undefined);
-    // console.log("LOADING");
-    // // @ts-ignore
-    // onload((e: Event) => {
-    //   console.log(e);
-    // });
-  }, []);
   const [{ value: deviceCode, error: deviceCodeError, loading }, getDeviceCode] =
     useAsyncFn(async () => {
       return await api.deviceCode({
@@ -97,11 +84,10 @@ export default function SigninForm(): JSX.Element {
       return;
     }
 
-    console.log("id token", jwtDecode(deviceResponse.id_token));
-
-    setBearerToken(deviceResponse.id_token);
-    // window.location.reload();
-  }, [deviceResponse, setBearerToken]);
+    setBearerToken(deviceResponse.session.bearer_token);
+    setIdToken(deviceResponse.id_token);
+    window.location.reload();
+  }, [deviceResponse, setBearerToken, setIdToken]);
 
   if (deviceResponse?.session) {
     return <div>Success!</div>;
