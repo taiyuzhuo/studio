@@ -20,8 +20,7 @@ import {
 } from "@fluentui/react";
 import { createTheme } from "@fluentui/theme";
 
-import styles from "@foxglove/studio-base/styles/variables.module.scss";
-import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
+import { colors, fonts, spacing } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 const THEME_HUE = 247;
 
@@ -148,7 +147,7 @@ export default createTheme({
     Titlebar: {
       styles: {
         root: {
-          height: styles.topBarHeight,
+          height: spacing.TOP_BAR_HEIGHT,
         } as IStyle,
       },
     },

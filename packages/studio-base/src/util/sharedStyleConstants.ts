@@ -119,6 +119,7 @@ export const spacing = {
   CONTROL_PADDING: "8px 8px 8px 16px",
   CONTROL_MARGIN: "0 0.2em",
   TEXT_SIZE: "12px",
+  TOP_BAR_HEIGHT: "36px",
 };
 
 export const textSize = {
