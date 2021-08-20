@@ -2,6 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import { makeStyles } from "@fluentui/react";
 import ConsoleLineIcon from "@mdi/svg/svg/console-line.svg";
 
 import Icon from "@foxglove/studio-base/components/Icon";
@@ -10,7 +11,22 @@ import { PanelConfig } from "@foxglove/studio-base/types/panels";
 import HighlightedValue from "./HighlightedValue";
 import RawMessagesIcons from "./RawMessagesIcons";
 import { ValueAction } from "./getValueActionForValue";
-import styles from "./index.module.scss";
+
+const useStyles = makeStyles({
+  iconBox: {
+    display: "inline-block",
+    whiteSpace: "nowrap",
+    width: 0,
+    height: 0,
+    position: "relative",
+    left: 6,
+  },
+  icon: {
+    "& > svg": {
+      verticalAlign: "top",
+    },
+  },
+});
 
 export default function Value({
   arrLabel,
@@ -29,6 +45,7 @@ export default function Value({
   onTopicPathChange: (arg0: string) => void;
   openSiblingPanel: (type: string, cb: (config: PanelConfig) => PanelConfig) => void;
 }): JSX.Element {
+  const classes = useStyles();
   return (
     <span>
       <HighlightedValue itemLabel={itemLabel} />
@@ -37,7 +54,7 @@ export default function Value({
           {arrLabel}
           <Icon
             fade
-            className={styles.icon ?? ""}
+            className={classes.icon}
             // eslint-disable-next-line no-restricted-syntax
             onClick={() => console.log(itemValue)}
             tooltip="Log data to browser console"
@@ -46,7 +63,7 @@ export default function Value({
           </Icon>
         </>
       )}
-      <span className={styles.iconBox ?? ""}>
+      <span className={classes.iconBox}>
         {valueAction != undefined ? (
           <RawMessagesIcons
             valueAction={valueAction}

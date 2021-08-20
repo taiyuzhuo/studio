@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { makeStyles } from "@fluentui/react";
 import CheckboxBlankOutlineIcon from "@mdi/svg/svg/checkbox-blank-outline.svg";
 import CheckboxMarkedIcon from "@mdi/svg/svg/checkbox-marked.svg";
 import PlusMinusIcon from "@mdi/svg/svg/plus-minus.svg";
@@ -55,6 +56,7 @@ import getDiff, {
 import { Topic } from "@foxglove/studio-base/players/types";
 import { jsonTreeTheme, SECOND_SOURCE_PREFIX } from "@foxglove/studio-base/util/globalConstants";
 import { enumValuesByDatatypeAndField } from "@foxglove/studio-base/util/selectors";
+import { fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import DiffSpan from "./DiffSpan";
 import MaybeCollapsedValue from "./MaybeCollapsedValue";
@@ -66,12 +68,12 @@ import {
   getStructureItemForPath,
 } from "./getValueActionForValue";
 import helpContent from "./index.help.md";
-import styles from "./index.module.scss";
 import { DATA_ARRAY_PREVIEW_LIMIT, getItemStringForDiff } from "./utils";
 
 export const CUSTOM_METHOD = "custom";
 export const PREV_MSG_METHOD = "previous message";
 export const OTHER_SOURCE_METHOD = "other source";
+
 export type RawMessagesConfig = {
   topicPath: string;
   diffMethod: "custom" | "previous message" | "other source";
@@ -84,6 +86,29 @@ type Props = {
   config: RawMessagesConfig;
   saveConfig: (arg0: Partial<RawMessagesConfig>) => void;
 };
+
+const useStyles = makeStyles({
+  topicInputs: {
+    width: "100%",
+    lineHeight: "20px",
+  },
+  container: {
+    // match the padding with the default padding used in react-json-tree
+    paddingLeft: "0.5em",
+    fontFamily: fonts.SANS_SERIF,
+    fontFeatureSettings: "tnum",
+  },
+  iconWrapper: {
+    display: "inline",
+    paddingRight: "40px", // To make it so the icons appear when you move the mouse somewhat close
+  },
+  singleVal: {
+    fontSize: "2.5em",
+    wordWrap: "break-word",
+    fontWeight: "bold",
+    whiteSpace: "pre-line",
+  },
+});
 
 const isSingleElemArray = (obj: unknown): obj is unknown[] => {
   if (!Array.isArray(obj)) {
@@ -105,6 +130,7 @@ function maybeDeepParse(val: unknown) {
 }
 
 function RawMessages(props: Props) {
+  const classes = useStyles();
   const { config, saveConfig } = props;
   const { openSiblingPanel } = usePanelContext();
   const { topicPath, diffMethod, diffTopicPath, diffEnabled, showFullMessageForDiff } = config;
@@ -258,7 +284,7 @@ function RawMessages(props: Props) {
       itemValue: unknown,
       ...keyPath: (number | string)[]
     ) => (
-      <ReactHoverObserver className={styles.iconWrapper ?? ""}>
+      <ReactHoverObserver className={classes.iconWrapper}>
         {({ isHovering }: { isHovering: boolean }) => {
           const lastKeyPath = last(keyPath) as number;
           let valueAction: ValueAction | undefined;
@@ -301,7 +327,7 @@ function RawMessages(props: Props) {
         }}
       </ReactHoverObserver>
     ),
-    [datatypes, getValueLabels, onTopicPathChange, openSiblingPanel],
+    [classes.iconWrapper, datatypes, getValueLabels, onTopicPathChange, openSiblingPanel],
   );
 
   const renderSingleTopicOrDiffOutput = useCallback(() => {
@@ -354,7 +380,7 @@ function RawMessages(props: Props) {
       : CheckboxBlankOutlineIcon;
 
     return (
-      <Flex col clip scroll className={styles.container ?? ""}>
+      <Flex col clip scroll className={classes.container}>
         <Metadata
           data={data}
           diffData={diffData}
@@ -364,7 +390,7 @@ function RawMessages(props: Props) {
           {...(diffItem ? { diffMessage: diffItem.message } : undefined)}
         />
         {shouldDisplaySingleVal ? (
-          <div className={styles.singleVal ?? ""}>
+          <div className={classes.singleVal}>
             <MaybeCollapsedValue itemLabel={String(singleVal)} />
           </div>
         ) : diffEnabled && isEqual({}, diff) ? (
@@ -505,23 +531,25 @@ function RawMessages(props: Props) {
       </Flex>
     );
   }, [
-    baseItem,
-    diffEnabled,
-    diffItem,
-    diffMethod,
-    diffTopicPath,
     expandAll,
-    expandedFields,
-    onLabelClick,
-    otherSourceTopic,
-    rootStructureItem,
-    saveConfig,
-    showFullMessageForDiff,
-    topic,
     topicPath,
-    valueRenderer,
-    renderDiffLabel,
+    diffEnabled,
+    diffMethod,
+    baseItem,
+    diffItem,
+    showFullMessageForDiff,
+    classes.container,
+    classes.singleVal,
+    topic,
     getItemString,
+    expandedFields,
+    diffTopicPath,
+    otherSourceTopic,
+    saveConfig,
+    onLabelClick,
+    valueRenderer,
+    rootStructureItem,
+    renderDiffLabel,
   ]);
 
   return (
@@ -539,7 +567,7 @@ function RawMessages(props: Props) {
         >
           {expandAll ?? false ? <LessIcon /> : <MoreIcon />}
         </Icon>
-        <div className={styles.topicInputs ?? ""}>
+        <div className={classes.topicInputs}>
           <MessagePathInput
             index={0}
             path={topicPath}
