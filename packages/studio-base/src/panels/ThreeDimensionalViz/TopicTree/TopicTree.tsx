@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { makeStyles } from "@fluentui/react";
 import ArrowLeftIcon from "@mdi/svg/svg/arrow-left.svg";
 import ArrowRightIcon from "@mdi/svg/svg/arrow-right.svg";
 import ChevronDownIcon from "@mdi/svg/svg/chevron-down.svg";
@@ -44,7 +45,6 @@ import TopicViewModeSelector from "./TopicViewModeSelector";
 import { ROW_HEIGHT, TREE_SPACING } from "./constants";
 import NoMatchesSvg from "./noMatches.svg";
 import renderTreeNodes, { SWITCHER_WIDTH } from "./renderTreeNodes";
-import topicTreeTransition from "./topicTreeTransition.module.scss";
 import {
   DerivedCustomSettingsByKey,
   GetIsNamespaceCheckedByDefault,
@@ -465,6 +465,23 @@ function TopicTree({
   );
 }
 
+const useStyles = makeStyles({
+  enter: {
+    opacity: "0",
+    transform: "translateX(-20px)",
+    pointerEvents: "none",
+  },
+  exitActive: {
+    opacity: "0",
+    transform: "translateX(-20px)",
+    pointerEvents: "none",
+  },
+  enterActive: {
+    opacity: "1",
+    transform: "none",
+  },
+});
+
 // A wrapper that can be resized horizontally, and it dynamically calculates the width of the base topic tree component.
 function TopicTreeWrapper({
   containerWidth,
@@ -476,6 +493,7 @@ function TopicTreeWrapper({
   setShowTopicTree,
   ...rest
 }: Props) {
+  const classes = useStyles();
   const defaultTreeWidth = clamp(containerWidth, DEFAULT_XS_WIDTH, DEFAULT_WIDTH);
   const renderTopicTree = pinTopics || showTopicTree;
 
@@ -509,7 +527,7 @@ function TopicTreeWrapper({
         <CSSTransition
           timeout={150}
           in={renderTopicTree}
-          classNames={{ ...topicTreeTransition }}
+          classNames={classes}
           mountOnEnter
           unmountOnExit
         >
