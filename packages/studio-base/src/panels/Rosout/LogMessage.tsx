@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import cx from "classnames";
 import { padStart } from "lodash";
 
@@ -35,7 +35,7 @@ function Stamp(props: { stamp: Time }) {
   );
 }
 
-const useStyles = makeStyles({
+export const logMessageStyles = mergeStyleSets({
   root: {
     textIndent: "-20px",
     paddingLeft: "20px",
@@ -62,7 +62,6 @@ const useStyles = makeStyles({
 });
 
 export default React.memo(function LogMessage({ msg }: { msg: RosgraphMsgs$Log }) {
-  const classes = useStyles();
   const altStr = `${msg.file}:${msg.line}`;
   const strLevel = LevelToString(msg.level);
   const stamp = msg.header?.stamp ?? msg.stamp ?? { sec: 0, nsec: 0 };
@@ -74,12 +73,12 @@ export default React.memo(function LogMessage({ msg }: { msg: RosgraphMsgs$Log }
   return (
     <div
       title={altStr}
-      className={cx(classes.root, {
-        [classes.fatal]: strLevel.toLocaleLowerCase() === "fatal",
-        [classes.error]: strLevel.toLocaleLowerCase() === "error",
-        [classes.warn]: strLevel.toLocaleLowerCase() === "warn",
-        [classes.info]: strLevel.toLocaleLowerCase() === "info",
-        [classes.debug]: strLevel.toLocaleLowerCase() === "debug",
+      className={cx(logMessageStyles.root, {
+        [logMessageStyles.fatal]: strLevel.toLocaleLowerCase() === "fatal",
+        [logMessageStyles.error]: strLevel.toLocaleLowerCase() === "error",
+        [logMessageStyles.warn]: strLevel.toLocaleLowerCase() === "warn",
+        [logMessageStyles.info]: strLevel.toLocaleLowerCase() === "info",
+        [logMessageStyles.debug]: strLevel.toLocaleLowerCase() === "debug",
       })}
     >
       <div>

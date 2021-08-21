@@ -18,15 +18,17 @@ import {
   Stack,
   ISelectableOption,
   useTheme,
+  mergeStyleSets,
 } from "@fluentui/react";
 import ClipboardOutlineIcon from "@mdi/svg/svg/clipboard-outline.svg";
+import cx from "classnames";
 
 import Icon from "@foxglove/studio-base/components/Icon";
 import { MessageEvent } from "@foxglove/studio-base/players/types";
 import clipboard from "@foxglove/studio-base/util/clipboard";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import LevelToString, { KNOWN_LOG_LEVELS } from "./LevelToString";
-import logStyle from "./LogLevelColors.module.scss";
 import { RosgraphMsgs$Log } from "./types";
 
 // Create the log level options nodes once since they don't change per render.
@@ -49,14 +51,41 @@ export type FilterBarProps = {
   onFilterChange: (filter: Filter) => void;
 };
 
+export const logMessageStyles = mergeStyleSets({
+  fatal: {
+    color: colors.RED2,
+    fontWeight: "bold",
+  },
+  error: {
+    color: colors.RED2,
+  },
+  warn: {
+    color: colors.ORANGE2,
+  },
+  info: {
+    color: colors.GRAY3,
+  },
+  debug: {
+    color: colors.GRAY,
+  },
+});
+
 // custom renderer for item in dropdown list to color text
 function renderOption(option: ISelectableOption | undefined) {
   if (!option) {
     return ReactNull;
   }
-  const className = logStyle[LevelToString(option.key as number).toLowerCase()];
   return (
-    <div key={option.key} className={className}>
+    <div
+      key={option.key}
+      className={cx({
+        [logMessageStyles.fatal]: LevelToString(option.key as number).toLowerCase() === "fatal",
+        [logMessageStyles.error]: LevelToString(option.key as number).toLowerCase() === "error",
+        [logMessageStyles.warn]: LevelToString(option.key as number).toLowerCase() === "warn",
+        [logMessageStyles.info]: LevelToString(option.key as number).toLowerCase() === "info",
+        [logMessageStyles.debug]: LevelToString(option.key as number).toLowerCase() === "debug",
+      })}
+    >
       {option.text}
     </div>
   );
