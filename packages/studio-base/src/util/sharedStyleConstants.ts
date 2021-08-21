@@ -120,6 +120,8 @@ export const spacing = {
   CONTROL_MARGIN: "0 0.2em",
   TEXT_SIZE: "12px",
   TOP_BAR_HEIGHT: "36px",
+  PANEL_TOOLBAR_HEIGHT: "26px",
+  PANEL_TOOLBAR_SPACING: "4px",
 };
 
 export const textSize = {

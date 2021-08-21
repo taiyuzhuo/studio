@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { makeStyles } from "@fluentui/react";
 import CheckIcon from "@mdi/svg/svg/check.svg";
 import CloseIcon from "@mdi/svg/svg/close.svg";
 import cx from "classnames";
@@ -22,9 +23,7 @@ import Icon from "@foxglove/studio-base/components/Icon";
 import { LegacyInput } from "@foxglove/studio-base/components/LegacyStyledComponents";
 import Tooltip from "@foxglove/studio-base/components/Tooltip";
 import { TabActions } from "@foxglove/studio-base/panels/Tab/TabDndContext";
-import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
-
-import styles from "./Tab.module.scss";
+import { colors, fonts, rounded, spacing } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 const MAX_TAB_WIDTH = 100;
 const MIN_ACTIVE_TAB_WIDTH = 40;
@@ -68,6 +67,39 @@ const SInput = styled(LegacyInput)<{ editable: boolean }>(({ editable }) => ({
 }));
 const clearBgStyle = { backgroundColor: "transparent", padding: 0 };
 
+const useStyles = makeStyles({
+  tab: {
+    position: "relative",
+    borderTopLeftRadius: rounded.NORMAL,
+    borderTopRightRadius: rounded.NORMAL,
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
+    height: spacing.PANEL_TOOLBAR_HEIGHT,
+    padding: "0 6px",
+    userSelect: "none",
+    border: "1px solid transparent",
+    borderColor: "red",
+    // Shift the tab down so it's flush with the bottom of the PanelToolbar
+    top: spacing.PANEL_TOOLBAR_SPACING,
+    marginTop: `-${spacing.PANEL_TOOLBAR_SPACING}`,
+
+    "&:not(.active) + &:not(.active)::before": {
+      // Use a before to add a separator line that doesn't span the full height of the tab
+      borderLeft: "1px solid rgb(45, 45, 51)",
+      content: '""',
+      height: 16,
+      left: 0,
+      position: "absolute", // within .draggableTab
+      top: 4,
+      zIndex: 1,
+    },
+  },
+  active: {
+    userSelect: "all",
+  },
+});
+
 type Props = {
   hidden: boolean;
   highlight: boolean;
@@ -81,6 +113,7 @@ type Props = {
 };
 
 export function ToolbarTab(props: Props): JSX.Element {
+  const classes = useStyles();
   const {
     tabIndex,
     isActive,
@@ -181,7 +214,7 @@ export function ToolbarTab(props: Props): JSX.Element {
       value={tabTitle}
       onClick={onClickTab}
       ref={innerRef}
-      className={cx(styles.tab, { [styles.active!]: isActive })}
+      className={cx(classes.tab, { active: isActive })}
     >
       <Tooltip contents={editingTitle ? "" : tooltip} placement="top">
         {/* This div has to be here because the <ToolTip> overwrites the ref of its child*/}
