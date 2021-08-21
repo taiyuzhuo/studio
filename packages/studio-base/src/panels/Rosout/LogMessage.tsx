@@ -11,14 +11,14 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { mergeStyleSets } from "@fluentui/react";
+import { makeStyles } from "@fluentui/react";
+import cx from "classnames";
 import { padStart } from "lodash";
 
 import { Time } from "@foxglove/rostime";
-import { fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
+import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import LevelToString from "./LevelToString";
-import logLevelColorsStyle from "./LogLevelColors.module.scss";
 import { RosgraphMsgs$Log } from "./types";
 
 // pad the start of `val` with 0's to make the total string length `count` size
@@ -35,7 +35,7 @@ function Stamp(props: { stamp: Time }) {
   );
 }
 
-const classes = mergeStyleSets({
+const useStyles = makeStyles({
   root: {
     textIndent: "-20px",
     paddingLeft: "20px",
@@ -43,12 +43,28 @@ const classes = mergeStyleSets({
     lineHeight: "1.2",
     fontFamily: fonts.MONOSPACE,
   },
+  fatal: {
+    color: colors.RED2,
+    fontWeight: "bold",
+  },
+  error: {
+    color: colors.RED2,
+  },
+  warn: {
+    color: colors.ORANGE2,
+  },
+  info: {
+    color: colors.GRAY3,
+  },
+  debug: {
+    color: colors.GRAY,
+  },
 });
 
 export default React.memo(function LogMessage({ msg }: { msg: RosgraphMsgs$Log }) {
+  const classes = useStyles();
   const altStr = `${msg.file}:${msg.line}`;
   const strLevel = LevelToString(msg.level);
-  const levelClassName = logLevelColorsStyle[strLevel.toLocaleLowerCase()];
   const stamp = msg.header?.stamp ?? msg.stamp ?? { sec: 0, nsec: 0 };
 
   // the first message line is rendered with the info/stamp/name
@@ -56,7 +72,16 @@ export default React.memo(function LogMessage({ msg }: { msg: RosgraphMsgs$Log }
   const lines = msg.msg.split("\n");
 
   return (
-    <div title={altStr} className={`${classes.root} ${levelClassName}`}>
+    <div
+      title={altStr}
+      className={cx(classes.root, {
+        [classes.fatal]: strLevel.toLocaleLowerCase() === "fatal",
+        [classes.error]: strLevel.toLocaleLowerCase() === "error",
+        [classes.warn]: strLevel.toLocaleLowerCase() === "warn",
+        [classes.info]: strLevel.toLocaleLowerCase() === "info",
+        [classes.debug]: strLevel.toLocaleLowerCase() === "debug",
+      })}
+    >
       <div>
         <span>[{padStart(strLevel, 5, " ")}]</span>
         <span>

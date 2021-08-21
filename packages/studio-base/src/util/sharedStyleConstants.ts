@@ -31,6 +31,7 @@ const robotStylesColors = {
 
   GRAY: "#9f9fa2",
   GRAY2: "#2d2c33",
+  GRAY3: "#586e75",
 
   MAGENTAL1: "#e05ffa",
   MAGENTA: "#c83deb",
