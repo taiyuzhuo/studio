@@ -10,7 +10,7 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import ChartBubbleIcon from "@mdi/svg/svg/chart-bubble.svg";
 import ChartLineVariantIcon from "@mdi/svg/svg/chart-line-variant.svg";
 import DotsHorizontalIcon from "@mdi/svg/svg/dots-horizontal.svg";
@@ -34,7 +34,7 @@ type Props = {
   openSiblingPanel: (type: string, cb: (config: PanelConfig) => PanelConfig) => void;
 };
 
-const useStyles = makeStyles({
+const classes = mergeStyleSets({
   icon: {
     "& > svg": {
       verticalAlign: "top",
@@ -48,7 +48,6 @@ export default function RawMessagesIcons({
   onTopicPathChange,
   openSiblingPanel,
 }: Props): ReactElement {
-  const classes = useStyles();
   const { singleSlicePath, multiSlicePath, primitiveType, filterPath } = valueAction;
 
   const openPlotPanel = useCallback(

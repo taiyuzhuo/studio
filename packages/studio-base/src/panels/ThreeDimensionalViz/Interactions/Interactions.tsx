@@ -25,9 +25,9 @@ import ObjectDetails from "@foxglove/studio-base/panels/ThreeDimensionalViz/Inte
 import TopicLink from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/TopicLink";
 import { SelectedObject } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/types";
 import { decodeAdditionalFields } from "@foxglove/studio-base/panels/ThreeDimensionalViz/commands/PointClouds/selection";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 import { getInteractionData } from "@foxglove/studio-base/panels/ThreeDimensionalViz/threeDimensionalVizUtils";
 import { ThreeDimensionalVizConfig } from "@foxglove/studio-base/panels/ThreeDimensionalViz/types";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
 import { PointCloud2 } from "@foxglove/studio-base/types/Messages";
 import { SaveConfig, PanelConfig } from "@foxglove/studio-base/types/panels";
 
@@ -58,7 +58,6 @@ const InteractionsBaseComponent = React.memo<PropsWithConfig>(function Interacti
   disableAutoOpenClickedObject,
   saveConfig,
 }: PropsWithConfig) {
-  const classes = useLayoutStyles();
   const { object } = selectedObject ?? {};
   const isPointCloud = object ? (object as unknown as { type: number }).type === 102 : false;
   const maybeFullyDecodedObject = React.useMemo(
@@ -80,7 +79,7 @@ const InteractionsBaseComponent = React.memo<PropsWithConfig>(function Interacti
           <CursorDefault />
         </Icon>
       }
-      className={classes.buttons}
+      className={layoutStyles.buttons}
       selectedTab={interactionsTabType}
       onSelectTab={(newSelectedTab) => setInteractionsTabType(newSelectedTab)}
     >

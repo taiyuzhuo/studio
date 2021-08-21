@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import ArrowLeftIcon from "@mdi/svg/svg/arrow-left.svg";
 import ArrowRightIcon from "@mdi/svg/svg/arrow-right.svg";
 import ChevronDownIcon from "@mdi/svg/svg/chevron-down.svg";
@@ -465,7 +465,7 @@ function TopicTree({
   );
 }
 
-const useStyles = makeStyles({
+const classes = mergeStyleSets({
   enter: {
     opacity: "0",
     transform: "translateX(-20px)",
@@ -493,7 +493,6 @@ function TopicTreeWrapper({
   setShowTopicTree,
   ...rest
 }: Props) {
-  const classes = useStyles();
   const defaultTreeWidth = clamp(containerWidth, DEFAULT_XS_WIDTH, DEFAULT_WIDTH);
   const renderTopicTree = pinTopics || showTopicTree;
 

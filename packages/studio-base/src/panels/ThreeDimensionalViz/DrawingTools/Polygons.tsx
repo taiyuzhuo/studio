@@ -20,7 +20,7 @@ import {
   SValue,
   SLabel,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/styling";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 import {
   polygonsToPoints,
   getFormattedString,
@@ -44,7 +44,6 @@ type Props = {
 };
 
 export default function Polygons({ onSetPolygons, polygonBuilder }: Props): JSX.Element {
-  const classes = useLayoutStyles();
   const polygons: Polygon[] = polygonBuilder.polygons;
   const [polygonPoints, setPolygonPoints] = React.useState<Point2D[][]>(() =>
     polygonsToPoints(polygons),
@@ -67,7 +66,7 @@ export default function Polygons({ onSetPolygons, polygonBuilder }: Props): JSX.
         dataValidator={polygonPointsValidator}
       >
         <Button
-          className={classes.button}
+          className={layoutStyles.button}
           small
           tooltip="Copy Polygons"
           onClick={() => {

@@ -2,13 +2,13 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 const spacing = 15;
 
-export default makeStyles({
+export default mergeStyleSets({
   // container for the entire panel
   container: {
     display: "flex",
@@ -104,7 +104,6 @@ export default makeStyles({
     width: 0,
     minWidth: "100%",
   },
-
   cartographer: {
     padding: 0,
 

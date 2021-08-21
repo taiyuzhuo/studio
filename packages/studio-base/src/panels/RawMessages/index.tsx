@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import CheckboxBlankOutlineIcon from "@mdi/svg/svg/checkbox-blank-outline.svg";
 import CheckboxMarkedIcon from "@mdi/svg/svg/checkbox-marked.svg";
 import PlusMinusIcon from "@mdi/svg/svg/plus-minus.svg";
@@ -87,7 +87,7 @@ type Props = {
   saveConfig: (arg0: Partial<RawMessagesConfig>) => void;
 };
 
-const useStyles = makeStyles({
+const classes = mergeStyleSets({
   topicInputs: {
     width: "100%",
     lineHeight: "20px",
@@ -130,7 +130,6 @@ function maybeDeepParse(val: unknown) {
 }
 
 function RawMessages(props: Props) {
-  const classes = useStyles();
   const { config, saveConfig } = props;
   const { openSiblingPanel } = usePanelContext();
   const { topicPath, diffMethod, diffTopicPath, diffEnabled, showFullMessageForDiff } = config;
@@ -327,7 +326,7 @@ function RawMessages(props: Props) {
         }}
       </ReactHoverObserver>
     ),
-    [classes.iconWrapper, datatypes, getValueLabels, onTopicPathChange, openSiblingPanel],
+    [datatypes, getValueLabels, onTopicPathChange, openSiblingPanel],
   );
 
   const renderSingleTopicOrDiffOutput = useCallback(() => {
@@ -538,8 +537,6 @@ function RawMessages(props: Props) {
     baseItem,
     diffItem,
     showFullMessageForDiff,
-    classes.container,
-    classes.singleVal,
     topic,
     getItemString,
     expandedFields,

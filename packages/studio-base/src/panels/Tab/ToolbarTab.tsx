@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import CheckIcon from "@mdi/svg/svg/check.svg";
 import CloseIcon from "@mdi/svg/svg/close.svg";
 import cx from "classnames";
@@ -67,7 +67,7 @@ const SInput = styled(LegacyInput)<{ editable: boolean }>(({ editable }) => ({
 }));
 const clearBgStyle = { backgroundColor: "transparent", padding: 0 };
 
-const useStyles = makeStyles({
+const classes = mergeStyleSets({
   tab: {
     position: "relative",
     borderTopLeftRadius: rounded.NORMAL,
@@ -113,7 +113,6 @@ type Props = {
 };
 
 export function ToolbarTab(props: Props): JSX.Element {
-  const classes = useStyles();
   const {
     tabIndex,
     isActive,

@@ -11,11 +11,11 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import cx from "classnames";
 import { CSSProperties, MouseEventHandler } from "react";
 
-const useStyles = makeStyles({
+const styles = mergeStyleSets({
   flex: {
     display: "flex",
     flexDirection: "row",
@@ -96,7 +96,6 @@ type Props = {
 };
 
 const Flex = React.forwardRef((props: Props, ref: React.ForwardedRef<HTMLDivElement>) => {
-  const styles = useStyles();
   const {
     style,
     className,

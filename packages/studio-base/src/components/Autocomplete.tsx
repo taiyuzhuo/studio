@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { mergeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import cx from "classnames";
 import { maxBy } from "lodash";
 import React, { CSSProperties, PureComponent, RefObject } from "react";
@@ -36,8 +36,8 @@ function measureText(text: string): number {
 
 const ROW_HEIGHT = 24;
 
-const styles = {
-  root: mergeStyles({
+const styles = mergeStyleSets({
+  root: {
     borderRadius: 3,
     borderTopLeftRadius: 0,
     boxShadow: "0 2px 12px rgba(0, 0, 0, 0.1)",
@@ -46,8 +46,8 @@ const styles = {
     background: colors.DARK3,
     zIndex: 1,
     marginLeft: -6,
-  }),
-  input: mergeStyles({
+  },
+  input: {
     background: "transparent !important",
     borderRadius: 0,
     border: "none",
@@ -70,28 +70,28 @@ const styles = {
     "&::placeholder": {
       color: colors.TEXT_MUTED,
     },
-  }),
-  inputPlaceholder: mergeStyles({
+  },
+  inputPlaceholder: {
     color: colors.TEXT_MUTED,
-  }),
-  inputError: mergeStyles({
+  },
+  inputError: {
     color: colors.RED2,
-  }),
-  autocompleteItem: mergeStyles({
+  },
+  autocompleteItem: {
     padding: 6,
     cursor: "pointer",
     minHeight: ROW_HEIGHT,
     lineHeight: ROW_HEIGHT - 10,
     overflowWrap: "break-word",
     color: colors.TEXT_NORMAL,
-  }),
-  selected: mergeStyles({
+  },
+  selected: {
     backgroundColor: colors.DARK5,
-  }),
-  highlighted: mergeStyles({
+  },
+  highlighted: {
     backgroundColor: colors.DARK4,
-  }),
-};
+  },
+});
 
 // <Autocomplete> is a Studio-specific autocomplete with support for things like multiple
 // autocompletes that seamlessly transition into each other, e.g. when building more complex

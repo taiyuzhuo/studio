@@ -16,7 +16,7 @@ import { PolygonBuilder, Polygon } from "regl-worldview";
 import { useAppConfigurationValue, AppSetting } from "@foxglove/studio-base";
 import ExpandingToolbar, { ToolGroup } from "@foxglove/studio-base/components/ExpandingToolbar";
 import Icon from "@foxglove/studio-base/components/Icon";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import Polygons from "./Polygons";
@@ -40,7 +40,6 @@ function DrawingTools({
   polygonBuilder,
   showForTests,
 }: Props) {
-  const classes = useLayoutStyles();
   const [selectedTab, setSelectedTab] = React.useState<DrawingTabType | undefined>(
     defaultSelectedTab,
   );
@@ -57,7 +56,7 @@ function DrawingTools({
           <PencilIcon />
         </Icon>
       }
-      className={classes.buttons}
+      className={layoutStyles.buttons}
       selectedTab={selectedTab}
       onSelectTab={(newSelectedTab) => {
         onSetDrawingTabType(newSelectedTab);

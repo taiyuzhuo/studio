@@ -20,7 +20,7 @@ import Icon from "@foxglove/studio-base/components/Icon";
 import MeasuringTool, {
   MeasureInfo,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/DrawingTools/MeasuringTool";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 type Props = {
@@ -40,12 +40,15 @@ function MainToolbar({
   onToggleDebug,
   perspective = false,
 }: Props) {
-  const classes = useLayoutStyles();
   const cameraModeTip = perspective ? "Switch to 2D camera" : "Switch to 3D camera";
   const measureActive = measureState === "place-start" || measureState === "place-finish";
   return (
-    <div className={classes.buttons}>
-      <Button className={classes.iconButton} tooltip={cameraModeTip} onClick={onToggleCameraMode}>
+    <div className={layoutStyles.buttons}>
+      <Button
+        className={layoutStyles.iconButton}
+        tooltip={cameraModeTip}
+        onClick={onToggleCameraMode}
+      >
         <Icon
           style={{ color: perspective ? colors.ACCENT : "white" }}
           dataTest={`MainToolbar-toggleCameraMode`}
@@ -54,7 +57,7 @@ function MainToolbar({
         </Icon>
       </Button>
       <Button
-        className={classes.iconButton}
+        className={layoutStyles.iconButton}
         disabled={perspective}
         tooltip={
           perspective
@@ -74,7 +77,7 @@ function MainToolbar({
         </Icon>
       </Button>
       {process.env.NODE_ENV === "development" && (
-        <Button className={classes.iconButton} tooltip="Debug" onClick={onToggleDebug}>
+        <Button className={layoutStyles.iconButton} tooltip="Debug" onClick={onToggleDebug}>
           <Icon style={{ color: debug ? colors.ACCENT : "white" }}>
             <BugIcon />
           </Icon>

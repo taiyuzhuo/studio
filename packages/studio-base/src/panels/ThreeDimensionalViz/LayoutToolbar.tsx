@@ -30,7 +30,7 @@ import SearchText, {
   SearchTextProps,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/SearchText";
 import { LayoutToolbarSharedProps } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/Layout";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 
 type Props = LayoutToolbarSharedProps &
   SearchTextProps & {
@@ -86,7 +86,6 @@ function LayoutToolbar({
   toggleSearchTextOpen,
   transforms,
 }: Props) {
-  const classes = useLayoutStyles();
   return (
     <>
       <MeasuringTool
@@ -95,8 +94,8 @@ function LayoutToolbar({
         measurePoints={measureInfo.measurePoints}
         onMeasureInfoChange={setMeasureInfo}
       />
-      <div className={classes.toolbar}>
-        <div className={classes.buttons}>
+      <div className={layoutStyles.toolbar}>
+        <div className={layoutStyles.buttons}>
           <SearchText
             searchTextOpen={searchTextOpen}
             toggleSearchTextOpen={toggleSearchTextOpen}
@@ -113,7 +112,7 @@ function LayoutToolbar({
             rootTf={rootTf}
           />
         </div>
-        <div className={classes.buttons}>
+        <div className={layoutStyles.buttons}>
           <FollowTFControl
             transforms={transforms}
             tfToFollow={typeof followTf === "string" && followTf.length > 0 ? followTf : undefined}

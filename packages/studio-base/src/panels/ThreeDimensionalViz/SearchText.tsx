@@ -26,7 +26,7 @@ import { LegacyInput } from "@foxglove/studio-base/components/LegacyStyledCompon
 import useDeepChangeDetector from "@foxglove/studio-base/hooks/useDeepChangeDetector";
 import { Interactive } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/types";
 import Transforms from "@foxglove/studio-base/panels/ThreeDimensionalViz/Transforms";
-import useLayoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/useLayoutStyles";
+import layoutStyles from "@foxglove/studio-base/panels/ThreeDimensionalViz/layoutStyles";
 import { TextMarker, Color } from "@foxglove/studio-base/types/Messages";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
@@ -228,7 +228,6 @@ const SearchText = React.memo<SearchTextComponentProps>(function SearchText({
   transforms,
   rootTf,
 }: SearchTextComponentProps) {
-  const classes = useLayoutStyles();
   const currentMatch = searchTextMatches[selectedMatchIndex];
   const iterateCurrentIndex = useCallback(
     (iterator: number) => {
@@ -261,7 +260,10 @@ const SearchText = React.memo<SearchTextComponentProps>(function SearchText({
 
   if (!searchTextOpen) {
     return (
-      <Button className={classes.iconButton} onClick={() => toggleSearchTextOpen(!searchTextOpen)}>
+      <Button
+        className={layoutStyles.iconButton}
+        onClick={() => toggleSearchTextOpen(!searchTextOpen)}
+      >
         <Icon tooltip="search text markers">
           <SearchIcon />
         </Icon>

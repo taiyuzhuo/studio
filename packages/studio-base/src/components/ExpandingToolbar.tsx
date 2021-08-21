@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { makeStyles } from "@fluentui/react";
+import { mergeStyleSets } from "@fluentui/react";
 import ArrowCollapseIcon from "@mdi/svg/svg/arrow-collapse.svg";
 import cx from "classnames";
 import { ReactElement } from "react";
@@ -31,7 +31,7 @@ export const SToolGroupFixedSizePane = styled.div`
   padding: 8px 0;
 `;
 
-const useStyles = makeStyles({
+const styles = mergeStyleSets({
   expandButton: {
     backgroundColor: "transparent !important",
     border: "none !important",
@@ -104,8 +104,6 @@ export default function ExpandingToolbar<T extends string>({
   style,
   dataTest,
 }: Props<T>): JSX.Element {
-  const classes = useStyles();
-
   const expanded = selectedTab != undefined;
   if (!expanded) {
     let selectedTabLocal: T | undefined = selectedTab;
@@ -118,7 +116,7 @@ export default function ExpandingToolbar<T extends string>({
     return (
       <div data-test={dataTest} className={className}>
         <Button
-          className={classes.iconButton}
+          className={styles.iconButton}
           tooltip={tooltip}
           onClick={() => onSelectTab(selectedTabLocal)}
         >
@@ -135,12 +133,12 @@ export default function ExpandingToolbar<T extends string>({
   });
   return (
     <div data-test={dataTest} className={className}>
-      <Flex row className={classes.tabBar}>
+      <Flex row className={styles.tabBar}>
         <Flex row>
           {React.Children.map(children, (child) => {
             return (
               <Button
-                className={cx(classes.tab, { [classes.tabSelected]: child === selectedChild })}
+                className={cx(styles.tab, { [styles.tabSelected]: child === selectedChild })}
                 onClick={() => onSelectTab(child.props.name as T)}
               >
                 {child.props.name}
@@ -148,13 +146,13 @@ export default function ExpandingToolbar<T extends string>({
             );
           })}
         </Flex>
-        <Button className={classes.expandButton} onClick={() => onSelectTab(undefined)}>
+        <Button className={styles.expandButton} onClick={() => onSelectTab(undefined)}>
           <Icon>
             <ArrowCollapseIcon />
           </Icon>
         </Button>
       </Flex>
-      <div className={classes.tabBody} style={style}>
+      <div className={styles.tabBody} style={style}>
         {selectedChild}
       </div>
     </div>
