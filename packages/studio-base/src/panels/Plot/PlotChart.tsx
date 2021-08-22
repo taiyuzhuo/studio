@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyles } from "@fluentui/react";
 import { ScaleOptions } from "chart.js";
 import { AnnotationOptions } from "chartjs-plugin-annotation";
 import { ComponentProps, memo, useMemo } from "react";
@@ -24,9 +25,14 @@ import TimeBasedChart, {
 import filterMap from "@foxglove/studio-base/util/filterMap";
 import { lineColors } from "@foxglove/studio-base/util/plotColors";
 
-import styles from "./PlotChart.module.scss";
 import { PlotXAxisVal } from "./index";
 import { PlotPath, isReferenceLinePlotPathType } from "./internalTypes";
+
+const styles = mergeStyles({
+  width: "100%",
+  flexGrow: "1",
+  overflow: "hidden",
+});
 
 // A "reference line" plot path is a numeric value. It creates a horizontal line on the plot at the specified value.
 function getAnnotationFromReferenceLine(path: PlotPath, index: number): AnnotationOptions {
@@ -103,7 +109,7 @@ export default memo<PlotChartProps>(function PlotChart(props: PlotChartProps) {
   }, [datasets]);
 
   return (
-    <div className={styles.root} ref={sizeRef}>
+    <div className={styles} ref={sizeRef}>
       <TimeBasedChart
         key={xAxisVal}
         isSynced
