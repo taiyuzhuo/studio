@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { ContextualMenu } from "@fluentui/react";
+import { ContextualMenu, mergeStyleSets } from "@fluentui/react";
 import MagnifyIcon from "@mdi/svg/svg/magnify.svg";
 import cx from "classnames";
 import {
@@ -39,10 +39,65 @@ import { downloadFiles } from "@foxglove/studio-base/util/download";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { getTimestampForMessage } from "@foxglove/studio-base/util/time";
 
-import styles from "./ImageCanvas.module.scss";
 import { Config, SaveImagePanelConfig } from "./index";
 import { renderImage } from "./renderImage";
 import { Dimensions, RawMarkerData, RenderOptions } from "./util";
+
+const styles = mergeStyleSets({
+  root: {
+    overflow: "hidden",
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  magnify: {
+    position: "absolute !important",
+    bottom: 5,
+    left: 0,
+    zIndex: 102,
+    opacity: 1,
+    backgroundColor: `${colors.DARK3} !important`,
+
+    svg: {
+      width: 16,
+      height: 16,
+      fill: "white",
+      float: "left",
+    },
+    span: {
+      color: colors.ORANGE,
+      float: "right",
+      paddingLeft: 3,
+    },
+  },
+  zoomContextMenu: {
+    position: "absolute",
+    bottom: 45,
+    left: 0,
+    zIndex: 102,
+    opacity: 1,
+    backgroundColor: colors.DARK3,
+    width: 145,
+    borderRadius: "4%",
+  },
+  round: {
+    margin: 0,
+    padding: "1px 5px 1px 5px",
+    borderRadius: "100%",
+  },
+  borderBottom: {
+    borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+  },
+  menuItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "8px 12px 8px 12px",
+  },
+  notInteractive: {
+    opacity: 0.5,
+  },
+});
 
 type OnFinishRenderImage = () => void;
 type Props = {
