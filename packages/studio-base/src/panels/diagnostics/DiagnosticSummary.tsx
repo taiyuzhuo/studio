@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyleSets } from "@fluentui/react";
 import PinIcon from "@mdi/svg/svg/pin.svg";
 import cx from "classnames";
 import { compact } from "lodash";
@@ -29,11 +30,11 @@ import TopicToRenderMenu from "@foxglove/studio-base/components/TopicToRenderMen
 import { PanelConfigSchema } from "@foxglove/studio-base/types/panels";
 import filterMap from "@foxglove/studio-base/util/filterMap";
 import { DIAGNOSTIC_TOPIC } from "@foxglove/studio-base/util/globalConstants";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import toggle from "@foxglove/studio-base/util/toggle";
 
 import { Config as DiagnosticStatusConfig } from "./DiagnosticStatusPanel";
 import helpContent from "./DiagnosticSummary.help.md";
-import styles from "./DiagnosticSummary.module.scss";
 import useDiagnostics from "./useDiagnostics";
 import {
   DiagnosticId,
@@ -49,6 +50,70 @@ type NodeRowProps = {
   onClick: (info: DiagnosticInfo) => void;
   onClickPin: (info: DiagnosticInfo) => void;
 };
+
+const styles = mergeStyleSets({
+  panel: {
+    backgroundColor: colors.DARK,
+  },
+  ok: {
+    color: colors.GREEN,
+  },
+  warn: {
+    color: colors.ORANGE2,
+  },
+  error: {
+    color: colors.RED2,
+  },
+  stale: {
+    color: colors.TEXT_MUTED,
+  },
+  message: {
+    color: "inherit",
+  },
+
+  pinIcon: {
+    marginLeft: "4px",
+    verticalAlign: "middle",
+    visibility: "hidden",
+
+    svg: {
+      fontSize: "16px",
+      position: "relative",
+      top: "-1px",
+    },
+    "&.pinned, .nodeRow:hover &": {
+      visibility: "visible",
+    },
+  },
+
+  pinned: {
+    visibility: "visible",
+  },
+
+  nodeRow: {
+    textDecoration: "none",
+    cursor: "pointer",
+    color: "$text-control",
+    userSelect: "none",
+    display: "flex",
+    alignItems: "center",
+    padding: "0",
+    lineHeight: "24px",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+
+    "&:hover": {
+      color: "rgba(255, 255, 255, 1)",
+      backgroundColor: colors.DARK5,
+
+      ".icon": {
+        visibility: "visible",
+      },
+    },
+  },
+});
+
 class NodeRow extends React.PureComponent<NodeRowProps> {
   onClick = () => {
     const { info, onClick } = this.props;
@@ -65,14 +130,19 @@ class NodeRow extends React.PureComponent<NodeRowProps> {
 
     return (
       <div
-        className={cx(levelName != undefined ? styles[levelName] : undefined, styles.nodeRow)}
+        className={cx(styles.nodeRow, {
+          [styles.ok]: levelName === "ok",
+          [styles.warn]: levelName === "warn",
+          [styles.error]: levelName === "error",
+          [styles.stale]: levelName === "stale",
+        })}
         onClick={this.onClick}
         data-test-diagnostic-row
       >
         <Icon
           fade={!isPinned}
           onClick={this.onClickPin}
-          className={cx(styles.pinIcon, { [styles.pinned!]: isPinned })}
+          className={cx(styles.pinIcon, { [styles.pinned]: isPinned })}
         >
           <PinIcon />
         </Icon>
