@@ -62,12 +62,12 @@ export default mergeStyleSets({
     marginLeft: 4,
   },
   button: {
-    backgroundColor: "transparent",
+    backgroundColor: "transparent !important",
     border: "none",
-    padding: 4,
+    padding: "4px !important",
     alignItems: "start",
-    marginRight: 4,
-    marginLeft: 4,
+    marginRight: "4px !important",
+    marginLeft: "4px !important",
   },
   buttons: {
     backgroundColor: colors.DARK3,
@@ -90,14 +90,14 @@ export default mergeStyleSets({
   },
   buttonsActive: {
     "& .icon": {
-      color: "${accent}",
+      color: colors.ACCENT,
     },
   },
   cameraWarning: {
     marginTop: "0.5em",
     fontSize: "0.9em",
     fontStyle: "italic",
-    color: "${text-muted}",
+    color: colors.TEXT_MUTED,
 
     // don't affect flex parent width
     // https://stackoverflow.com/a/25045641/23649
