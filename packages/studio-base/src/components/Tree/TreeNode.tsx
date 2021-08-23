@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyleSets } from "@fluentui/react";
 import BlockHelperIcon from "@mdi/svg/svg/block-helper.svg";
 import CheckboxBlankOutlineIcon from "@mdi/svg/svg/checkbox-blank-outline.svg";
 import CheckboxBlankIcon from "@mdi/svg/svg/checkbox-blank.svg";
@@ -30,7 +31,6 @@ import Tooltip from "@foxglove/studio-base/components/Tooltip";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import { Node } from "./Node";
-import styles from "./index.module.scss";
 
 type Props = {
   node: Node;
@@ -43,6 +43,80 @@ type Props = {
   onToggleCheck: (node: Node) => void;
   onEditClick: (e: React.MouseEvent<HTMLElement>, node: Node) => void;
 };
+
+const styles = mergeStyleSets({
+  children: {
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+  },
+  checkbox: {
+    marginRight: 6,
+    opacity: 0.6,
+
+    svg: {
+      fontSize: "16px",
+      position: "relative",
+      top: -1,
+    },
+    "&:hover": {
+      opacity: 1,
+    },
+    "&.disabled, &[disabled]": {
+      pointerEvents: "none",
+    },
+  },
+  blockHelperIcon: {
+    fontSize: "14px !important",
+    top: 0,
+    paddingLeft: 2,
+    pointerEvents: "none",
+  },
+  header: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "row",
+    paddingRight: 6,
+    alignItems: "center",
+    verticalAlign: "center",
+    lineHeight: 30,
+    height: 30,
+    cursor: "pointer",
+
+    "&:hover": {
+      background: "#3b2e76",
+    },
+  },
+  headerText: {
+    flex: "1 1 auto",
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    marginRight: 4,
+  },
+  headerExtraIcon: {
+    opacity: 0.5,
+    marginRight: 6,
+  },
+  headerExpandIcon: {
+    fontSize: "14px",
+    opacity: 0.75,
+    position: "absolute",
+    left: 0,
+  },
+  invisible: {
+    visibility: "hidden",
+  },
+  hasChildren: {
+    color: colors.TEXT_BRIGHT,
+  },
+  disabled: {
+    color: colors.TEXT_DISABLED,
+    cursor: "auto",
+
+    "&:hover": {
+      background: "transparent",
+    },
+  },
+});
 
 export default class TreeNode extends Component<Props> {
   onCheckboxClick = (): void => {
@@ -154,23 +228,23 @@ export default class TreeNode extends Component<Props> {
       namespace,
     } = node;
     const headerClasses = cx(styles.header, {
-      [styles.hasChildren!]: children?.length,
-      [styles.disabled!]: disabled,
-      [styles.canEdit!]: canEdit,
+      [styles.hasChildren]: children?.length,
+      [styles.disabled]: disabled,
     });
 
-    const indentWidth = parseInt(styles.indentWidth as string);
-    const paddingLeft = parseInt(styles.paddingLeft as string);
+    const indentWidth = 20;
+    const paddingLeft = 18;
     const style = { paddingLeft: paddingLeft + depth * indentWidth };
 
     const checkboxClasses = cx(styles.checkbox, {
-      [styles.disabled!]: disabled,
+      [styles.disabled]: disabled,
+      disabled,
     });
 
     const extraIcon = icon != undefined && (
       <Icon
         fade
-        className={cx(styles.extraIcon, { [styles.disabled!]: disabled })}
+        className={cx(styles.headerExtraIcon, { [styles.disabled]: disabled })}
         style={{ color: hasEdit ? colors.ACCENT : "#666" }}
       >
         {icon}
@@ -228,7 +302,7 @@ export default class TreeNode extends Component<Props> {
             </Icon>
           )}
           {extraIcon}
-          <span className={styles.text}>
+          <span className={styles.headerText}>
             <Tooltip contents={tooltipContents}>
               <span>{node.text}</span>
             </Tooltip>
@@ -237,8 +311,8 @@ export default class TreeNode extends Component<Props> {
           {visibilityIcon}
           {removeIcon}
           <Icon
-            className={cx(styles["expand-icon"], {
-              [styles.invisible!]: children.length === 0,
+            className={cx(styles.headerExpandIcon, {
+              [styles.invisible]: children.length === 0,
             })}
             style={{ left: paddingLeft + depth * indentWidth - 16 }}
           >
