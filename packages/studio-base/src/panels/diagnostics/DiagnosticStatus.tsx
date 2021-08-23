@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyleSets } from "@fluentui/react";
 import ChartLineVariantIcon from "@mdi/svg/svg/chart-line-variant.svg";
 import DotsHorizontalIcon from "@mdi/svg/svg/dots-horizontal.svg";
 import ChevronDownIcon from "@mdi/svg/svg/unfold-less-horizontal.svg";
@@ -32,7 +33,7 @@ import { Config } from "@foxglove/studio-base/panels/diagnostics/DiagnosticStatu
 import { PanelConfig } from "@foxglove/studio-base/types/panels";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-import style from "./DiagnosticStatus.module.scss";
+// import style from "./DiagnosticStatus.module.scss";
 import { LEVEL_NAMES, DiagnosticInfo, KeyValue, DiagnosticStatusMessage } from "./util";
 
 const MIN_SPLIT_FRACTION = 0.1;
@@ -46,6 +47,76 @@ type Props = {
   collapsedSections: { name: string; section: string }[];
   saveConfig: (arg0: Partial<Config>) => void;
 };
+
+const styles = mergeStyleSets({
+  name: {
+    fontWeight: "bold",
+  },
+  section: {
+    th: {
+      color: colors.HIGHLIGHT,
+      textAlign: "center",
+      fontSize: "1.2em",
+      padding: "4px",
+      cursor: "pointer",
+      border: "none",
+    },
+  },
+  ok: {
+    "&.section th, td": {
+      color: colors.GREEN,
+    },
+  },
+  warn: {
+    "&.section th, td": {
+      color: colors.ORANGE,
+    },
+  },
+  error: {
+    "&.section th, td": {
+      color: colors.RED2,
+    },
+  },
+  stale: {
+    "&.section th, td": {
+      color: colors.TEXT_MUTED,
+    },
+  },
+
+  keyCell: {
+    paddingRight: "5px",
+  },
+
+  collapsedSection: {
+    textAlign: "center",
+    color: colors.RED2,
+  },
+
+  row: {
+    "&:hover .icon": {
+      visibility: "visible",
+    },
+  },
+
+  plotIcon: {
+    color: "white",
+    marginLeft: "4px",
+    visibility: "hidden",
+
+    svg: {
+      verticalAlign: "-1px",
+    },
+  },
+  stateTransitionsIcon: {
+    color: "white",
+    marginLeft: "4px",
+    visibility: "hidden",
+
+    svg: {
+      verticalAlign: "-2px",
+    },
+  },
+});
 
 const ResizeHandle = styled.div.attrs<{ splitFraction: number }>(({ splitFraction }) => ({
   style: { left: `${100 * splitFraction}%` },
@@ -208,16 +279,15 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
   }
 
   _renderKeyValueCell(
-    _cls: string,
     html: { __html: string } | undefined,
     str: string,
     openPlotPanelIconElem?: React.ReactNode,
   ): ReactElement {
     if (html) {
-      return <td className={style.valueCell} dangerouslySetInnerHTML={html} />;
+      return <td dangerouslySetInnerHTML={html} />;
     }
     return (
-      <td className={style.valueCell}>
+      <td>
         {str ? str : "\xa0"}
         {openPlotPanelIconElem}
       </td>
@@ -239,7 +309,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
         );
         ellipsisShown = false;
         return (
-          <tr key={idx} className={style.section} onClick={() => this._onClickSection(sectionObj)}>
+          <tr key={idx} className={styles.section} onClick={() => this._onClickSection(sectionObj)}>
             <th colSpan={2}>
               {key}
               {value}
@@ -253,7 +323,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
         ellipsisShown = true;
         return (
           <tr key={idx}>
-            <td colSpan={2} className={style.collapsedSection}>
+            <td colSpan={2} className={styles.collapsedSection}>
               &hellip;
             </td>
           </tr>
@@ -268,7 +338,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
           <Icon
             fade
             dataTest="open-plot-icon"
-            className={style.plotIcon}
+            className={styles.plotIcon}
             onClick={() => openSiblingPlotPanel(openSiblingPanel, valuePath)}
             tooltip="Line chart"
           >
@@ -277,7 +347,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
         ) : (
           <Icon
             fade
-            className={style.stateTransitionsIcon}
+            className={styles.stateTransitionsIcon}
             onClick={() => openSiblingStateTransitionsPanel(openSiblingPanel, valuePath)}
             tooltip="State Transitions"
           >
@@ -286,14 +356,9 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
         );
       }
       return (
-        <tr key={idx} className={style.row}>
-          {this._renderKeyValueCell(style.keyCell as string, keyHtml, key)}
-          {this._renderKeyValueCell(
-            style.valueCell as string,
-            valueHtml,
-            value,
-            openPlotPanelIconElem,
-          )}
+        <tr key={idx} className={styles.row}>
+          {this._renderKeyValueCell(keyHtml, key)}
+          {this._renderKeyValueCell(valueHtml, value, openPlotPanelIconElem)}
         </tr>
       );
     });
@@ -334,7 +399,13 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
       openSiblingPanel,
       topicToRender,
     } = this.props;
-    const statusClass = style[`status-${LEVEL_NAMES[status.level] ?? "unknown"}`];
+
+    const statusClass = {
+      [styles.ok]: LEVEL_NAMES[status.level] === "ok",
+      [styles.warn]: LEVEL_NAMES[status.level] === "warn",
+      [styles.error]: LEVEL_NAMES[status.level] === "error",
+      [styles.stale]: LEVEL_NAMES[status.level] === "stale",
+    };
 
     return (
       <div>
@@ -350,7 +421,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
               <td style={{ padding: 0, width: `${100 * splitFraction}%`, borderRight: "none" }} />
               <td style={{ padding: 0, borderLeft: "none" }} />
             </tr>
-            <tr className={cx(style.section, statusClass)}>
+            <tr className={cx(styles.section, statusClass)}>
               <th data-test="DiagnosticStatus-display-name" colSpan={2}>
                 <Tooltip
                   placement="bottom"
@@ -366,14 +437,14 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
                 </Tooltip>
               </th>
             </tr>
-            <tr className={cx(style.row, statusClass)}>
+            <tr className={cx(styles.row, statusClass)}>
               <td colSpan={2}>
                 <Flex style={{ justifyContent: "space-between" }}>
                   <div>
                     {status.message}{" "}
                     <Icon
                       fade
-                      className={style.stateTransitionsIcon}
+                      className={styles.stateTransitionsIcon}
                       onClick={() =>
                         openSiblingStateTransitionsPanel(
                           openSiblingPanel,
