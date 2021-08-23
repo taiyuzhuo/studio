@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyleSets } from "@fluentui/react";
 import CheckboxBlankOutlineIcon from "@mdi/svg/svg/checkbox-blank-outline.svg";
 import CheckboxMarkedIcon from "@mdi/svg/svg/checkbox-marked.svg";
 import CloseIcon from "@mdi/svg/svg/close.svg";
@@ -50,7 +51,6 @@ import toggle from "@foxglove/studio-base/util/toggle";
 
 import ImageCanvas from "./ImageCanvas";
 import helpContent from "./index.help.md";
-import style from "./index.module.scss";
 import {
   getCameraInfoTopic,
   getCameraNamespace,
@@ -58,6 +58,47 @@ import {
   getMarkerOptions,
   groupTopics,
 } from "./util";
+
+const styles = mergeStyleSets({
+  controls: {
+    display: "flex",
+    flexWrap: "wrap",
+    flex: "1 1 auto",
+    alignItems: "center",
+    overflow: "hidden",
+
+    button: {
+      margin: "1px 4px 1px 0",
+    },
+  },
+  dropdown: {
+    padding: "4px 8px !important",
+  },
+  bottomBar: {
+    transition: "opacity 0.1s ease-in-out",
+    display: "flex",
+    flex: "0 0 auto",
+    flexDirection: "row",
+    backgroundColor: "transparent",
+    textAlign: "right",
+    position: "absolute",
+    right: 4,
+    paddingRight: 5,
+    bottom: 8,
+    zIndex: "100",
+    opacity: 0,
+
+    "&.inScreenshotTests": {
+      opacity: 1,
+    },
+    ".mosaic-window:hover &": {
+      opacity: 1,
+    },
+  },
+  dropdownItem: {
+    position: "relative",
+  },
+});
 
 const { useMemo, useCallback } = React;
 
@@ -114,8 +155,8 @@ const TopicTimestamp = ({
 
 const BottomBar = ({ children }: { children?: React.ReactNode }) => (
   <div
-    className={cx(style["bottom-bar"], {
-      [style.inScreenshotTests!]: inScreenshotTests(),
+    className={cx(styles.bottomBar, {
+      inScreenshotTests: inScreenshotTests(),
     })}
   >
     {children}
@@ -350,7 +391,7 @@ function ImageView(props: Props) {
     if (imageTopicsByNamespace.size === 0) {
       return (
         <Dropdown
-          btnClassname={style.dropdown}
+          btnClassname={styles.dropdown}
           toggleComponent={
             <ToggleComponent
               dataTest={"topics-dropdown"}
@@ -487,7 +528,7 @@ function ImageView(props: Props) {
         onChange={onToggleMarkerName}
         value={enabledMarkerTopics}
         text={availableAndEnabledMarkerTopics.length > 0 ? "markers" : "no markers"}
-        btnClassname={style.dropdown}
+        btnClassname={styles.dropdown}
       >
         {availableAndEnabledMarkerTopics.map((topic) => (
           <Item
@@ -500,9 +541,9 @@ function ImageView(props: Props) {
               )
             }
             key={topic}
-            className={style.dropdownItem}
+            className={styles.dropdownItem}
           >
-            <span style={{ display: "inline-block", marginRight: "15px" }}>{topic}</span>
+            <span style={{ display: "inline-block", marginRight: 15 }}>{topic}</span>
             <TopicTimestamp text={renderedMarkerTimestamps[topic] ?? ""} />
             {customMarkerTopicOptions.includes(topic) && (
               <Icon
@@ -567,7 +608,7 @@ function ImageView(props: Props) {
   const toolbar = useMemo(() => {
     return (
       <PanelToolbar floating={cameraTopic !== ""} helpContent={helpContent}>
-        <div className={style.controls}>
+        <div className={styles.controls}>
           {imageTopicDropdown}
           {markerDropdown}
         </div>

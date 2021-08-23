@@ -55,8 +55,9 @@ const styles = mergeStyleSets({
     bottom: 5,
     left: 0,
     zIndex: 102,
-    opacity: 1,
+    opacity: 0,
     backgroundColor: `${colors.DARK3} !important`,
+    transition: "opacity 0.1s ease-in-out",
 
     svg: {
       width: 16,
@@ -68,6 +69,13 @@ const styles = mergeStyleSets({
       color: colors.ORANGE,
       float: "right",
       paddingLeft: 3,
+    },
+
+    "&.inScreenshotTests": {
+      opacity: 1,
+    },
+    ".mosaic-window:hover &": {
+      opacity: 1,
     },
   },
   zoomContextMenu: {
