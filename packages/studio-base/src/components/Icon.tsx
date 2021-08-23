@@ -11,12 +11,14 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { mergeStyleSets } from "@fluentui/react";
 import cx from "classnames";
 import { CSSProperties } from "react";
 
 import Tooltip, { useTooltip } from "@foxglove/studio-base/components/Tooltip";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-import styles from "./icon.module.scss";
+// import styles from "./icon.module.scss";
 
 type Props = {
   children: React.ReactNode;
@@ -37,6 +39,110 @@ type Props = {
   dataTest?: string;
 };
 
+const styles = mergeStyleSets({
+  icon: {
+    verticalAlign: "middle",
+
+    img: {
+      fontSize: "inherit",
+      verticalAlign: "middle",
+    },
+    "& > svg": {
+      fill: "currentColor",
+      width: "1em",
+      height: "1em",
+      verticalAlign: "text-top",
+    },
+  },
+  fade: {
+    opacity: 0.6,
+    transition: "opacity 0.2s ease-in-out",
+
+    "&:hover": {
+      opacity: 0.8,
+    },
+    "&.active": {
+      opacity: 1,
+    },
+  },
+  wrappedIcon: {
+    display: "block",
+    padding: "10px",
+    minHeight: "40px",
+    minWidth: "40px",
+
+    "&:hover": {
+      backgroundColor: colors.DARK3,
+    },
+    "&.active": {
+      backgroundColor: colors.DARK4,
+    },
+  },
+  clickable: {
+    cursor: "pointer",
+  },
+  xlarge: {
+    width: 32,
+    height: 32,
+    fontSize: 32,
+
+    img: {
+      width: 32,
+      height: 32,
+    },
+  },
+  large: {
+    width: 24,
+    height: 24,
+    fontSize: 24,
+
+    img: {
+      width: 24,
+      height: 24,
+    },
+  },
+  medium: {
+    width: 20,
+    height: 20,
+    fontSize: 20,
+
+    img: {
+      width: 20,
+      height: 20,
+    },
+  },
+  small: {
+    width: 18,
+    height: 18,
+    fontSize: 18,
+
+    img: {
+      width: 18,
+      height: 18,
+    },
+  },
+  xsmall: {
+    width: 16,
+    height: 16,
+    fontSize: 16,
+
+    img: {
+      width: 16,
+      height: 16,
+    },
+  },
+  xxsmall: {
+    width: 11,
+    height: 11,
+    fontSize: 11,
+
+    img: {
+      width: 11,
+      height: 11,
+    },
+  },
+});
+
 const Icon = (props: Props): JSX.Element => {
   const {
     children,
@@ -56,17 +162,17 @@ const Icon = (props: Props): JSX.Element => {
     tooltipProps,
     dataTest,
   } = props;
-  const classNames = cx("icon", styles.icon, className, {
-    [styles.fade!]: fade,
-    [styles.clickable!]: !!onClick || clickable == undefined || clickable,
-    [styles.active!]: active,
-    [styles.xlarge!]: xlarge,
-    [styles.large!]: large,
-    [styles.medium!]: medium,
-    [styles.small!]: small,
-    [styles.xsmall!]: xsmall,
-    [styles.xxsmall!]: xxsmall,
-  });
+  const conditionalClasses = {
+    [styles.fade]: fade,
+    [styles.clickable]: !!onClick || clickable == undefined || clickable,
+    [styles.xlarge]: xlarge,
+    [styles.large]: large,
+    [styles.medium]: medium,
+    [styles.small]: small,
+    [styles.xsmall]: xsmall,
+    [styles.xxsmall]: xxsmall,
+    active,
+  };
 
   // if we have a click handler
   // cancel the bubbling on the event and process it
@@ -87,7 +193,7 @@ const Icon = (props: Props): JSX.Element => {
   return (
     <span
       ref={tooltipRef}
-      className={classNames}
+      className={cx("icon", styles.icon, className, conditionalClasses)}
       onClick={clickHandler}
       style={style}
       data-test={dataTest}
@@ -102,17 +208,7 @@ Icon.displayName = "Icon";
 
 export const WrappedIcon = (props: Props): JSX.Element => {
   return (
-    <Icon
-      {...props}
-      style={{
-        display: "block",
-        padding: "10px",
-        minHeight: "40px",
-        minWidth: "40px",
-        ...props.style,
-      }}
-      className={cx(styles.wrappedIcon, props.className)}
-    />
+    <Icon {...props} style={props.style} className={cx(styles.wrappedIcon, props.className)} />
   );
 };
 
