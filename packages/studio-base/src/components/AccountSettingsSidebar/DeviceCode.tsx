@@ -5,8 +5,6 @@
 import { Stack, Text, TextField, useTheme } from "@fluentui/react";
 import { useEffect } from "react";
 
-import { MONOSPACE } from "@foxglove/studio-base/styles/fonts";
-
 type DeviceCodePanelProps = {
   userCode: string;
   verificationUrl: string;

@@ -2,7 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { PrimaryButton, Stack, StackItem, Text, useTheme } from "@fluentui/react";
+import { PrimaryButton, Stack, Text, useTheme } from "@fluentui/react";
 import { useCallback, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
 import { useAsync, useAsyncFn, useLocalStorage, useMountedState } from "react-use";
