@@ -52,52 +52,59 @@ const styles = mergeStyleSets({
   name: {
     fontWeight: "bold",
   },
-  section: {
-    th: {
-      color: colors.HIGHLIGHT,
-      textAlign: "center",
-      fontSize: "1.2em",
-      padding: "4px",
-      cursor: "pointer",
-      border: "none",
-    },
-  },
-  ok: {
-    "&.section th, td": {
-      color: colors.GREEN,
-    },
-  },
-  warn: {
-    "&.section th, td": {
-      color: colors.ORANGE,
-    },
-  },
-  error: {
-    "&.section th, td": {
-      color: colors.RED2,
-    },
-  },
-  stale: {
-    "&.section th, td": {
-      color: colors.TEXT_MUTED,
-    },
-  },
+  table: {
+    tableLayout: "fixed",
+    width: "100%",
+    lineHeight: "1.3em",
+    whiteSpace: "pre-line",
+    overflowWrap: "break-word",
+    textAlign: "left",
 
+    "tr:nth-child(odd)": {
+      backgroundColor: "#222",
+    },
+    td: {
+      border: "none",
+      padding: "1px 3px",
+    },
+    /* nested table styles */
+    table: {
+      th: {
+        fontWeight: "bold",
+      },
+    },
+  },
+  sectionHeader: {
+    color: colors.HIGHLIGHT,
+    textAlign: "center !important",
+    fontSize: "1.2em",
+    padding: "4px !important",
+    cursor: "pointer",
+    border: "none",
+
+    ".status-ok &": { color: colors.GREEN2 },
+    ".status-warn &": { color: colors.ORANGE },
+    ".status-error &": { color: colors.RED2 },
+    ".status-stale &": { color: colors.TEXT_MUTED },
+  },
   keyCell: {
     paddingRight: "5px",
   },
-
   collapsedSection: {
     textAlign: "center",
     color: colors.RED2,
   },
-
   row: {
     "&:hover .icon": {
       visibility: "visible",
     },
   },
-
+  statusRow: {
+    ".status-ok &": { color: colors.GREEN2 },
+    ".status-warn &": { color: colors.ORANGE },
+    ".status-error &": { color: colors.RED2 },
+    ".status-stale &": { color: colors.TEXT_MUTED },
+  },
   plotIcon: {
     color: "white",
     marginLeft: "4px",
@@ -140,28 +147,6 @@ const ResizeHandle = styled.div.attrs<{ splitFraction: number }>(({ splitFractio
       margin-left: -2px;
       width: 4px;
       background-color: ${colors.DIVIDER};
-    }
-  }
-`;
-
-const KeyValueTable = styled(LegacyTable)`
-  table-layout: fixed;
-  width: 100%;
-  line-height: 1.3em;
-  white-space: pre-line;
-  overflow-wrap: break-word;
-  text-align: left;
-  tr:nth-child(odd) {
-    background-color: #222;
-  }
-  td {
-    border: none;
-    padding: 1px 3px;
-  }
-  /* nested table styles */
-  table {
-    th {
-      font-weight: bold;
     }
   }
 `;
@@ -309,8 +294,8 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
         );
         ellipsisShown = false;
         return (
-          <tr key={idx} className={styles.section} onClick={() => this._onClickSection(sectionObj)}>
-            <th colSpan={2}>
+          <tr key={idx} onClick={() => this._onClickSection(sectionObj)}>
+            <th className={styles.sectionHeader} colSpan={2}>
               {key}
               {value}
             </th>
@@ -401,10 +386,10 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
     } = this.props;
 
     const statusClass = {
-      [styles.ok]: LEVEL_NAMES[status.level] === "ok",
-      [styles.warn]: LEVEL_NAMES[status.level] === "warn",
-      [styles.error]: LEVEL_NAMES[status.level] === "error",
-      [styles.stale]: LEVEL_NAMES[status.level] === "stale",
+      "status-ok": LEVEL_NAMES[status.level] === "ok",
+      "status-warn": LEVEL_NAMES[status.level] === "warn",
+      "status-error": LEVEL_NAMES[status.level] === "error",
+      "status-stale": LEVEL_NAMES[status.level] === "stale",
     };
 
     return (
@@ -414,15 +399,19 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
           splitFraction={splitFraction}
           onMouseDown={this._resizeMouseDown}
         />
-        <KeyValueTable ref={this._tableRef}>
+        <table className={cx(styles.table, statusClass)} ref={this._tableRef}>
           <tbody>
             {/* Use a dummy row to fix the column widths */}
             <tr style={{ height: 0 }}>
               <td style={{ padding: 0, width: `${100 * splitFraction}%`, borderRight: "none" }} />
               <td style={{ padding: 0, borderLeft: "none" }} />
             </tr>
-            <tr className={cx(styles.section, statusClass)}>
-              <th data-test="DiagnosticStatus-display-name" colSpan={2}>
+            <tr>
+              <th
+                className={styles.sectionHeader}
+                data-test="DiagnosticStatus-display-name"
+                colSpan={2}
+              >
                 <Tooltip
                   placement="bottom"
                   contents={
@@ -437,8 +426,8 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
                 </Tooltip>
               </th>
             </tr>
-            <tr className={cx(styles.row, statusClass)}>
-              <td colSpan={2}>
+            <tr>
+              <td className={cx(styles.row, styles.statusRow)} colSpan={2}>
                 <Flex style={{ justifyContent: "space-between" }}>
                   <div>
                     {status.message}{" "}
@@ -484,7 +473,7 @@ class DiagnosticStatus extends React.Component<Props, unknown> {
             </tr>
             {this._renderKeyValueSections()}
           </tbody>
-        </KeyValueTable>
+        </table>
       </div>
     );
   }
