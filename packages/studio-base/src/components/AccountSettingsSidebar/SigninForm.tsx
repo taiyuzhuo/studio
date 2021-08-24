@@ -2,12 +2,13 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { PrimaryButton, Stack, useTheme } from "@fluentui/react";
+import { PrimaryButton, Stack, StackItem, Text, useTheme } from "@fluentui/react";
 import { useCallback, useEffect } from "react";
 import { useToasts } from "react-toast-notifications";
 import { useAsync, useAsyncFn, useLocalStorage, useMountedState } from "react-use";
 
 import Logger from "@foxglove/log";
+import SpinningLoadingIcon from "@foxglove/studio-base/components/SpinningLoadingIcon";
 import { useConsoleApi } from "@foxglove/studio-base/context/ConsoleApiContext";
 
 import DeviceCode from "./DeviceCode";
@@ -99,10 +100,29 @@ export default function SigninForm(): JSX.Element {
     );
   }
 
+  if (loading) {
+    return (
+      <Stack
+        verticalAlign="center"
+        horizontalAlign="center"
+        verticalFill
+        tokens={{ childrenGap: theme.spacing.l1 }}
+      >
+        <SpinningLoadingIcon />
+      </Stack>
+    );
+  }
+
   return (
-    <Stack tokens={{ childrenGap: theme.spacing.s1 }}>
-      <div>Sign in to access collaboration features like shared layouts.</div>
-      <PrimaryButton disabled={loading} text="Sign in" onClick={handleOnSigninClick} />
+    <Stack tokens={{ childrenGap: theme.spacing.l1 }} styles={{ root: { lineHeight: "1.3" } }}>
+      <Text variant="mediumPlus">
+        Sign in to access collaboration features like shared layouts.
+      </Text>
+      <PrimaryButton
+        text="Sign in"
+        onClick={handleOnSigninClick}
+        styles={{ root: { marginLeft: 0, marginRight: 0 } }}
+      />
     </Stack>
   );
 }

@@ -2,27 +2,19 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { Stack, StackItem, Text, makeStyles } from "@fluentui/react";
+import { Stack, Text, TextField, useTheme } from "@fluentui/react";
 import { useEffect } from "react";
+
+import { MONOSPACE } from "@foxglove/studio-base/styles/fonts";
 
 type DeviceCodePanelProps = {
   userCode: string;
   verificationUrl: string;
 };
 
-const useStyles = makeStyles((theme) => {
-  return {
-    text: {
-      textAlign: "center",
-      fontWeight: "bold",
-      padding: theme.spacing.l1,
-    },
-  };
-});
-
 // Show instructions on opening the browser and entering the device code
 export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
-  const classes = useStyles();
+  const theme = useTheme();
   const url = new URL(props.verificationUrl);
   url.searchParams.append("user_code", props.userCode);
   const href = url.toString();
@@ -32,22 +24,36 @@ export default function DeviceCode(props: DeviceCodePanelProps): JSX.Element {
   }, [href]);
 
   return (
-    <Stack>
-      <StackItem>
-        <Text variant="large">1. Open the following URL in your browser</Text>
-      </StackItem>
-      <StackItem className={classes.text}>
-        <Text variant="large">
-          <a href={href}>{href}</a>
+    <Stack tokens={{ childrenGap: theme.spacing.l1 }}>
+      <Stack tokens={{ childrenGap: theme.spacing.s1 }} styles={{ root: { lineHeight: "1.3" } }}>
+        <Text variant="medium" block>
+          To connect your Foxglove account, follow the instructions in your browser.
         </Text>
-      </StackItem>
+        <Text variant="medium" block>
+          If your browser didn’t open automatically, please <a href={href}>click here</a> to
+          continue.
+        </Text>
+      </Stack>
 
-      <Text variant="large">2. Enter this code</Text>
-      <StackItem className={classes.text}>
-        <Text variant="xLarge">{props.userCode} </Text>
-      </StackItem>
-
-      <Text variant="large">3. Waiting for activation...</Text>
+      <TextField
+        label="Your device confirmation code is:"
+        value={props.userCode}
+        autoFocus
+        readOnly
+        styles={{
+          root: {
+            textAlign: "center",
+          },
+          field: {
+            fontSize: theme.fonts.xxLarge.fontSize,
+            textAlign: "center",
+          },
+          fieldGroup: {
+            marginTop: theme.spacing.s2,
+            height: 48,
+          },
+        }}
+      />
     </Stack>
   );
 }
