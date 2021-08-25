@@ -2,7 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { PrimaryButton, Stack, useTheme } from "@fluentui/react";
+import { PrimaryButton, Stack, Text, useTheme } from "@fluentui/react";
 import { useCallback } from "react";
 import { useLocalStorage } from "react-use";
 
@@ -33,9 +33,9 @@ export default function AccountInfo(props: { me?: IdToken }): JSX.Element {
 
   return (
     <Stack tokens={{ childrenGap: theme.spacing.s1 }}>
-      <h1>{props.me.name}</h1>
-      <div>{props.me.email}</div>
-      <div>{props.me["https://api.foxglove.dev/org_slug"]}</div>
+      <Text variant="large">{props.me.name}</Text>
+      <Text>{props.me.email}</Text>
+      <Text>{props.me["https://api.foxglove.dev/org_slug"]}</Text>
       <img src={props.me.picture} width={50} height={50} />
       <PrimaryButton onClick={onSignoutClick}>Signout</PrimaryButton>
     </Stack>

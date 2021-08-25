@@ -107,7 +107,10 @@ const SIDEBAR_ITEMS = new Map<SidebarItemKey, SidebarItem>([
   ...(process.env.NODE_ENV === "production"
     ? []
     : [
-        ["account", { iconName: "Contact", title: "Account", component: AccountSettings }] as const,
+        [
+          "account",
+          { iconName: "Blockhead", title: "Account", component: AccountSettings },
+        ] as const,
       ]),
 ]);
 
