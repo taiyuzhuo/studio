@@ -85,10 +85,6 @@ export type SceneErrors = {
   rootTransformID: string;
 };
 
-type SceneErrorTopics = {
-  topicsWithBadFrameIds: Set<string>;
-};
-
 type SelectedNamespacesByTopic = {
   [topicName: string]: string[];
 };
@@ -136,6 +132,9 @@ export function getSceneErrorsByTopic(
   });
   sceneErrors.topicsMissingFrameIds.forEach((_err, topic) => {
     addError(topic, "missing frame id");
+  });
+  sceneErrors.topicsWithBadFrameIds.forEach((_err, topic) => {
+    addError(topic, "unable to transform to current frame");
   });
   return res;
 }
@@ -196,9 +195,6 @@ export default class SceneBuilder implements MarkerProvider {
   errorsByTopic: {
     [topicName: string]: string[];
   } = {};
-  reportedErrorTopics: SceneErrorTopics = {
-    topicsWithBadFrameIds: new Set(),
-  };
   maps = [];
   flattenedZHeightPose?: Pose;
   scene = {};
@@ -261,7 +257,6 @@ export default class SceneBuilder implements MarkerProvider {
 
   setPlayerId(playerId: string): void {
     if (this._playerId !== playerId) {
-      this.reportedErrorTopics.topicsWithBadFrameIds.clear();
       this.errors = {
         rootTransformID: "",
         topicsMissingFrameIds: new Map(),
@@ -439,12 +434,6 @@ export default class SceneBuilder implements MarkerProvider {
     return some(this.enabledNamespaces, (ns) => ns.topic === topic && ns.name === name);
   }
 
-  _reportBadFrameId(topic: string): void {
-    if (!this.reportedErrorTopics.topicsWithBadFrameIds.has(topic)) {
-      this.reportedErrorTopics.topicsWithBadFrameIds.add(topic);
-    }
-  }
-
   _transformMarkerPose = (topic: string, marker: BaseMarker): MutablePose | undefined => {
     const frame_id = marker.header.frame_id;
 
@@ -462,7 +451,6 @@ export default class SceneBuilder implements MarkerProvider {
 
     // frame_id !== this.rootTransformID.
     // We continue to render these, though they may be inaccurate
-    this._reportBadFrameId(topic);
     const badFrameError = this._addError(this.errors.topicsWithBadFrameIds, topic);
     const namespace = marker.ns;
     badFrameError.namespaces.add(namespace);
@@ -655,7 +643,6 @@ export default class SceneBuilder implements MarkerProvider {
     }
 
     if (frame_id !== this.rootTransformID) {
-      this._reportBadFrameId(topic);
       const error = this._addError(this.errors.topicsWithBadFrameIds, topic);
       error.frameIds.add(frame_id);
     }
