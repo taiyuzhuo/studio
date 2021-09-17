@@ -6,13 +6,7 @@ import { EventNames, EventEmitter, EventListener } from "eventemitter3";
 
 import GrowableBuffer from "./GrowableBuffer";
 
-// enum State {
-//   READ_HEADER,
-//   READ_RECORD,
-//   READ_FOOTER,
-// }
-
-enum RecordType {
+export enum RecordType {
   CHANNEL_INFO = 0x01,
   MESSAGE = 0x02,
   CHUNK = 0x03,
@@ -34,11 +28,11 @@ export type McapParserEventTypes = {
     topic: string;
     serializationFormat: string;
     schemaFormat: string;
-    schema: Uint8Array;
-    data: Uint8Array;
+    schema: ArrayBuffer;
+    data: ArrayBuffer;
   }) => void;
 
-  message: (_: { channelId: number; timestamp: bigint; data: Uint8Array }) => void;
+  message: (_: { channelId: number; timestamp: bigint; data: ArrayBuffer }) => void;
 
   footer: (_: { indexPos: bigint; indexCrc: number }) => void;
 
@@ -78,7 +72,7 @@ export default class McapStreamingParser {
         if (offset > data.length) {
           return;
         }
-        const result = this.generator.next(this.buffer.slice(0, this.buffer.length));
+        const result = this.generator.next(this.buffer.slice(0, this.buffer.length).buffer);
         this.buffer.clear();
         this.requestedLength = result.value;
       }
@@ -87,7 +81,8 @@ export default class McapStreamingParser {
     }
   }
 
-  static verifyMagic(data: Uint8Array): void {
+  static verifyMagic(buffer: ArrayBuffer): void {
+    const data = new Uint8Array(buffer);
     if (data.length !== MCAP_MAGIC.length) {
       throw new Error(`Expected ${MCAP_MAGIC.length} magic bytes, got ${data.length}`);
     }
@@ -103,7 +98,7 @@ export default class McapStreamingParser {
   private *read({ inChunk = false }: { inChunk?: boolean } = {}): Generator<
     number,
     void,
-    Uint8Array
+    ArrayBuffer
   > {
     if (!inChunk) {
       McapStreamingParser.verifyMagic(yield MCAP_MAGIC.length);
@@ -111,7 +106,7 @@ export default class McapStreamingParser {
     }
 
     for (;;) {
-      switch ((yield 1)[0]!) {
+      switch (new Uint8Array(yield 1)[0]!) {
         case RecordType.CHANNEL_INFO: {
           const recordLen = new DataView(yield 4).getUint32(0, true);
           const id = new DataView(yield 4).getUint32(0, true);
@@ -123,7 +118,7 @@ export default class McapStreamingParser {
           const schemaFormat = new TextDecoder().decode(yield schemaFormatLen);
           const schemaLen = new DataView(yield 4).getUint32(0, true);
           const schema = yield schemaLen;
-          const channelData = yield recordLen -
+          const data = yield recordLen -
             (4 +
               4 +
               topicLength +
@@ -139,7 +134,7 @@ export default class McapStreamingParser {
             serializationFormat,
             schemaFormat,
             schema,
-            data: channelData,
+            data,
           });
           break;
         }
@@ -175,9 +170,9 @@ export default class McapStreamingParser {
           let offset = 0;
           while (result.done !== true) {
             const requestedLength = result.value;
-            if (offset + requestedLength > data.length) {
+            if (offset + requestedLength > data.byteLength) {
               throw new Error(
-                `Not enough data to read ${requestedLength} bytes in chunk (chunk length ${data.length}, offset ${offset})`,
+                `Not enough data to read ${requestedLength} bytes in chunk (chunk length ${data.byteLength}, offset ${offset})`,
               );
             }
             result = generator.next(data.slice(offset, offset + requestedLength));
@@ -215,67 +210,3 @@ export default class McapStreamingParser {
     }
   }
 }
-
-// export default class McapParser {
-//   private state = State.READ_HEADER;
-//   private buffer = new GrowableBuffer(MCAP_MAGIC.length);
-//   private emitter = new EventEmitter<McapParserEventTypes>();
-
-//   private currentRecordType: RecordType | undefined;
-
-//   constructor() {}
-
-//   on<E extends EventNames<McapParserEventTypes>>(
-//     name: E,
-//     listener: EventListener<McapParserEventTypes, E>,
-//   ): void {
-//     this.emitter.on(name, listener);
-//   }
-//   off<E extends EventNames<McapParserEventTypes>>(
-//     name: E,
-//     listener: EventListener<McapParserEventTypes, E>,
-//   ): void {
-//     this.emitter.off(name, listener);
-//   }
-
-//   feed(data: Uint8Array): void {
-//     try {
-//       let offset = 0;
-//       while (offset < data.length) {
-//         switch (this.state) {
-//           case State.READ_HEADER: {
-//             const length = Math.max(data.length - offset, MCAP_MAGIC.length - this.buffer.length);
-//             this.buffer.append(data.slice(offset, length));
-//             offset += length;
-
-//             for (let index = 0; index < this.buffer.length; index++) {
-//               if (this.buffer.get(index) !== MCAP_MAGIC[index]) {
-//                 throw new Error(
-//                   `Expected MCAP magic '${MCAP_MAGIC.map((val) =>
-//                     val.toString(16).padStart(2, "0"),
-//                   ).join(" ")}', found '${Array.from(this.buffer.slice(0, index), (_, i) =>
-//                     this.buffer.get(i).toString(16).padStart(2, "0"),
-//                   ).join(" ")}}'`,
-//                 );
-//               }
-//             }
-//             if (this.buffer.length < MCAP_MAGIC.length) {
-//               break;
-//             }
-//             this.state = State.READ_RECORD;
-//             this.buffer.clear();
-//             this.emitter.emit("header");
-//             return;
-//           }
-
-//           case State.READ_RECORD:
-//             throw new Error("NYI");
-//           case State.READ_FOOTER:
-//             break;
-//         }
-//       }
-//     } catch (error) {
-//       this.emitter.emit("error", error as Error);
-//     }
-//   }
-// }

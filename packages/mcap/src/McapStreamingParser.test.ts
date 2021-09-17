@@ -4,7 +4,11 @@
 
 import { EventArgs, EventNames, ValidEventTypes } from "eventemitter3";
 
-import McapStreamingParser, { McapParserEventTypes, MCAP_MAGIC } from "./McapStreamingParser";
+import McapStreamingParser, {
+  McapParserEventTypes,
+  MCAP_MAGIC,
+  RecordType,
+} from "./McapStreamingParser";
 
 type EventNameAndArgs<T extends ValidEventTypes, K extends EventNames<T>> = K extends keyof T
   ? [K, ...EventArgs<T, K>]
@@ -24,8 +28,9 @@ function makeStreamingParser() {
 
 describe("McapStreamingParser", () => {
   it("parses header", () => {
-    // Try reading all possible subdivisions of the magic header bytes. `splits` is a bitmask where
-    // a 1 bit indicates the input should be split at that index.
+    // Test incremental feed logic by splitting the magic header bytes into all possible
+    // subdivisions. `splits` is a bitmask where a 1 bit indicates the input should be split at that
+    // index.
     for (let splits = 0; splits < 2 ** MCAP_MAGIC.length; splits++) {
       const { parser, emitted } = makeStreamingParser();
       let nextSliceStart = 0;
@@ -57,5 +62,19 @@ describe("McapStreamingParser", () => {
         ],
       ]);
     }
+  });
+
+  it("parses complete empty file", () => {
+    const { parser, emitted } = makeStreamingParser();
+    parser.feed(
+      new Uint8Array([
+        ...MCAP_MAGIC,
+        RecordType.FOOTER,
+        ...[0, 0, 0, 0, 0, 0, 0, 0],
+        ...[0, 0, 0, 0],
+        ...MCAP_MAGIC,
+      ]),
+    );
+    expect(emitted).toEqual([["header"], ["footer", { indexPos: 0n, indexCrc: 0 }], ["complete"]]);
   });
 });
