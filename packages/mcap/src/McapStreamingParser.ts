@@ -15,8 +15,8 @@ export enum RecordType {
   FOOTER = 0x06,
 }
 
-/** Array.from("\x89FDFV1.0\r\n\x1A\n", (c) => c.charCodeAt(0)) */
-export const MCAP_MAGIC = Object.freeze([137, 70, 68, 70, 86, 49, 46, 48, 13, 10, 26, 10]);
+/** Array.from("\x89MCAP\r\n\n", (c) => c.charCodeAt(0)) */
+export const MCAP_MAGIC = Object.freeze([137, 77, 67, 65, 80, 13, 10, 10]);
 
 export type McapParserEventTypes = {
   header: () => void;
@@ -109,25 +109,34 @@ export default class McapStreamingParser {
       switch (new Uint8Array(yield 1)[0]!) {
         case RecordType.CHANNEL_INFO: {
           const recordLen = new DataView(yield 4).getUint32(0, true);
-          const id = new DataView(yield 4).getUint32(0, true);
-          const topicLength = new DataView(yield 4).getUint32(0, true);
-          const topic = new TextDecoder().decode(yield topicLength);
-          const serializationFormatLen = new DataView(yield 4).getUint32(0, true);
-          const serializationFormat = new TextDecoder().decode(yield serializationFormatLen);
-          const schemaFormatLen = new DataView(yield 4).getUint32(0, true);
-          const schemaFormat = new TextDecoder().decode(yield schemaFormatLen);
-          const schemaLen = new DataView(yield 4).getUint32(0, true);
-          const schema = yield schemaLen;
-          const data = yield recordLen -
-            (4 +
-              4 +
-              topicLength +
-              4 +
-              serializationFormatLen +
-              4 +
-              schemaFormatLen +
-              4 +
-              schemaLen);
+          const recordData = new DataView(yield recordLen);
+          let offset = 0;
+          const id = recordData.getUint32(offset, true);
+          offset += 4;
+          const topicLength = recordData.getUint32(offset, true);
+          offset += 4;
+          const topic = new TextDecoder().decode(
+            recordData.buffer.slice(offset, offset + topicLength),
+          );
+          offset += topicLength;
+          const serializationFormatLen = recordData.getUint32(offset, true);
+          offset += 4;
+          const serializationFormat = new TextDecoder().decode(
+            recordData.buffer.slice(offset, offset + serializationFormatLen),
+          );
+          offset += serializationFormatLen;
+          const schemaFormatLen = recordData.getUint32(offset, true);
+          offset += 4;
+          const schemaFormat = new TextDecoder().decode(
+            recordData.buffer.slice(offset, offset + schemaFormatLen),
+          );
+          offset += schemaFormatLen;
+          const schemaLen = recordData.getUint32(offset, true);
+          offset += 4;
+          const schema = recordData.buffer.slice(offset, offset + schemaLen);
+          offset += schemaLen;
+          const data = recordData.buffer.slice(offset);
+
           this.emitter.emit("channelInfo", {
             id,
             topic,
@@ -141,10 +150,18 @@ export default class McapStreamingParser {
 
         case RecordType.MESSAGE: {
           const recordLen = new DataView(yield 4).getUint32(0, true);
-          const channelId = new DataView(yield 4).getUint32(0, true);
-          const timestamp = new DataView(yield 8).getBigUint64(0, true);
-          const data = yield recordLen - (4 + 8);
-          this.emitter.emit("message", { channelId, timestamp, data });
+          const recordData = new DataView(yield recordLen);
+          let offset = 0;
+          const channelId = recordData.getUint32(offset, true);
+          offset += 4;
+          const timestamp = recordData.getBigUint64(offset, true);
+          offset += 8;
+
+          this.emitter.emit("message", {
+            channelId,
+            timestamp,
+            data: recordData.buffer.slice(offset),
+          });
           break;
         }
 
@@ -153,30 +170,38 @@ export default class McapStreamingParser {
             throw new Error("Chunk record not allowed inside a chunk");
           }
           const recordLen = new DataView(yield 4).getUint32(0, true);
-          const decompressedSize = new DataView(yield 8).getBigUint64(0, true);
-          const decompressedCrc32 = new DataView(yield 4).getUint32(0, true);
-          const compressionLen = new DataView(yield 4).getUint32(0, true);
-          const compression = new TextDecoder().decode(yield compressionLen);
+          const recordData = new DataView(yield recordLen);
+          let offset = 0;
+          const decompressedSize = recordData.getBigUint64(offset, true);
+          offset += 8;
+          const decompressedCrc32 = recordData.getUint32(offset, true);
+          offset += 4;
+          const compressionLen = recordData.getUint32(offset, true);
+          offset += 4;
+          const compression = new TextDecoder().decode(
+            recordData.buffer.slice(offset, offset + compressionLen),
+          );
+          offset += compressionLen;
           if (compression !== "") {
             void decompressedSize;
             void decompressedCrc32;
             throw new Error(`Unsupported compression: ${compression}`);
           }
-          const data = yield recordLen - (8 + 4 + 4 + compressionLen);
 
           // Recursively read chunk contents
-          const generator = this.read({ inChunk: true });
-          let result = generator.next();
-          let offset = 0;
-          while (result.done !== true) {
-            const requestedLength = result.value;
-            if (offset + requestedLength > data.byteLength) {
-              throw new Error(
-                `Not enough data to read ${requestedLength} bytes in chunk (chunk length ${data.byteLength}, offset ${offset})`,
-              );
+          if (offset < recordData.byteLength) {
+            const generator = this.read({ inChunk: true });
+            let result = generator.next();
+            while (result.done !== true) {
+              const requestedLength = result.value;
+              if (offset + requestedLength > recordData.byteLength) {
+                throw new Error(
+                  `Not enough data to read ${requestedLength} bytes in chunk (chunk length ${recordData.byteLength}, offset ${offset})`,
+                );
+              }
+              result = generator.next(recordData.buffer.slice(offset, offset + requestedLength));
+              offset += requestedLength;
             }
-            result = generator.next(data.slice(offset, offset + requestedLength));
-            offset += requestedLength;
           }
           break;
         }
@@ -197,9 +222,13 @@ export default class McapStreamingParser {
           if (inChunk) {
             throw new Error("Footer not allowed inside a chunk");
           }
+          let offset = 0;
           const data = new DataView(yield 12);
-          const indexPos = data.getBigUint64(0, true);
-          const indexCrc = data.getUint32(8, true);
+          const indexPos = data.getBigUint64(offset, true);
+          offset += 8;
+          const indexCrc = data.getUint32(offset, true);
+          offset += 4;
+
           this.emitter.emit("footer", { indexPos, indexCrc });
 
           McapStreamingParser.verifyMagic(yield MCAP_MAGIC.length);

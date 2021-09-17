@@ -26,6 +26,24 @@ function makeStreamingParser() {
   return { parser, emitted };
 }
 
+function uint32LE(n: number): Uint8Array {
+  const result = new Uint8Array(4);
+  new DataView(result.buffer).setUint32(0, n, true);
+  return result;
+}
+function uint64LE(n: bigint): Uint8Array {
+  const result = new Uint8Array(8);
+  new DataView(result.buffer).setBigUint64(0, n, true);
+  return result;
+}
+function string(str: string): Uint8Array {
+  const encoded = new TextEncoder().encode(str);
+  const result = new Uint8Array(4 + encoded.length);
+  new DataView(result.buffer).setUint32(0, encoded.length, true);
+  result.set(encoded, 4);
+  return result;
+}
+
 describe("McapStreamingParser", () => {
   it("parses header", () => {
     // Test incremental feed logic by splitting the magic header bytes into all possible
@@ -64,17 +82,78 @@ describe("McapStreamingParser", () => {
     }
   });
 
-  it("parses complete empty file", () => {
+  it("parses empty file", () => {
     const { parser, emitted } = makeStreamingParser();
     parser.feed(
       new Uint8Array([
         ...MCAP_MAGIC,
         RecordType.FOOTER,
-        ...[0, 0, 0, 0, 0, 0, 0, 0],
-        ...[0, 0, 0, 0],
+        ...uint64LE(0n), // index pos
+        ...uint32LE(0), // index crc
         ...MCAP_MAGIC,
       ]),
     );
     expect(emitted).toEqual([["header"], ["footer", { indexPos: 0n, indexCrc: 0 }], ["complete"]]);
+  });
+
+  it("parses file with empty chunk", () => {
+    const { parser, emitted } = makeStreamingParser();
+    parser.feed(
+      new Uint8Array([
+        ...MCAP_MAGIC,
+
+        RecordType.CHUNK,
+        ...uint32LE(8 + 4 + 4), // record length
+        ...uint64LE(0n), // decompressed size
+        ...uint32LE(0), // decompressed crc32
+        ...string(""), // compression
+        // (no chunk data)
+
+        RecordType.FOOTER,
+        ...uint64LE(0n), // index pos
+        ...uint32LE(0), // index crc
+        ...MCAP_MAGIC,
+      ]),
+    );
+    expect(emitted).toEqual([["header"], ["footer", { indexPos: 0n, indexCrc: 0 }], ["complete"]]);
+  });
+
+  it("parses channel info", () => {
+    const { parser, emitted } = makeStreamingParser();
+    parser.feed(
+      new Uint8Array([
+        ...MCAP_MAGIC,
+
+        RecordType.CHANNEL_INFO,
+        ...uint32LE(4 + 4 + "mytopic".length + 4 + "utf12".length + 4 + "none".length + 4 + 3), // record length
+        ...uint32LE(1), // channel id
+        ...string("mytopic"), // topic
+        ...string("utf12"), // serialization format
+        ...string("none"), // schema format
+        ...uint32LE(0), // empty schema
+        ...[1, 2, 3], // channel data
+
+        RecordType.FOOTER,
+        ...uint64LE(0n), // index pos
+        ...uint32LE(0), // index crc
+        ...MCAP_MAGIC,
+      ]),
+    );
+    expect(emitted).toEqual([
+      ["header"],
+      [
+        "channelInfo",
+        {
+          id: 1,
+          topic: "mytopic",
+          serializationFormat: "utf12",
+          schemaFormat: "none",
+          schema: new ArrayBuffer(0),
+          data: new Uint8Array([1, 2, 3]).buffer,
+        },
+      ],
+      ["footer", { indexPos: 0n, indexCrc: 0 }],
+      ["complete"],
+    ]);
   });
 });
