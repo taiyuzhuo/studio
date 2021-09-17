@@ -63,10 +63,13 @@ export default class McapStreamingParser {
     try {
       let offset = 0;
       while (offset < data.length) {
-        if (typeof this.requestedLength !== "number") {
+        if (typeof this.requestedLength === "undefined") {
           throw new Error("No more data requested");
         }
-        const length = this.requestedLength - this.buffer.length;
+        const length =
+          (typeof this.requestedLength === "number"
+            ? this.requestedLength
+            : this.requestedLength.length) - this.buffer.length;
         this.buffer.append(data.slice(offset, offset + length));
         offset += length;
         if (offset > data.length) {
@@ -96,7 +99,7 @@ export default class McapStreamingParser {
   }
 
   private *read({ inChunk = false }: { inChunk?: boolean } = {}): Generator<
-    number,
+    number | { length: number; allowEof: true },
     void,
     ArrayBuffer
   > {
@@ -106,7 +109,11 @@ export default class McapStreamingParser {
     }
 
     for (;;) {
-      switch (new Uint8Array(yield 1)[0]!) {
+      const byte = yield inChunk ? { length: 1, allowEof: true } : 1;
+      if (byte.byteLength === 0) {
+        break;
+      }
+      switch (new Uint8Array(byte)[0]!) {
         case RecordType.CHANNEL_INFO: {
           const recordLen = new DataView(yield 4).getUint32(0, true);
           const recordData = new DataView(yield recordLen);
@@ -187,20 +194,40 @@ export default class McapStreamingParser {
             void decompressedCrc32;
             throw new Error(`Unsupported compression: ${compression}`);
           }
+          if (decompressedSize > BigInt(Number.MAX_SAFE_INTEGER)) {
+            throw new Error(
+              `Decompressed chunk size ${decompressedSize} too large (max is ${Number.MAX_SAFE_INTEGER})`,
+            );
+          }
+          if (Number(decompressedSize) !== recordData.byteLength - offset) {
+            throw new Error(
+              `Incorrect decompressed size ${decompressedSize} (${
+                recordData.byteLength - offset
+              } bytes remaining)`,
+            );
+          }
 
           // Recursively read chunk contents
           if (offset < recordData.byteLength) {
             const generator = this.read({ inChunk: true });
             let result = generator.next();
             while (result.done !== true) {
-              const requestedLength = result.value;
-              if (offset + requestedLength > recordData.byteLength) {
+              const requestedLength =
+                typeof result.value === "number" ? result.value : result.value.length;
+              if (
+                typeof result.value !== "number" &&
+                result.value.allowEof &&
+                offset === recordData.byteLength
+              ) {
+                result = generator.next(new ArrayBuffer(0));
+              } else if (offset + requestedLength > recordData.byteLength) {
                 throw new Error(
                   `Not enough data to read ${requestedLength} bytes in chunk (chunk length ${recordData.byteLength}, offset ${offset})`,
                 );
+              } else {
+                result = generator.next(recordData.buffer.slice(offset, offset + requestedLength));
+                offset += requestedLength;
               }
-              result = generator.next(recordData.buffer.slice(offset, offset + requestedLength));
-              offset += requestedLength;
             }
           }
           break;

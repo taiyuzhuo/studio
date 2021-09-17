@@ -18,10 +18,10 @@ function makeStreamingParser() {
   const emitted: EventNameAndArgs<McapParserEventTypes, keyof McapParserEventTypes>[] = [];
   const parser = new McapStreamingParser();
   parser.on("header", () => emitted.push(["header"]));
-  parser.on("error", (err) => emitted.push(["error", err]));
-  parser.on("channelInfo", (record) => emitted.push(["channelInfo", record]));
-  parser.on("message", (record) => emitted.push(["message", record]));
-  parser.on("footer", (record) => emitted.push(["footer", record]));
+  parser.on("error", (val) => emitted.push(["error", val]));
+  parser.on("channelInfo", (val) => emitted.push(["channelInfo", val]));
+  parser.on("message", (val) => emitted.push(["message", val]));
+  parser.on("footer", (val) => emitted.push(["footer", val]));
   parser.on("complete", () => emitted.push(["complete"]));
   return { parser, emitted };
 }
@@ -41,6 +41,13 @@ function string(str: string): Uint8Array {
   const result = new Uint8Array(4 + encoded.length);
   new DataView(result.buffer).setUint32(0, encoded.length, true);
   result.set(encoded, 4);
+  return result;
+}
+function record(type: RecordType, data: number[]): Uint8Array {
+  const result = new Uint8Array(5 + data.length);
+  result[0] = type;
+  new DataView(result.buffer).setUint32(1, data.length, true);
+  result.set(data, 5);
   return result;
 }
 
@@ -102,12 +109,12 @@ describe("McapStreamingParser", () => {
       new Uint8Array([
         ...MCAP_MAGIC,
 
-        RecordType.CHUNK,
-        ...uint32LE(8 + 4 + 4), // record length
-        ...uint64LE(0n), // decompressed size
-        ...uint32LE(0), // decompressed crc32
-        ...string(""), // compression
-        // (no chunk data)
+        ...record(RecordType.CHUNK, [
+          ...uint64LE(0n), // decompressed size
+          ...uint32LE(0), // decompressed crc32
+          ...string(""), // compression
+          // (no chunk data)
+        ]),
 
         RecordType.FOOTER,
         ...uint64LE(0n), // index pos
@@ -118,20 +125,65 @@ describe("McapStreamingParser", () => {
     expect(emitted).toEqual([["header"], ["footer", { indexPos: 0n, indexCrc: 0 }], ["complete"]]);
   });
 
-  it("parses channel info", () => {
+  it("parses channel info at top level", () => {
     const { parser, emitted } = makeStreamingParser();
     parser.feed(
       new Uint8Array([
         ...MCAP_MAGIC,
 
-        RecordType.CHANNEL_INFO,
-        ...uint32LE(4 + 4 + "mytopic".length + 4 + "utf12".length + 4 + "none".length + 4 + 3), // record length
-        ...uint32LE(1), // channel id
-        ...string("mytopic"), // topic
-        ...string("utf12"), // serialization format
-        ...string("none"), // schema format
-        ...uint32LE(0), // empty schema
-        ...[1, 2, 3], // channel data
+        ...record(RecordType.CHANNEL_INFO, [
+          ...uint32LE(1), // channel id
+          ...string("mytopic"), // topic
+          ...string("utf12"), // serialization format
+          ...string("none"), // schema format
+          ...uint32LE(0), // empty schema
+          ...[1, 2, 3], // channel data
+        ]),
+
+        RecordType.FOOTER,
+        ...uint64LE(0n), // index pos
+        ...uint32LE(0), // index crc
+        ...MCAP_MAGIC,
+      ]),
+    );
+    expect(emitted).toEqual([
+      ["header"],
+      [
+        "channelInfo",
+        {
+          id: 1,
+          topic: "mytopic",
+          serializationFormat: "utf12",
+          schemaFormat: "none",
+          schema: new ArrayBuffer(0),
+          data: new Uint8Array([1, 2, 3]).buffer,
+        },
+      ],
+      ["footer", { indexPos: 0n, indexCrc: 0 }],
+      ["complete"],
+    ]);
+  });
+
+  it("parses channel info in chunk", () => {
+    const { parser, emitted } = makeStreamingParser();
+    parser.feed(
+      new Uint8Array([
+        ...MCAP_MAGIC,
+
+        ...record(RecordType.CHUNK, [
+          ...uint64LE(0n), // decompressed size
+          ...uint32LE(0), // decompressed crc32
+          ...string(""), // compression
+
+          ...record(RecordType.CHANNEL_INFO, [
+            ...uint32LE(1), // channel id
+            ...string("mytopic"), // topic
+            ...string("utf12"), // serialization format
+            ...string("none"), // schema format
+            ...uint32LE(0), // empty schema
+            ...[1, 2, 3], // channel data
+          ]),
+        ]),
 
         RecordType.FOOTER,
         ...uint64LE(0n), // index pos
