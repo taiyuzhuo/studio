@@ -2,7 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import McapReader from "./McapReader";
+import McapReader, { parseRecord } from "./McapReader";
 import { MCAP_MAGIC, RecordType } from "./constants";
 
 function uint32LE(n: number): Uint8Array {
@@ -105,7 +105,13 @@ describe("McapReader", () => {
       ]),
     );
     expect(reader.readHeader()).toEqual({ type: "Header" });
-    expect(reader.readRecord()).toEqual({ type: "Chunk" });
+    expect(reader.readRecord()).toEqual({
+      type: "Chunk",
+      compression: "",
+      decompressedSize: 0n,
+      decompressedCrc: 0,
+      data: new ArrayBuffer(0),
+    });
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
   });
 
@@ -171,15 +177,25 @@ describe("McapReader", () => {
       ]),
     );
     expect(reader.readHeader()).toEqual({ type: "Header" });
-    expect(reader.readRecord()).toEqual({
-      type: "ChannelInfo",
-      id: 1,
-      topic: "mytopic",
-      serializationFormat: "utf12",
-      schemaFormat: "none",
-      schema: new ArrayBuffer(0),
-      data: new Uint8Array([1, 2, 3]).buffer,
-    });
+    const chunk = reader.readRecord();
+    if (!chunk || chunk.type !== "Chunk") {
+      throw new Error("Expected chunk");
+    }
+    let offsetInChunk = 0;
+    const view = new DataView(chunk.data);
+    while (offsetInChunk < view.byteLength) {
+      const { record: chanInfo, usedBytes } = parseRecord(view, offsetInChunk);
+      expect(chanInfo).toEqual({
+        type: "ChannelInfo",
+        id: 1,
+        topic: "mytopic",
+        serializationFormat: "utf12",
+        schemaFormat: "none",
+        schema: new ArrayBuffer(0),
+        data: new Uint8Array([1, 2, 3]).buffer,
+      });
+      offsetInChunk += usedBytes;
+    }
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
   });
 });
