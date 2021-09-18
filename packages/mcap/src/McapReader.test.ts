@@ -23,12 +23,20 @@ function string(str: string): Uint8Array {
   return result;
 }
 function record(type: RecordType, data: number[]): Uint8Array {
+  if (type === RecordType.FOOTER) {
+    const result = new Uint8Array(1 + data.length);
+    result[0] = type;
+    result.set(data, 1);
+    return result;
+  }
   const result = new Uint8Array(5 + data.length);
   result[0] = type;
   new DataView(result.buffer).setUint32(1, data.length, true);
   result.set(data, 5);
   return result;
 }
+
+const formatVersion = 1;
 
 describe("McapReader", () => {
   it("parses header", () => {
@@ -46,14 +54,21 @@ describe("McapReader", () => {
           reader.append(new Uint8Array(MCAP_MAGIC.slice(nextSliceStart, splitLocation)));
           if (splitLocation < MCAP_MAGIC.length) {
             // eslint-disable-next-line jest/no-conditional-expect
-            expect(reader.readHeader()).toBeUndefined();
+            expect(reader.readMagic()).toBeUndefined();
           }
         }
         nextSliceStart = splitLocation;
       }
       reader.append(new Uint8Array(MCAP_MAGIC.slice(nextSliceStart)));
-      expect(reader.readHeader()).toEqual({ type: "Header" });
+      reader.append(new Uint8Array([formatVersion]));
+      expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
     }
+  });
+
+  it("rejects unknown format version", () => {
+    const reader = new McapReader();
+    reader.append(new Uint8Array([...MCAP_MAGIC, 2]));
+    expect(() => reader.readMagic()).toThrow("Unsupported format version 2");
   });
 
   it("rejects invalid header", () => {
@@ -61,9 +76,33 @@ describe("McapReader", () => {
       const reader = new McapReader();
       const badMagic = MCAP_MAGIC.slice();
       badMagic[i] = 0x00;
-      reader.append(new Uint8Array(badMagic));
-      expect(() => reader.readHeader()).toThrow("Expected MCAP magic");
+      reader.append(new Uint8Array([...badMagic, formatVersion]));
+      expect(() => reader.readMagic()).toThrow("Expected MCAP magic");
     }
+  });
+
+  it("rejects invalid footer magic", () => {
+    const reader = new McapReader();
+    reader.append(
+      new Uint8Array([
+        ...MCAP_MAGIC,
+        formatVersion,
+        ...record(RecordType.FOOTER, [
+          ...uint64LE(0x0123456789abcdefn), // index pos
+          ...uint32LE(0x01234567), // index crc
+        ]),
+        ...MCAP_MAGIC.slice(0, MCAP_MAGIC.length - 1),
+        0x00,
+        formatVersion,
+      ]),
+    );
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
+    expect(reader.readRecord()).toEqual({
+      type: "Footer",
+      indexPos: 0x0123456789abcdefn,
+      indexCrc: 0x01234567,
+    });
+    expect(() => reader.readMagic()).toThrow("Expected MCAP magic");
   });
 
   it("parses empty file", () => {
@@ -71,18 +110,23 @@ describe("McapReader", () => {
     reader.append(
       new Uint8Array([
         ...MCAP_MAGIC,
-        RecordType.FOOTER,
-        ...uint64LE(0x0123456789abcdefn), // index pos
-        ...uint32LE(0x01234567), // index crc
+        formatVersion,
+        ...record(RecordType.FOOTER, [
+          ...uint64LE(0x0123456789abcdefn), // index pos
+          ...uint32LE(0x01234567), // index crc
+        ]),
         ...MCAP_MAGIC,
+        formatVersion,
       ]),
     );
-    expect(reader.readHeader()).toEqual({ type: "Header" });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
     expect(reader.readRecord()).toEqual({
       type: "Footer",
       indexPos: 0x0123456789abcdefn,
       indexCrc: 0x01234567,
     });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
+    expect(reader.atEnd()).toBe(true);
   });
 
   it("parses file with empty chunk", () => {
@@ -90,6 +134,7 @@ describe("McapReader", () => {
     reader.append(
       new Uint8Array([
         ...MCAP_MAGIC,
+        formatVersion,
 
         ...record(RecordType.CHUNK, [
           ...uint64LE(0n), // decompressed size
@@ -98,13 +143,15 @@ describe("McapReader", () => {
           // (no chunk data)
         ]),
 
-        RecordType.FOOTER,
-        ...uint64LE(0n), // index pos
-        ...uint32LE(0), // index crc
+        ...record(RecordType.FOOTER, [
+          ...uint64LE(0n), // index pos
+          ...uint32LE(0), // index crc
+        ]),
         ...MCAP_MAGIC,
+        formatVersion,
       ]),
     );
-    expect(reader.readHeader()).toEqual({ type: "Header" });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
     expect(reader.readRecord()).toEqual({
       type: "Chunk",
       compression: "",
@@ -113,6 +160,8 @@ describe("McapReader", () => {
       data: new ArrayBuffer(0),
     });
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
+    expect(reader.atEnd()).toBe(true);
   });
 
   it("parses channel info at top level", () => {
@@ -120,6 +169,7 @@ describe("McapReader", () => {
     reader.append(
       new Uint8Array([
         ...MCAP_MAGIC,
+        formatVersion,
 
         ...record(RecordType.CHANNEL_INFO, [
           ...uint32LE(1), // channel id
@@ -130,13 +180,15 @@ describe("McapReader", () => {
           ...[1, 2, 3], // channel data
         ]),
 
-        RecordType.FOOTER,
-        ...uint64LE(0n), // index pos
-        ...uint32LE(0), // index crc
+        ...record(RecordType.FOOTER, [
+          ...uint64LE(0n), // index pos
+          ...uint32LE(0), // index crc
+        ]),
         ...MCAP_MAGIC,
+        formatVersion,
       ]),
     );
-    expect(reader.readHeader()).toEqual({ type: "Header" });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
     expect(reader.readRecord()).toEqual({
       type: "ChannelInfo",
       id: 1,
@@ -147,6 +199,8 @@ describe("McapReader", () => {
       data: new Uint8Array([1, 2, 3]).buffer,
     });
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
+    expect(reader.atEnd()).toBe(true);
   });
 
   it("parses channel info in chunk", () => {
@@ -154,6 +208,7 @@ describe("McapReader", () => {
     reader.append(
       new Uint8Array([
         ...MCAP_MAGIC,
+        formatVersion,
 
         ...record(RecordType.CHUNK, [
           ...uint64LE(0n), // decompressed size
@@ -170,13 +225,15 @@ describe("McapReader", () => {
           ]),
         ]),
 
-        RecordType.FOOTER,
-        ...uint64LE(0n), // index pos
-        ...uint32LE(0), // index crc
+        ...record(RecordType.FOOTER, [
+          ...uint64LE(0n), // index pos
+          ...uint32LE(0), // index crc
+        ]),
         ...MCAP_MAGIC,
+        formatVersion,
       ]),
     );
-    expect(reader.readHeader()).toEqual({ type: "Header" });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
     const chunk = reader.readRecord();
     if (!chunk || chunk.type !== "Chunk") {
       throw new Error("Expected chunk");
@@ -197,5 +254,7 @@ describe("McapReader", () => {
       offsetInChunk += usedBytes;
     }
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
+    expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
+    expect(reader.atEnd()).toBe(true);
   });
 });

@@ -5,8 +5,9 @@
 import ByteStorage from "./ByteStorage";
 import { MCAP_MAGIC, RecordType } from "./constants";
 
-type Header = {
-  type: "Header";
+type Magic = {
+  type: "Magic";
+  formatVersion: 1;
 };
 type ChannelInfo = {
   type: "ChannelInfo";
@@ -53,23 +54,19 @@ export default class McapReader {
     this.storage.append(data);
   }
 
-  readHeader(): Header | undefined {
-    if (!this.storage.hasBytes(MCAP_MAGIC.length)) {
+  readMagic(): Magic | undefined {
+    if (!this.storage.hasBytes(MCAP_MAGIC.length + 1)) {
       return undefined;
     }
 
-    if (!MCAP_MAGIC.every((val, i) => val === this.storage.view.getUint8(i))) {
-      throw new Error(
-        `Expected MCAP magic '${MCAP_MAGIC.map((val) => val.toString(16).padStart(2, "0")).join(
-          " ",
-        )}', found '${Array.from(MCAP_MAGIC, (_, i) =>
-          this.storage.view.getUint8(i).toString(16).padStart(2, "0"),
-        ).join(" ")}'`,
-      );
-    }
+    verifyMagic(this.storage.view, 0);
 
-    this.storage.consume(MCAP_MAGIC.length);
-    return { type: "Header" };
+    const formatVersion = this.storage.view.getUint8(MCAP_MAGIC.length);
+    if (formatVersion !== 1) {
+      throw new Error(`Unsupported format version ${formatVersion}`);
+    }
+    this.storage.consume(MCAP_MAGIC.length + 1);
+    return { type: "Magic", formatVersion };
   }
 
   readRecord(): McapRecord | undefined {
@@ -79,6 +76,22 @@ export default class McapReader {
       return result.record;
     }
     return undefined;
+  }
+
+  atEnd(): boolean {
+    return this.storage.atEnd();
+  }
+}
+
+export function verifyMagic(view: DataView, startOffset: number): void {
+  if (!MCAP_MAGIC.every((val, i) => val === view.getUint8(startOffset + i))) {
+    throw new Error(
+      `Expected MCAP magic '${MCAP_MAGIC.map((val) => val.toString(16).padStart(2, "0")).join(
+        " ",
+      )}', found '${Array.from(MCAP_MAGIC, (_, i) =>
+        view.getUint8(i).toString(16).padStart(2, "0"),
+      ).join(" ")}'`,
+    );
   }
 }
 
@@ -115,7 +128,7 @@ export function parseRecord(
   const recordLength = view.getUint32(offset, true);
   offset += 4;
   const recordEndOffset = offset + recordLength;
-  if (view.byteOffset + offset + recordLength > view.byteLength) {
+  if (offset + recordLength > view.byteLength) {
     return { usedBytes: 0 };
   }
 

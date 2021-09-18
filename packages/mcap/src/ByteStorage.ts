@@ -44,4 +44,8 @@ export default class ByteStorage {
       this.view.byteLength + data.byteLength,
     );
   }
+
+  atEnd(): boolean {
+    return this.view.byteLength === 0;
+  }
 }
