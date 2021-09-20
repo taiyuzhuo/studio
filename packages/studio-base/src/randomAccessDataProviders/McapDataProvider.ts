@@ -2,9 +2,9 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import { isEqual } from "lodash";
 import decompressLZ4 from "wasm-lz4";
 
-import Logger from "@foxglove/log";
 import { ChannelInfo, McapReader, McapRecord, parseRecord } from "@foxglove/mcap";
 import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/rosmsg";
 import { LazyMessageReader } from "@foxglove/rosmsg-serialization";
@@ -31,10 +31,9 @@ import {
   InitializationResult,
   Connection,
 } from "@foxglove/studio-base/randomAccessDataProviders/types";
+import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 type Options = { blob: Blob };
-
-const log = Logger.getLogger(__filename);
 
 // Read from a ROS Bag. `bagPath` can either represent a local file, or a remote bag. See
 // `BrowserHttpReader` for how to set up a remote server to be able to directly stream from it.
@@ -76,8 +75,12 @@ export default class McapDataProvider implements RandomAccessDataProvider {
     function processRecord(record: McapRecord) {
       switch (record.type) {
         case "ChannelInfo": {
-          if (channelInfoById.has(record.id)) {
-            throw new Error(`duplicate channel info for ${record.id}`);
+          const existingInfo = channelInfoById.get(record.id);
+          if (existingInfo) {
+            if (!isEqual(existingInfo.info, record)) {
+              throw new Error(`differing channel infos for for ${record.id}`);
+            }
+            break;
           }
           let parsedDefinitions;
           let messageDeserializer;
@@ -181,6 +184,7 @@ export default class McapDataProvider implements RandomAccessDataProvider {
 
     const topics: Topic[] = [];
     const connections: Connection[] = [];
+    const datatypes: RosDatatypes = new Map([["TODO", { definitions: [] }]]);
     const messageDefinitionsByTopic: MessageDefinitionsByTopic = {};
     const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
 
@@ -197,6 +201,7 @@ export default class McapDataProvider implements RandomAccessDataProvider {
         type: "",
         callerid: "",
       });
+      // datatypes.set(topicDef.type, { name: topicDef.type, definitions: parsedMsgdef.definitions });
       messageDefinitionsByTopic[info.topic] = messageDefinition;
       parsedMessageDefinitionsByTopic[info.topic] = parsedDefinitions;
     }
@@ -208,8 +213,10 @@ export default class McapDataProvider implements RandomAccessDataProvider {
       connections,
       providesParsedMessages: true,
       messageDefinitions: {
-        type: "raw",
+        type: "parsed",
+        datatypes,
         messageDefinitionsByTopic,
+        parsedMessageDefinitionsByTopic,
       },
       problems: [],
     };
@@ -227,11 +234,15 @@ export default class McapDataProvider implements RandomAccessDataProvider {
     if (topics == undefined) {
       return {};
     }
+    const topicsSet = new Set(topics);
 
     const parsedMessages: MessageEvent<unknown>[] = [];
     for (const messages of this.messagesByChannel.values()) {
       for (const message of messages) {
-        if (isTimeInRangeInclusive(message.receiveTime, start, end)) {
+        if (
+          isTimeInRangeInclusive(message.receiveTime, start, end) &&
+          topicsSet.has(message.topic)
+        ) {
           parsedMessages.push(message);
         }
       }

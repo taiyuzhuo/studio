@@ -27,15 +27,6 @@ function wrapInWorker(
 }
 
 export function getLocalBagDescriptor(file: File): RandomAccessDataProviderDescriptor {
-  if (file.name.endsWith(".mcap")) {
-    return {
-      name: CoreDataProviders.McapDataProvider,
-      filePath: (file as { path?: string }).path, // File.path is added by Electron
-      args: { blob: file },
-      children: [],
-    };
-  }
-
   return wrapInWorker({
     name: CoreDataProviders.BagDataProvider,
     filePath: (file as { path?: string }).path, // File.path is added by Electron
