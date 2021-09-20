@@ -18,6 +18,7 @@ export const CoreDataProviders = {
   ParseMessagesDataProvider: "ParseMessagesDataProvider",
   RenameDataProvider: "RenameDataProvider",
   Rosbag2DataProvider: "Rosbag2DataProvider",
+  McapDataProvider: "McapDataProvider",
   RpcDataProvider: "RpcDataProvider",
   WorkerDataProvider: "WorkerDataProvider",
 };
