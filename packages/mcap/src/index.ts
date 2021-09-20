@@ -3,3 +3,5 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 export { default as McapReader } from "./McapReader";
+export * from "./parse";
+export * from "./types";

@@ -25,24 +25,32 @@ export default class ByteStorage {
   }
 
   append(data: Uint8Array): void {
-    let array: Uint8Array;
-    if (this.view.byteOffset + this.view.byteLength + data.byteLength > this.buffer.byteLength) {
-      // New data doesn't fit, copy data to a new buffer
+    if (this.view.byteOffset + this.view.byteLength + data.byteLength <= this.buffer.byteLength) {
+      // Data fits by appending only
+      const array = new Uint8Array(this.view.buffer, this.view.byteOffset);
+      array.set(data, this.view.byteLength);
+      this.view = new DataView(
+        this.buffer,
+        this.view.byteOffset,
+        this.view.byteLength + data.byteLength,
+      );
+    } else if (this.view.byteLength + data.byteLength <= this.buffer.byteLength) {
+      // Data fits in allocated buffer but requires moving existing data to start of buffer
+      const oldData = new Uint8Array(this.buffer, this.view.byteOffset, this.view.byteLength);
+      const array = new Uint8Array(this.buffer);
+      array.set(oldData, 0);
+      array.set(data, oldData.byteLength);
+      this.view = new DataView(this.buffer, 0, this.view.byteLength + data.byteLength);
+    } else {
+      // New data doesn't fit, copy to a new buffer
       // FIXME: reuse buffer if possible; grow only?
       const oldData = new Uint8Array(this.buffer, this.view.byteOffset, this.view.byteLength);
-      this.buffer = new ArrayBuffer(this.view.byteLength + data.byteLength);
-      array = new Uint8Array(this.buffer);
+      this.buffer = new ArrayBuffer((this.view.byteLength + data.byteLength) * 2);
+      const array = new Uint8Array(this.buffer);
       array.set(oldData, 0);
-    } else {
-      array = new Uint8Array(this.view.buffer, this.view.byteOffset);
+      array.set(data, oldData.byteLength);
+      this.view = new DataView(this.buffer, 0, this.view.byteLength + data.byteLength);
     }
-
-    array.set(data, this.view.byteLength);
-    this.view = new DataView(
-      this.buffer,
-      this.view.byteOffset,
-      this.view.byteLength + data.byteLength,
-    );
   }
 
   atEnd(): boolean {

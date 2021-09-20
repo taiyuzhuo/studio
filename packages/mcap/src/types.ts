@@ -6,7 +6,7 @@ export type McapMagic = {
   type: "Magic";
   formatVersion: 1;
 };
-type ChannelInfo = {
+export type ChannelInfo = {
   type: "ChannelInfo";
   id: number;
   topic: string;
@@ -15,26 +15,26 @@ type ChannelInfo = {
   schema: ArrayBuffer;
   data: ArrayBuffer;
 };
-type Message = {
+export type Message = {
   type: "Message";
   channelId: number;
   timestamp: bigint;
   data: ArrayBuffer;
 };
-type Chunk = {
+export type Chunk = {
   type: "Chunk";
   compression: string;
   decompressedSize: bigint;
   decompressedCrc: number;
   data: ArrayBuffer;
 };
-type IndexData = {
+export type IndexData = {
   type: "IndexData";
 };
-type ChunkInfo = {
+export type ChunkInfo = {
   type: "ChunkInfo";
 };
-type Footer = {
+export type Footer = {
   type: "Footer";
   indexPos: bigint;
   indexCrc: number;

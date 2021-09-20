@@ -24,6 +24,9 @@ export function parseRecord(
   view: DataView,
   startOffset: number,
 ): { record: McapRecord; usedBytes: number } | { record?: undefined; usedBytes: 0 } {
+  if (startOffset >= view.byteLength) {
+    return { usedBytes: 0 };
+  }
   let offset = startOffset;
 
   const typeByte = view.getUint8(offset);
@@ -44,13 +47,13 @@ export function parseRecord(
     offset += 4;
 
     const record: McapRecord = { type: "Footer", indexPos, indexCrc };
-    return { record, usedBytes: offset };
+    return { record, usedBytes: offset - startOffset };
   }
 
   const recordLength = view.getUint32(offset, true);
   offset += 4;
   const recordEndOffset = offset + recordLength;
-  if (offset + recordLength > view.byteLength) {
+  if (recordEndOffset > view.byteLength) {
     return { usedBytes: 0 };
   }
 
@@ -94,7 +97,7 @@ export function parseRecord(
         schema,
         data,
       };
-      return { record, usedBytes: recordEndOffset };
+      return { record, usedBytes: recordEndOffset - startOffset };
     }
 
     case RecordType.MESSAGE: {
@@ -105,7 +108,7 @@ export function parseRecord(
       const data = view.buffer.slice(view.byteOffset + offset, view.byteOffset + recordEndOffset);
 
       const record: McapRecord = { type: "Message", channelId, timestamp, data };
-      return { record, usedBytes: recordEndOffset };
+      return { record, usedBytes: recordEndOffset - startOffset };
     }
 
     case RecordType.CHUNK: {
@@ -128,7 +131,7 @@ export function parseRecord(
         decompressedCrc,
         data,
       };
-      return { record, usedBytes: recordEndOffset };
+      return { record, usedBytes: recordEndOffset - startOffset };
     }
 
     case RecordType.INDEX_DATA:

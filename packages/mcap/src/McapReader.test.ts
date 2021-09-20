@@ -2,6 +2,10 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import fs from "fs";
+import decompressLZ4 from "wasm-lz4";
+
+import { Chunk, McapRecord } from ".";
 import McapReader from "./McapReader";
 import { MCAP_MAGIC, RecordType } from "./constants";
 import { parseRecord } from "./parse";
@@ -23,7 +27,8 @@ function string(str: string): Uint8Array {
   result.set(encoded, 4);
   return result;
 }
-function record(type: RecordType, data: number[]): Uint8Array {
+// eslint-disable-next-line no-underscore-dangle
+function record_(type: RecordType, data: number[]): Uint8Array {
   if (type === RecordType.FOOTER) {
     const result = new Uint8Array(1 + data.length);
     result[0] = type;
@@ -39,7 +44,74 @@ function record(type: RecordType, data: number[]): Uint8Array {
 
 const formatVersion = 1;
 
+jest.setTimeout(300000);
 describe("McapReader", () => {
+  it.skip("parses demo.mcap", async () => {
+    await decompressLZ4.isLoaded;
+    const reader = new McapReader();
+    const stream = fs.createReadStream("/Users/Work/Downloads/demo.mcap");
+
+    let readHeader = false;
+    let readFooter = false;
+    const records: McapRecord[] = [];
+    await new Promise<void>((resolve, reject) => {
+      function parseChunk(chunk: Chunk) {
+        let buffer = new Uint8Array(chunk.data);
+        if (chunk.compression === "lz4") {
+          buffer = decompressLZ4(buffer, Number(chunk.decompressedSize));
+          //FIXME: check crc32
+        }
+        let offset = 0;
+        const view = new DataView(buffer.buffer);
+        for (let record, usedBytes; ({ record, usedBytes } = parseRecord(view, offset)), record; ) {
+          records.push(record);
+          offset += usedBytes;
+        }
+      }
+      stream.on("data", (data) => {
+        try {
+          if (typeof data === "string") {
+            throw new Error("expected buffer");
+          }
+          if (readFooter) {
+            throw new Error("already read footer");
+          }
+          reader.append(data);
+          if (!readHeader) {
+            const magic = reader.readMagic();
+            if (magic) {
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(magic).toEqual({ type: "Magic", formatVersion: 1 });
+              readHeader = true;
+            }
+          }
+          for (let record; (record = reader.readRecord()); ) {
+            if (record.type === "Chunk") {
+              parseChunk(record);
+            } else {
+              records.push(record);
+            }
+            if (record.type === "Footer") {
+              const magic = reader.readMagic();
+              // eslint-disable-next-line jest/no-conditional-expect
+              expect(magic).toEqual({ type: "Magic", formatVersion: 1 });
+              readFooter = true;
+              break;
+            }
+          }
+        } catch (error) {
+          reject(error);
+          stream.close();
+        }
+      });
+
+      stream.on("error", (error) => reject(error));
+      stream.on("close", () => resolve());
+    });
+
+    expect(records.length).toBe(5425);
+  });
+
   it("parses header", () => {
     // Test incremental feed logic by splitting the magic header bytes into all possible
     // subdivisions. `splits` is a bitmask where a 1 bit indicates the input should be split at that
@@ -88,7 +160,7 @@ describe("McapReader", () => {
       new Uint8Array([
         ...MCAP_MAGIC,
         formatVersion,
-        ...record(RecordType.FOOTER, [
+        ...record_(RecordType.FOOTER, [
           ...uint64LE(0x0123456789abcdefn), // index pos
           ...uint32LE(0x01234567), // index crc
         ]),
@@ -112,7 +184,7 @@ describe("McapReader", () => {
       new Uint8Array([
         ...MCAP_MAGIC,
         formatVersion,
-        ...record(RecordType.FOOTER, [
+        ...record_(RecordType.FOOTER, [
           ...uint64LE(0x0123456789abcdefn), // index pos
           ...uint32LE(0x01234567), // index crc
         ]),
@@ -137,14 +209,14 @@ describe("McapReader", () => {
         ...MCAP_MAGIC,
         formatVersion,
 
-        ...record(RecordType.CHUNK, [
+        ...record_(RecordType.CHUNK, [
           ...uint64LE(0n), // decompressed size
           ...uint32LE(0), // decompressed crc32
           ...string(""), // compression
           // (no chunk data)
         ]),
 
-        ...record(RecordType.FOOTER, [
+        ...record_(RecordType.FOOTER, [
           ...uint64LE(0n), // index pos
           ...uint32LE(0), // index crc
         ]),
@@ -172,7 +244,7 @@ describe("McapReader", () => {
         ...MCAP_MAGIC,
         formatVersion,
 
-        ...record(RecordType.CHANNEL_INFO, [
+        ...record_(RecordType.CHANNEL_INFO, [
           ...uint32LE(1), // channel id
           ...string("mytopic"), // topic
           ...string("utf12"), // serialization format
@@ -181,7 +253,7 @@ describe("McapReader", () => {
           ...[1, 2, 3], // channel data
         ]),
 
-        ...record(RecordType.FOOTER, [
+        ...record_(RecordType.FOOTER, [
           ...uint64LE(0n), // index pos
           ...uint32LE(0), // index crc
         ]),
@@ -211,12 +283,12 @@ describe("McapReader", () => {
         ...MCAP_MAGIC,
         formatVersion,
 
-        ...record(RecordType.CHUNK, [
+        ...record_(RecordType.CHUNK, [
           ...uint64LE(0n), // decompressed size
           ...uint32LE(0), // decompressed crc32
           ...string(""), // compression
 
-          ...record(RecordType.CHANNEL_INFO, [
+          ...record_(RecordType.CHANNEL_INFO, [
             ...uint32LE(1), // channel id
             ...string("mytopic"), // topic
             ...string("utf12"), // serialization format
@@ -226,7 +298,7 @@ describe("McapReader", () => {
           ]),
         ]),
 
-        ...record(RecordType.FOOTER, [
+        ...record_(RecordType.FOOTER, [
           ...uint64LE(0n), // index pos
           ...uint32LE(0), // index crc
         ]),
