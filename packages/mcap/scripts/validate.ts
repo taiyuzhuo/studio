@@ -33,7 +33,10 @@ function formatBytes(totalBytes: number) {
   return `${bytes.toFixed(2)}${units[unit]!}`;
 }
 
-async function validate(filePath: string, { deserialize }: { deserialize: boolean }) {
+async function validate(
+  filePath: string,
+  { deserialize, dump }: { deserialize: boolean; dump: boolean },
+) {
   console.log("Reading", filePath);
   await decompressLZ4.isLoaded;
   const reader = new McapReader();
@@ -91,7 +94,12 @@ async function validate(filePath: string, { deserialize }: { deserialize: boolea
             throw new Error(`message for channel ${record.channelId} with no prior channel info`);
           }
           if (deserialize) {
-            channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data));
+            const message = channelInfo.messageDeserializer.readMessage(
+              new Uint8Array(record.data),
+            );
+            if (dump) {
+              console.log(message);
+            }
           }
           break;
         }
@@ -188,7 +196,8 @@ async function validate(filePath: string, { deserialize }: { deserialize: boolea
 program
   .argument("<file>", "path to mcap file")
   .option("--deserialize", "deserialize message contents", false)
-  .action((file: string, options: { deserialize: boolean }) => {
+  .option("--dump", "dump message contents to stdout", false)
+  .action((file: string, options: { deserialize: boolean; dump: boolean }) => {
     validate(file, options).catch(console.error);
   })
   .parse();
