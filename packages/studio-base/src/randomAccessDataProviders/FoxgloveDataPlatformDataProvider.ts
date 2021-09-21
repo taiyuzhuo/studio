@@ -5,17 +5,12 @@
 import { isEqual } from "lodash";
 import decompressLZ4 from "wasm-lz4";
 
+import Logger from "@foxglove/log";
 import { ChannelInfo, McapReader, McapRecord, parseRecord } from "@foxglove/mcap";
 import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/rosmsg";
 import { LazyMessageReader } from "@foxglove/rosmsg-serialization";
 import { MessageReader as ROS2MessageReader } from "@foxglove/rosmsg2-serialization";
-import {
-  Time,
-  compare,
-  isLessThan,
-  isGreaterThan,
-  isTimeInRangeInclusive,
-} from "@foxglove/rostime";
+import { Time, isTimeInRangeInclusive, fromDate, subtract } from "@foxglove/rostime";
 import {
   MessageDefinitionsByTopic,
   MessageEvent,
@@ -31,34 +26,125 @@ import {
   InitializationResult,
   Connection,
 } from "@foxglove/studio-base/randomAccessDataProviders/types";
+import ConsoleApi from "@foxglove/studio-base/services/ConsoleApi";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
-type Options = { blob: Blob };
+const log = Logger.getLogger(__filename);
 
-// Read from a ROS Bag. `bagPath` can either represent a local file, or a remote bag. See
-// `BrowserHttpReader` for how to set up a remote server to be able to directly stream from it.
-// Returns raw messages that still need to be parsed by `ParseMessagesDataProvider`.
-export default class McapDataProvider implements RandomAccessDataProvider {
-  private options: Options;
+type Options = { consoleApi: ConsoleApi; deviceId: string; start: string; end: string };
+
+export default class FoxgloveDataPlatformDataProvider implements RandomAccessDataProvider {
   private extensionPoint?: ExtensionPoint;
-  private messagesByChannel?: Map<number, MessageEvent<unknown>[]>;
 
-  constructor(options: Options, children: RandomAccessDataProviderDescriptor[]) {
+  constructor(private options: Options, children: RandomAccessDataProviderDescriptor[]) {
     if (children.length > 0) {
-      throw new Error("McapDataProvider cannot have children");
+      throw new Error("FoxgloveDataPlatformDataProvider cannot have children");
     }
-    this.options = options;
   }
 
   async initialize(extensionPoint: ExtensionPoint): Promise<InitializationResult> {
     this.extensionPoint = extensionPoint;
-    const { blob } = this.options;
     await decompressLZ4.isLoaded;
 
-    const reader = new McapReader();
-    const streamReader = (blob.stream() as ReadableStream<Uint8Array>).getReader();
+    const startTime = fromDate(new Date(this.options.start));
+    const endTime = fromDate(new Date(this.options.end));
 
-    const messagesByChannel = new Map<number, MessageEvent<unknown>[]>();
+    const rawTopics = await this.options.consoleApi.topics({
+      deviceId: this.options.deviceId,
+      start: this.options.start,
+      end: this.options.end,
+      includeSchemas: true,
+    });
+
+    const topics: Topic[] = [];
+    const connections: Connection[] = [];
+    const datatypes: RosDatatypes = new Map([["TODO", { definitions: [] }]]);
+    const messageDefinitionsByTopic: MessageDefinitionsByTopic = {};
+    const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
+
+    for (const { topic, version, serializationFormat, schema } of rawTopics) {
+      const datatypeName = version; //FIXME
+      if (schema == undefined) {
+        throw new Error(`missing requested schema for ${topic}`);
+      }
+      topics.push({
+        name: topic,
+        datatype: datatypeName,
+      });
+      const parsedDefinitions = parseMessageDefinition(schema, { ros2: false /*FIXME*/ });
+      parsedDefinitions.forEach(({ name, definitions }, index) => {
+        // The first definition usually doesn't have an explicit name,
+        // so we get the name from the datatype.
+        if (index === 0) {
+          datatypes.set(datatypeName, { name: datatypeName, definitions });
+        } else if (name != undefined) {
+          datatypes.set(name, { name, definitions });
+        }
+      });
+    }
+
+    // for (const { info, parsedDefinitions } of channelInfoById.values()) {
+    //   topics.push({
+    //     name: info.topic,
+    //     datatype: "TODO", //FIXME
+    //   });
+    //   const messageDefinition = new TextDecoder().decode(info.schema);
+    //   connections.push({
+    //     topic: info.topic,
+    //     messageDefinition,
+    //     md5sum: "",
+    //     type: "",
+    //     callerid: "",
+    //   });
+    //   // datatypes.set(topicDef.type, { name: topicDef.type, definitions: parsedMsgdef.definitions });
+    //   messageDefinitionsByTopic[info.topic] = messageDefinition;
+    //   parsedMessageDefinitionsByTopic[info.topic] = parsedDefinitions;
+    // }
+
+    console.log("got topics", rawTopics);
+
+    return {
+      start: startTime,
+      end: endTime,
+      topics,
+      connections,
+      providesParsedMessages: true,
+      messageDefinitions: {
+        type: "parsed",
+        datatypes,
+        messageDefinitionsByTopic,
+        parsedMessageDefinitionsByTopic,
+      },
+      problems: [],
+    };
+  }
+
+  async getMessages(
+    requestedStart: Time,
+    requestedEnd: Time,
+    subscriptions: GetMessagesTopics,
+  ): Promise<GetMessagesResult> {
+    log.debug("getMessages duration:", subtract(requestedEnd, requestedStart));
+    const topics = subscriptions.parsedMessages;
+    if (topics == undefined) {
+      return {};
+    }
+
+    const startTimer = performance.now();
+    const { link: mcapUrl } = await this.options.consoleApi.stream({
+      deviceId: this.options.deviceId,
+      start: new Date(
+        Math.floor(requestedStart.sec * 1000 + requestedStart.nsec / 1e6),
+      ).toISOString(),
+      end: new Date(Math.ceil(requestedEnd.sec * 1000 + requestedEnd.nsec / 1e6)).toISOString(),
+      topics,
+    });
+    const response = await fetch(mcapUrl);
+    if (!response.body) {
+      throw new Error("Unable to stream response body");
+    }
+    const streamReader = response.body?.getReader();
+
     const channelInfoById = new Map<
       number,
       {
@@ -68,8 +154,8 @@ export default class McapDataProvider implements RandomAccessDataProvider {
       }
     >();
 
-    let startTime: Time | undefined;
-    let endTime: Time | undefined;
+    const reader = new McapReader();
+    const messages: MessageEvent<unknown>[] = [];
     let readHeader = false;
     let readFooter = false;
     function processRecord(record: McapRecord) {
@@ -96,31 +182,25 @@ export default class McapDataProvider implements RandomAccessDataProvider {
             throw new Error(`unsupported schema format ${record.schemaFormat}`);
           }
           channelInfoById.set(record.id, { info: record, messageDeserializer, parsedDefinitions });
-          messagesByChannel.set(record.id, []);
           break;
         }
 
         case "Message": {
           const channelInfo = channelInfoById.get(record.channelId);
-          const messages = messagesByChannel.get(record.channelId);
-          if (!channelInfo || !messages) {
+          if (!channelInfo) {
             throw new Error(`message for channel ${record.channelId} with no prior channel info`);
           }
           const receiveTime = {
             sec: Number(record.timestamp / 1_000_000_000n),
             nsec: Number(record.timestamp % 1_000_000_000n),
           };
-          if (!startTime || isLessThan(receiveTime, startTime)) {
-            startTime = receiveTime;
+          if (isTimeInRangeInclusive(receiveTime, requestedStart, requestedEnd)) {
+            messages.push({
+              topic: channelInfo.info.topic,
+              receiveTime,
+              message: channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data)),
+            });
           }
-          if (!endTime || isGreaterThan(receiveTime, endTime)) {
-            endTime = receiveTime;
-          }
-          messages.push({
-            topic: channelInfo.info.topic,
-            receiveTime,
-            message: channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data)),
-          });
           break;
         }
         case "Chunk": {
@@ -179,77 +259,20 @@ export default class McapDataProvider implements RandomAccessDataProvider {
         }
       }
     }
-
-    this.messagesByChannel = messagesByChannel;
-
-    const topics: Topic[] = [];
-    const connections: Connection[] = [];
-    const datatypes: RosDatatypes = new Map([["TODO", { definitions: [] }]]);
-    const messageDefinitionsByTopic: MessageDefinitionsByTopic = {};
-    const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
-
-    for (const { info, parsedDefinitions } of channelInfoById.values()) {
-      topics.push({
-        name: info.topic,
-        datatype: "TODO", //FIXME
-      });
-      const messageDefinition = new TextDecoder().decode(info.schema);
-      connections.push({
-        topic: info.topic,
-        messageDefinition,
-        md5sum: "",
-        type: "",
-        callerid: "",
-      });
-      // datatypes.set(topicDef.type, { name: topicDef.type, definitions: parsedMsgdef.definitions });
-      messageDefinitionsByTopic[info.topic] = messageDefinition;
-      parsedMessageDefinitionsByTopic[info.topic] = parsedDefinitions;
+    if (!readFooter) {
+      throw new Error("missing footer in mcap file");
     }
 
-    return {
-      start: startTime ?? { sec: 0, nsec: 0 },
-      end: endTime ?? { sec: 0, nsec: 0 },
-      topics,
-      connections,
-      providesParsedMessages: true,
-      messageDefinitions: {
-        type: "parsed",
-        datatypes,
-        messageDefinitionsByTopic,
-        parsedMessageDefinitionsByTopic,
-      },
-      problems: [],
-    };
-  }
+    log.debug(
+      "Received",
+      messages.length,
+      "messages",
+      messages,
+      "in",
+      `${performance.now() - startTimer}ms`,
+    );
 
-  async getMessages(
-    start: Time,
-    end: Time,
-    subscriptions: GetMessagesTopics,
-  ): Promise<GetMessagesResult> {
-    if (!this.messagesByChannel) {
-      throw new Error("initialization not completed");
-    }
-    const topics = subscriptions.parsedMessages;
-    if (topics == undefined) {
-      return {};
-    }
-    const topicsSet = new Set(topics);
-
-    const parsedMessages: MessageEvent<unknown>[] = [];
-    for (const messages of this.messagesByChannel.values()) {
-      for (const message of messages) {
-        if (
-          isTimeInRangeInclusive(message.receiveTime, start, end) &&
-          topicsSet.has(message.topic)
-        ) {
-          parsedMessages.push(message);
-        }
-      }
-    }
-    parsedMessages.sort((msg1, msg2) => compare(msg1.receiveTime, msg2.receiveTime));
-
-    return { parsedMessages };
+    return { parsedMessages: messages };
   }
 
   async close(): Promise<void> {

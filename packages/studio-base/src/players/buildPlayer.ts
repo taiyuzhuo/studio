@@ -50,7 +50,7 @@ export function buildPlayerFromFiles(files: File[], options: BuildPlayerOptions)
     if (file.name.endsWith(".mcap")) {
       return new RandomAccessPlayer(
         {
-          name: CoreDataProviders.McapDataProvider,
+          name: CoreDataProviders.McapBlobDataProvider,
           filePath: (file as { path?: string }).path, // File.path is added by Electron
           args: { blob: file },
           children: [],

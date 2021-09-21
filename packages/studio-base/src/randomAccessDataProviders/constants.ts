@@ -18,8 +18,9 @@ export const CoreDataProviders = {
   ParseMessagesDataProvider: "ParseMessagesDataProvider",
   RenameDataProvider: "RenameDataProvider",
   Rosbag2DataProvider: "Rosbag2DataProvider",
-  McapDataProvider: "McapDataProvider",
   RpcDataProvider: "RpcDataProvider",
   WorkerDataProvider: "WorkerDataProvider",
+  McapBlobDataProvider: "McapBlobDataProvider",
+  FoxgloveDataPlatformDataProvider: "FoxgloveDataPlatformDataProvider",
 };
 export const MESSAGE_FORMATS = ["rosBinaryMessages", "parsedMessages"] as const;
