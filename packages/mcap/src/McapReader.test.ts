@@ -2,10 +2,6 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import fs from "fs";
-import decompressLZ4 from "wasm-lz4";
-
-import { Chunk, McapRecord } from ".";
 import McapReader from "./McapReader";
 import { MCAP_MAGIC, RecordType } from "./constants";
 import { parseRecord } from "./parse";
@@ -46,72 +42,6 @@ const formatVersion = 1;
 
 jest.setTimeout(300000);
 describe("McapReader", () => {
-  it.skip("parses demo.mcap", async () => {
-    await decompressLZ4.isLoaded;
-    const reader = new McapReader();
-    const stream = fs.createReadStream("/Users/Work/Downloads/demo.mcap");
-
-    let readHeader = false;
-    let readFooter = false;
-    const records: McapRecord[] = [];
-    await new Promise<void>((resolve, reject) => {
-      function parseChunk(chunk: Chunk) {
-        let buffer = new Uint8Array(chunk.data);
-        if (chunk.compression === "lz4") {
-          buffer = decompressLZ4(buffer, Number(chunk.decompressedSize));
-          //FIXME: check crc32
-        }
-        let offset = 0;
-        const view = new DataView(buffer.buffer);
-        for (let record, usedBytes; ({ record, usedBytes } = parseRecord(view, offset)), record; ) {
-          records.push(record);
-          offset += usedBytes;
-        }
-      }
-      stream.on("data", (data) => {
-        try {
-          if (typeof data === "string") {
-            throw new Error("expected buffer");
-          }
-          if (readFooter) {
-            throw new Error("already read footer");
-          }
-          reader.append(data);
-          if (!readHeader) {
-            const magic = reader.readMagic();
-            if (magic) {
-              // eslint-disable-next-line jest/no-conditional-expect
-              expect(magic).toEqual({ type: "Magic", formatVersion: 1 });
-              readHeader = true;
-            }
-          }
-          for (let record; (record = reader.readRecord()); ) {
-            if (record.type === "Chunk") {
-              parseChunk(record);
-            } else {
-              records.push(record);
-            }
-            if (record.type === "Footer") {
-              const magic = reader.readMagic();
-              // eslint-disable-next-line jest/no-conditional-expect
-              expect(magic).toEqual({ type: "Magic", formatVersion: 1 });
-              readFooter = true;
-              break;
-            }
-          }
-        } catch (error) {
-          reject(error);
-          stream.close();
-        }
-      });
-
-      stream.on("error", (error) => reject(error));
-      stream.on("close", () => resolve());
-    });
-
-    expect(records.length).toBe(5425);
-  });
-
   it("parses header", () => {
     // Test incremental feed logic by splitting the magic header bytes into all possible
     // subdivisions. `splits` is a bitmask where a 1 bit indicates the input should be split at that
@@ -199,7 +129,7 @@ describe("McapReader", () => {
       indexCrc: 0x01234567,
     });
     expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
-    expect(reader.atEnd()).toBe(true);
+    expect(reader.bytesRemaining()).toBe(0);
   });
 
   it("parses file with empty chunk", () => {
@@ -234,7 +164,7 @@ describe("McapReader", () => {
     });
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
     expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
-    expect(reader.atEnd()).toBe(true);
+    expect(reader.bytesRemaining()).toBe(0);
   });
 
   it("parses channel info at top level", () => {
@@ -273,7 +203,7 @@ describe("McapReader", () => {
     });
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
     expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
-    expect(reader.atEnd()).toBe(true);
+    expect(reader.bytesRemaining()).toBe(0);
   });
 
   it("parses channel info in chunk", () => {
@@ -328,6 +258,6 @@ describe("McapReader", () => {
     }
     expect(reader.readRecord()).toEqual({ type: "Footer", indexPos: 0n, indexCrc: 0 });
     expect(reader.readMagic()).toEqual({ type: "Magic", formatVersion });
-    expect(reader.atEnd()).toBe(true);
+    expect(reader.bytesRemaining()).toBe(0);
   });
 });

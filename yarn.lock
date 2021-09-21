@@ -2177,7 +2177,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@foxglove/mcap@workspace:packages/mcap"
   dependencies:
+    "@foxglove/rosmsg": 2.0.0
+    "@foxglove/rosmsg-serialization": 1.2.0
+    "@foxglove/rosmsg2-serialization": 1.0.2
+    "@types/lodash": ^4
+    commander: 8.2.0
     eventemitter3: 4.0.7
+    lodash: 4.17.21
+    ts-node: 10.2.1
     typescript: 4.4.3
   languageName: unknown
   linkType: soft
@@ -2277,7 +2284,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@foxglove/rosmsg2-serialization@npm:^1.0.2":
+"@foxglove/rosmsg2-serialization@npm:1.0.2, @foxglove/rosmsg2-serialization@npm:^1.0.2":
   version: 1.0.2
   resolution: "@foxglove/rosmsg2-serialization@npm:1.0.2"
   dependencies:
@@ -5271,6 +5278,13 @@ __metadata:
   version: 4.14.172
   resolution: "@types/lodash@npm:4.14.172"
   checksum: 5fc51ea40d7e455bd1c760bcc60c9e81f82d85988666d4d4969bd8311367c63bbf1fe2be48755ba87836710e45fff94014ec164ebe6ccaa72815014981152434
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:^4":
+  version: 4.14.173
+  resolution: "@types/lodash@npm:4.14.173"
+  checksum: 9e97ef5816299e5470db1cb32a93e981af60f74f18a35d045ed4caf224a065df96bfae6e444ec96aa392fc01258592b965d840ae042eef77ef719a578c7daef8
   languageName: node
   linkType: hard
 
@@ -8983,6 +8997,13 @@ __metadata:
   dependencies:
     graceful-readlink: ">= 1.0.0"
   checksum: 37939b6866ae190784fa946ea5b926dfe713731064c746e818642ac59e28f513b54e88e35d8c34b4d24d063cb465977dca2efd2ec974f91e495c743fcb2ae7a2
+  languageName: node
+  linkType: hard
+
+"commander@npm:8.2.0":
+  version: 8.2.0
+  resolution: "commander@npm:8.2.0"
+  checksum: e868805bc266777f7a9c8a740e15b9e02b8148d8251f577ea9b9ef373ac0bdeb77b9b60cfc033592c9e1affea89993be08c13c623f0c619f9bf152c0e4d12cb0
   languageName: node
   linkType: hard
 

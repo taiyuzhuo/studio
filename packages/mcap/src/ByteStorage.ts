@@ -53,7 +53,7 @@ export default class ByteStorage {
     }
   }
 
-  atEnd(): boolean {
-    return this.view.byteLength === 0;
+  bytesRemaining(): number {
+    return this.view.byteLength;
   }
 }

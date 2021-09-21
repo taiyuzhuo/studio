@@ -40,7 +40,7 @@ export default class McapReader {
     return undefined;
   }
 
-  atEnd(): boolean {
-    return this.storage.atEnd();
+  bytesRemaining(): number {
+    return this.storage.bytesRemaining();
   }
 }

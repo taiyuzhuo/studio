@@ -55,6 +55,11 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
       end: this.options.end,
       includeSchemas: true,
     });
+    if (rawTopics.length === 0) {
+      throw new Error(
+        `No data available for ${this.options.deviceId} between ${this.options.start} and ${this.options.end}.`,
+      );
+    }
 
     const topics: Topic[] = [];
     const connections: Connection[] = [];
@@ -140,6 +145,11 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
       topics,
     });
     const response = await fetch(mcapUrl);
+    if (response.status === 404) {
+      return {};
+    } else if (response.status !== 200) {
+      throw new Error(`Unexpected response status ${response.status} for ${mcapUrl}`);
+    }
     if (!response.body) {
       throw new Error("Unable to stream response body");
     }
@@ -208,9 +218,11 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
           if (record.compression === "lz4") {
             buffer = decompressLZ4(buffer, Number(record.decompressedSize));
             //FIXME: check crc32
+          } else if (record.compression !== "") {
+            throw new Error(`Unsupported compression ${record.compression}`);
           }
           let offset = 0;
-          const view = new DataView(buffer.buffer);
+          const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
           for (
             let subRecord, usedBytes;
             ({ record: subRecord, usedBytes } = parseRecord(view, offset)), subRecord;
