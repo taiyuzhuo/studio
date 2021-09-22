@@ -9,7 +9,7 @@ import { performance } from "perf_hooks";
 import decompressLZ4 from "wasm-lz4";
 
 import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/rosmsg";
-import { MessageReader } from "@foxglove/rosmsg-serialization";
+import { LazyMessageReader as ROS1LazyMessageReader } from "@foxglove/rosmsg-serialization";
 import { MessageReader as ROS2MessageReader } from "@foxglove/rosmsg2-serialization";
 
 import { McapReader, parseRecord, McapRecord, ChannelInfo } from "../src";
@@ -53,7 +53,7 @@ async function validate(
     number,
     {
       info: ChannelInfo;
-      messageDeserializer: ROS2MessageReader | MessageReader;
+      messageDeserializer: ROS2MessageReader | ROS1LazyMessageReader;
       parsedDefinitions: RosMsgDefinition[];
     }
   >();
@@ -75,7 +75,7 @@ async function validate(
           let messageDeserializer;
           if (record.schemaFormat === "ros1") {
             parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema));
-            messageDeserializer = new MessageReader(parsedDefinitions);
+            messageDeserializer = new ROS1LazyMessageReader(parsedDefinitions);
           } else if (record.schemaFormat === "ros2") {
             parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema), {
               ros2: true,
@@ -94,9 +94,20 @@ async function validate(
             throw new Error(`message for channel ${record.channelId} with no prior channel info`);
           }
           if (deserialize) {
-            const message = channelInfo.messageDeserializer.readMessage(
-              new Uint8Array(record.data),
-            );
+            let message: unknown;
+            if (channelInfo.messageDeserializer instanceof ROS1LazyMessageReader) {
+              const size = channelInfo.messageDeserializer.size(new Uint8Array(record.data));
+              if (size !== record.data.byteLength) {
+                throw new Error(
+                  `Message size ${size} should match buffer length ${record.data.byteLength}`,
+                );
+              }
+              message = channelInfo.messageDeserializer
+                .readMessage(new Uint8Array(record.data))
+                .toJSON();
+            } else {
+              message = channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data));
+            }
             if (dump) {
               console.log(message);
             }
