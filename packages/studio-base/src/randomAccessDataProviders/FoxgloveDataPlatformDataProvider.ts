@@ -6,7 +6,7 @@ import { isEqual } from "lodash";
 import decompressLZ4 from "wasm-lz4";
 
 import Logger from "@foxglove/log";
-import { ChannelInfo, McapReader, McapRecord, parseRecord } from "@foxglove/mcap";
+import { ChannelInfo, McapReader, McapRecord } from "@foxglove/mcap";
 import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/rosmsg";
 import { LazyMessageReader } from "@foxglove/rosmsg-serialization";
 import { MessageReader as ROS2MessageReader } from "@foxglove/rosmsg2-serialization";
@@ -162,17 +162,18 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
       }
     >();
 
-    const reader = new McapReader();
     const messages:
       | { parsed: true; parsedMessages: MessageEvent<unknown>[]; rosBinaryMessages?: never }
       | { parsed: false; parsedMessages?: never; rosBinaryMessages: MessageEvent<ArrayBuffer>[] } =
       subscriptions.parsedMessages
         ? { parsed: true, parsedMessages: [] }
         : { parsed: false, rosBinaryMessages: [] };
-    let readHeader = false;
-    let readFooter = false;
+
     function processRecord(record: McapRecord) {
       switch (record.type) {
+        default:
+          break;
+
         case "ChannelInfo": {
           const existingInfo = channelInfoById.get(record.id);
           if (existingInfo) {
@@ -224,66 +225,28 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
           }
           break;
         }
-        case "Chunk": {
-          let buffer = new Uint8Array(record.data);
-          if (record.compression === "lz4") {
-            buffer = decompressLZ4(buffer, Number(record.decompressedSize));
-            //FIXME: check crc32
-          } else if (record.compression !== "") {
-            throw new Error(`Unsupported compression ${record.compression}`);
-          }
-          let offset = 0;
-          const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-          for (
-            let subRecord, usedBytes;
-            ({ record: subRecord, usedBytes } = parseRecord(view, offset)), subRecord;
+      }
+    }
 
-          ) {
-            processRecord(subRecord);
-            offset += usedBytes;
-          }
-          break;
-        }
-        case "IndexData":
-          throw new Error("not yet implemented");
-        case "ChunkInfo":
-          throw new Error("not yet implemented");
-        case "Footer":
-          throw new Error("unexpected footer record");
-      }
-    }
+    const reader = new McapReader({
+      decompressHandlers: {
+        lz4: (buffer, decompressedSize) => {
+          const result = decompressLZ4(
+            new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+            Number(decompressedSize),
+          );
+          return new DataView(result.buffer, result.byteOffset, result.byteLength);
+        },
+      },
+    });
     for (let result; (result = await streamReader.read()), !result.done; ) {
-      if (readFooter) {
-        throw new Error("already read footer");
-      }
       reader.append(result.value);
-      if (!readHeader) {
-        const magic = reader.readMagic();
-        if (magic) {
-          if (magic.formatVersion !== 1) {
-            throw new Error("unsupported format version");
-          }
-          readHeader = true;
-        }
-      }
-      for (let record; (record = reader.readRecord()); ) {
-        if (record.type === "Footer") {
-          const magic = reader.readMagic();
-          if (!magic) {
-            throw new Error("missing trailing magic after footer record");
-          }
-          if (magic.formatVersion !== 1) {
-            throw new Error("unsupported format version");
-          }
-          readFooter = true;
-          break;
-        } else {
-          processRecord(record);
-        }
+      for (let record; (record = reader.nextRecord()); ) {
+        processRecord(record);
       }
     }
-    if (!readFooter) {
-      throw new Error("missing footer in mcap file");
+    if (!reader.done()) {
+      throw new Error("Incomplete mcap file");
     }
 
     log.debug(

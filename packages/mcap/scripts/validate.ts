@@ -12,10 +12,12 @@ import { parse as parseMessageDefinition, RosMsgDefinition } from "@foxglove/ros
 import { LazyMessageReader as ROS1LazyMessageReader } from "@foxglove/rosmsg-serialization";
 import { MessageReader as ROS2MessageReader } from "@foxglove/rosmsg2-serialization";
 
-import { McapReader, parseRecord, McapRecord, ChannelInfo } from "../src";
+import { McapReader, McapRecord, ChannelInfo } from "../src";
 
-// FIXME
-/* eslint-disable no-restricted-syntax */
+function log(...data: unknown[]) {
+  // eslint-disable-next-line no-restricted-syntax
+  console.log(...data);
+}
 
 function die(message: string) {
   process.stderr.write(message);
@@ -37,16 +39,7 @@ async function validate(
   filePath: string,
   { deserialize, dump }: { deserialize: boolean; dump: boolean },
 ) {
-  console.log("Reading", filePath);
   await decompressLZ4.isLoaded;
-  const reader = new McapReader();
-  const stream = fs.createReadStream(filePath);
-
-  const startTime = performance.now();
-  let readBytes = 0n;
-
-  let readHeader = false;
-  let readFooter = false;
 
   const recordCounts = new Map<McapRecord["type"], number>();
   const channelInfoById = new Map<
@@ -58,149 +51,117 @@ async function validate(
     }
   >();
 
-  await new Promise<void>((resolve, reject) => {
-    function processRecord(record: McapRecord) {
-      recordCounts.set(record.type, (recordCounts.get(record.type) ?? 0) + 1);
+  function processRecord(record: McapRecord) {
+    recordCounts.set(record.type, (recordCounts.get(record.type) ?? 0) + 1);
 
-      switch (record.type) {
-        case "ChannelInfo": {
-          const existingInfo = channelInfoById.get(record.id);
-          if (existingInfo) {
-            if (!isEqual(existingInfo.info, record)) {
-              throw new Error(`differing channel infos for for ${record.id}`);
-            }
-            break;
+    switch (record.type) {
+      default:
+        break;
+
+      case "ChannelInfo": {
+        const existingInfo = channelInfoById.get(record.id);
+        if (existingInfo) {
+          if (!isEqual(existingInfo.info, record)) {
+            throw new Error(`differing channel infos for for ${record.id}`);
           }
-          let parsedDefinitions;
-          let messageDeserializer;
-          if (record.schemaFormat === "ros1") {
-            parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema));
-            messageDeserializer = new ROS1LazyMessageReader(parsedDefinitions);
-          } else if (record.schemaFormat === "ros2") {
-            parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema), {
-              ros2: true,
-            });
-            messageDeserializer = new ROS2MessageReader(parsedDefinitions);
+          break;
+        }
+        let parsedDefinitions;
+        let messageDeserializer;
+        if (record.schemaFormat === "ros1") {
+          parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema));
+          messageDeserializer = new ROS1LazyMessageReader(parsedDefinitions);
+        } else if (record.schemaFormat === "ros2") {
+          parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema), {
+            ros2: true,
+          });
+          messageDeserializer = new ROS2MessageReader(parsedDefinitions);
+        } else {
+          throw new Error(`unsupported schema format ${record.schemaFormat}`);
+        }
+        channelInfoById.set(record.id, { info: record, messageDeserializer, parsedDefinitions });
+        break;
+      }
+
+      case "Message": {
+        const channelInfo = channelInfoById.get(record.channelId);
+        if (!channelInfo) {
+          throw new Error(`message for channel ${record.channelId} with no prior channel info`);
+        }
+        if (deserialize) {
+          let message: unknown;
+          if (channelInfo.messageDeserializer instanceof ROS1LazyMessageReader) {
+            const size = channelInfo.messageDeserializer.size(new Uint8Array(record.data));
+            if (size !== record.data.byteLength) {
+              throw new Error(
+                `Message size ${size} should match buffer length ${record.data.byteLength}`,
+              );
+            }
+            message = channelInfo.messageDeserializer
+              .readMessage(new Uint8Array(record.data))
+              .toJSON();
           } else {
-            throw new Error(`unsupported schema format ${record.schemaFormat}`);
+            message = channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data));
           }
-          channelInfoById.set(record.id, { info: record, messageDeserializer, parsedDefinitions });
-          break;
+          if (dump) {
+            log(message);
+          }
         }
-
-        case "Message": {
-          const channelInfo = channelInfoById.get(record.channelId);
-          if (!channelInfo) {
-            throw new Error(`message for channel ${record.channelId} with no prior channel info`);
-          }
-          if (deserialize) {
-            let message: unknown;
-            if (channelInfo.messageDeserializer instanceof ROS1LazyMessageReader) {
-              const size = channelInfo.messageDeserializer.size(new Uint8Array(record.data));
-              if (size !== record.data.byteLength) {
-                throw new Error(
-                  `Message size ${size} should match buffer length ${record.data.byteLength}`,
-                );
-              }
-              message = channelInfo.messageDeserializer
-                .readMessage(new Uint8Array(record.data))
-                .toJSON();
-            } else {
-              message = channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data));
-            }
-            if (dump) {
-              console.log(message);
-            }
-          }
-          break;
-        }
-        case "Chunk": {
-          let buffer = new Uint8Array(record.data);
-          if (record.compression === "lz4") {
-            buffer = decompressLZ4(buffer, Number(record.decompressedSize));
-            //FIXME: check crc32
-          } else if (record.compression !== "") {
-            throw new Error(`Unsupported compression ${record.compression}`);
-          }
-          let offset = 0;
-          const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-          for (
-            let subRecord, usedBytes;
-            ({ record: subRecord, usedBytes } = parseRecord(view, offset)), subRecord;
-
-          ) {
-            processRecord(subRecord);
-            offset += usedBytes;
-          }
-          break;
-        }
-        case "IndexData":
-          throw new Error("not yet implemented");
-        case "ChunkInfo":
-          throw new Error("not yet implemented");
-        case "Footer":
-          throw new Error("unexpected footer record");
+        break;
       }
     }
+  }
+
+  log("Reading", filePath);
+  const startTime = performance.now();
+  let readBytes = 0n;
+  const reader = new McapReader({
+    includeChunks: true,
+    decompressHandlers: {
+      lz4: (buffer, decompressedSize) => {
+        const result = decompressLZ4(
+          new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
+          Number(decompressedSize),
+        );
+        return new DataView(result.buffer, result.byteOffset, result.byteLength);
+      },
+    },
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    const stream = fs.createReadStream(filePath);
     stream.on("data", (data) => {
       try {
         if (typeof data === "string") {
           throw new Error("expected buffer");
         }
-        if (readFooter) {
-          throw new Error("already read footer");
-        }
         readBytes += BigInt(data.byteLength);
-
-        if (readFooter) {
-          throw new Error("already read footer");
-        }
         reader.append(data);
-        if (!readHeader) {
-          const magic = reader.readMagic();
-          if (magic) {
-            readHeader = true;
-          } else {
-            return;
-          }
-        }
-        for (let record; (record = reader.readRecord()); ) {
-          if (record.type === "Footer") {
-            const magic = reader.readMagic();
-            if (!magic) {
-              throw new Error("missing trailing magic after footer record");
-            }
-            readFooter = true;
-            break;
-          } else {
-            processRecord(record);
-          }
+        for (let record; (record = reader.nextRecord()); ) {
+          processRecord(record);
         }
       } catch (error) {
         reject(error);
         stream.close();
       }
     });
-
     stream.on("error", (error) => reject(error));
     stream.on("close", () => resolve());
   });
-  if (!readFooter) {
-    die("missing footer");
-  }
-  if (reader.bytesRemaining() !== 0) {
-    die(`${reader.bytesRemaining()} bytes remaining after parsing`);
+
+  if (!reader.done()) {
+    die(`File read incomplete; ${reader.bytesRemaining()} bytes remain after parsing`);
   }
 
   const durationMs = performance.now() - startTime;
-  console.log(
+  log(
     `Read ${formatBytes(Number(readBytes))} in ${durationMs.toFixed(2)}ms (${formatBytes(
       Number(readBytes) / (durationMs / 1000),
     )}/sec)`,
   );
-  console.log("Record counts:");
+  log("Record counts:");
   for (const [type, count] of recordCounts) {
-    console.log(`  ${count.toFixed().padStart(6, " ")} ${type}`);
+    log(`  ${count.toFixed().padStart(6, " ")} ${type}`);
   }
 }
 

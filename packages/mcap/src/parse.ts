@@ -2,10 +2,20 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import { McapMagic } from ".";
 import { MCAP_MAGIC, RecordType } from "./constants";
 import { McapRecord } from "./types";
 
-export function verifyMagic(view: DataView, startOffset: number): void {
+/**
+ * Parse a MCAP magic string and format version at `startOffset` in `view`.
+ */
+export function parseMagic(
+  view: DataView,
+  startOffset: number,
+): { magic: McapMagic; usedBytes: number } | { magic?: undefined; usedBytes: 0 } {
+  if (startOffset + MCAP_MAGIC.length + 1 > view.byteLength) {
+    return { usedBytes: 0 };
+  }
   if (!MCAP_MAGIC.every((val, i) => val === view.getUint8(startOffset + i))) {
     throw new Error(
       `Expected MCAP magic '${MCAP_MAGIC.map((val) => val.toString(16).padStart(2, "0")).join(
@@ -15,16 +25,24 @@ export function verifyMagic(view: DataView, startOffset: number): void {
       ).join(" ")}'`,
     );
   }
+  const formatVersion = view.getUint8(startOffset + MCAP_MAGIC.length);
+  if (formatVersion !== 1) {
+    throw new Error(`Unsupported format version ${formatVersion}`);
+  }
+  return {
+    magic: { type: "Magic", formatVersion },
+    usedBytes: MCAP_MAGIC.length + 1,
+  };
 }
+
 /**
  * Parse a MCAP record beginning at `startOffset` in `view`.
  */
-
 export function parseRecord(
   view: DataView,
   startOffset: number,
 ): { record: McapRecord; usedBytes: number } | { record?: undefined; usedBytes: 0 } {
-  if (startOffset >= view.byteLength) {
+  if (startOffset + 5 >= view.byteLength) {
     return { usedBytes: 0 };
   }
   let offset = startOffset;
