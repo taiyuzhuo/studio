@@ -215,10 +215,16 @@ async function foxgloveDataPlatformSource(options: FactoryOptions): Promise<Play
   );
   return new RandomAccessPlayer(
     {
-      label: `device: ${params.deviceId}, start: ${params.start}, end: ${params.end}`,
-      name: CoreDataProviders.FoxgloveDataPlatformDataProvider,
-      args: { ...params, consoleApi: options.consoleApi },
-      children: [],
+      name: CoreDataProviders.MemoryCacheDataProvider,
+      args: { unlimitedCache: false },
+      children: [
+        {
+          label: `device: ${params.deviceId}, start: ${params.start}, end: ${params.end}`,
+          name: CoreDataProviders.FoxgloveDataPlatformDataProvider,
+          args: { ...params, consoleApi: options.consoleApi },
+          children: [],
+        },
+      ],
     },
     {
       metricsCollector: options.playerOptions.metricsCollector,

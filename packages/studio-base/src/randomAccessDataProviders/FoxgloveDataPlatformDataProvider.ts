@@ -86,6 +86,8 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
           datatypes.set(name, { name, definitions });
         }
       });
+      messageDefinitionsByTopic[topic] = schema;
+      parsedMessageDefinitionsByTopic[topic] = parsedDefinitions;
     }
 
     // for (const { info, parsedDefinitions } of channelInfoById.values()) {
@@ -130,19 +132,15 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
     subscriptions: GetMessagesTopics,
   ): Promise<GetMessagesResult> {
     log.debug("getMessages duration:", subtract(requestedEnd, requestedStart));
-    const topics = subscriptions.parsedMessages;
-    if (topics == undefined) {
-      return {};
-    }
-
     const startTimer = performance.now();
+
     const { link: mcapUrl } = await this.options.consoleApi.stream({
       deviceId: this.options.deviceId,
       start: new Date(
         Math.floor(requestedStart.sec * 1000 + requestedStart.nsec / 1e6),
       ).toISOString(),
       end: new Date(Math.ceil(requestedEnd.sec * 1000 + requestedEnd.nsec / 1e6)).toISOString(),
-      topics,
+      topics: subscriptions.parsedMessages ?? subscriptions.rosBinaryMessages ?? [],
     });
     const response = await fetch(mcapUrl);
     if (response.status === 404) {
@@ -165,7 +163,12 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
     >();
 
     const reader = new McapReader();
-    const messages: MessageEvent<unknown>[] = [];
+    const messages:
+      | { parsed: true; parsedMessages: MessageEvent<unknown>[]; rosBinaryMessages?: never }
+      | { parsed: false; parsedMessages?: never; rosBinaryMessages: MessageEvent<ArrayBuffer>[] } =
+      subscriptions.parsedMessages
+        ? { parsed: true, parsedMessages: [] }
+        : { parsed: false, rosBinaryMessages: [] };
     let readHeader = false;
     let readFooter = false;
     function processRecord(record: McapRecord) {
@@ -205,11 +208,19 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
             nsec: Number(record.timestamp % 1_000_000_000n),
           };
           if (isTimeInRangeInclusive(receiveTime, requestedStart, requestedEnd)) {
-            messages.push({
-              topic: channelInfo.info.topic,
-              receiveTime,
-              message: channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data)),
-            });
+            if (messages.parsed) {
+              messages.parsedMessages.push({
+                topic: channelInfo.info.topic,
+                receiveTime,
+                message: channelInfo.messageDeserializer.readMessage(new Uint8Array(record.data)),
+              });
+            } else {
+              messages.rosBinaryMessages.push({
+                topic: channelInfo.info.topic,
+                receiveTime,
+                message: record.data,
+              });
+            }
           }
           break;
         }
@@ -277,14 +288,17 @@ export default class FoxgloveDataPlatformDataProvider implements RandomAccessDat
 
     log.debug(
       "Received",
-      messages.length,
+      messages.parsedMessages?.length ?? messages.rosBinaryMessages?.length ?? 0,
       "messages",
       messages,
       "in",
       `${performance.now() - startTimer}ms`,
     );
 
-    return { parsedMessages: messages };
+    return {
+      parsedMessages: messages.parsedMessages,
+      rosBinaryMessages: messages.rosBinaryMessages,
+    };
   }
 
   async close(): Promise<void> {
