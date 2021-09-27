@@ -2112,6 +2112,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@foxglove/crc@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@foxglove/crc@npm:0.0.3"
+  checksum: 2eee0e45780e3289c4a190fa909e5977643667e19a21b945a109977b89427b877d8e12ebf91821653d69bdb0390e58540e1c9bb906aefcc7dd818c64f131f071
+  languageName: node
+  linkType: hard
+
 "@foxglove/den@workspace:*, @foxglove/den@workspace:packages/den":
   version: 0.0.0-use.local
   resolution: "@foxglove/den@workspace:packages/den"
@@ -2173,10 +2180,11 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@foxglove/mcap@workspace:*, @foxglove/mcap@workspace:packages/mcap":
+"@foxglove/mcap@workspace:packages/mcap":
   version: 0.0.0-use.local
   resolution: "@foxglove/mcap@workspace:packages/mcap"
   dependencies:
+    "@foxglove/crc": 0.0.3
     "@foxglove/rosmsg": 2.0.0
     "@foxglove/rosmsg-serialization": 1.2.0
     "@foxglove/rosmsg2-serialization": 1.0.2
@@ -5274,10 +5282,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:*":
-  version: 4.14.172
-  resolution: "@types/lodash@npm:4.14.172"
-  checksum: 5fc51ea40d7e455bd1c760bcc60c9e81f82d85988666d4d4969bd8311367c63bbf1fe2be48755ba87836710e45fff94014ec164ebe6ccaa72815014981152434
+"@types/lodash@npm:*, @types/lodash@npm:^4":
+  version: 4.14.173
+  resolution: "@types/lodash@npm:4.14.173"
+  checksum: 9e97ef5816299e5470db1cb32a93e981af60f74f18a35d045ed4caf224a065df96bfae6e444ec96aa392fc01258592b965d840ae042eef77ef719a578c7daef8
   languageName: node
   linkType: hard
 

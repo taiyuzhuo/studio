@@ -2,9 +2,8 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { McapMagic } from ".";
 import { MCAP_MAGIC, RecordType } from "./constants";
-import { McapRecord } from "./types";
+import { McapMagic, McapRecord } from "./types";
 
 /**
  * Parse a MCAP magic string and format version at `startOffset` in `view`.
@@ -85,35 +84,42 @@ export function parseRecord(
         new DataView(view.buffer, view.byteOffset + offset, topicLength),
       );
       offset += topicLength;
-      const serializationFormatLen = view.getUint32(offset, true);
+      const encodingLen = view.getUint32(offset, true);
       offset += 4;
-      const serializationFormat = new TextDecoder().decode(
-        new DataView(view.buffer, view.byteOffset + offset, serializationFormatLen),
+      const encoding = new TextDecoder().decode(
+        new DataView(view.buffer, view.byteOffset + offset, encodingLen),
       );
-      offset += serializationFormatLen;
+      offset += encodingLen;
+      const schemaNameLen = view.getUint32(offset, true);
+      offset += 4;
+      const schemaName = new TextDecoder().decode(
+        new DataView(view.buffer, view.byteOffset + offset, schemaNameLen),
+      );
+      offset += schemaNameLen;
       const schemaFormatLen = view.getUint32(offset, true);
       offset += 4;
       const schemaFormat = new TextDecoder().decode(
         new DataView(view.buffer, view.byteOffset + offset, schemaFormatLen),
       );
       offset += schemaFormatLen;
-      const schemaLen = view.getUint32(offset, true);
+      const schemaDefinitionLen = view.getUint32(offset, true);
       offset += 4;
-      const schema = view.buffer.slice(
+      const schemaDefinition = view.buffer.slice(
         view.byteOffset + offset,
-        view.byteOffset + offset + schemaLen,
+        view.byteOffset + offset + schemaDefinitionLen,
       );
-      offset += schemaLen;
+      offset += schemaDefinitionLen;
       const data = view.buffer.slice(view.byteOffset + offset, view.byteOffset + recordEndOffset);
 
       const record: McapRecord = {
         type: "ChannelInfo",
         id,
         topic,
-        serializationFormat,
+        encoding,
+        schemaName,
         schemaFormat,
-        schema,
-        data,
+        schemaDefinition,
+        userData: data,
       };
       return { record, usedBytes: recordEndOffset - startOffset };
     }

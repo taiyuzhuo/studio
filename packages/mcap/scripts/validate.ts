@@ -19,11 +19,6 @@ function log(...data: unknown[]) {
   console.log(...data);
 }
 
-function die(message: string) {
-  process.stderr.write(message);
-  process.exit(1);
-}
-
 function formatBytes(totalBytes: number) {
   const units = ["B", "kiB", "MiB", "GiB", "TiB"];
   let bytes = totalBytes;
@@ -69,12 +64,17 @@ async function validate(
         let parsedDefinitions;
         let messageDeserializer;
         if (record.schemaFormat === "ros1") {
-          parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema));
+          parsedDefinitions = parseMessageDefinition(
+            new TextDecoder().decode(record.schemaDefinition),
+          );
           messageDeserializer = new ROS1LazyMessageReader(parsedDefinitions);
         } else if (record.schemaFormat === "ros2") {
-          parsedDefinitions = parseMessageDefinition(new TextDecoder().decode(record.schema), {
-            ros2: true,
-          });
+          parsedDefinitions = parseMessageDefinition(
+            new TextDecoder().decode(record.schemaDefinition),
+            {
+              ros2: true,
+            },
+          );
           messageDeserializer = new ROS2MessageReader(parsedDefinitions);
         } else {
           throw new Error(`unsupported schema format ${record.schemaFormat}`);
@@ -118,13 +118,7 @@ async function validate(
   const reader = new McapReader({
     includeChunks: true,
     decompressHandlers: {
-      lz4: (buffer, decompressedSize) => {
-        const result = decompressLZ4(
-          new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength),
-          Number(decompressedSize),
-        );
-        return new DataView(result.buffer, result.byteOffset, result.byteLength);
-      },
+      lz4: (buffer, decompressedSize) => decompressLZ4(buffer, Number(decompressedSize)),
     },
   });
 
@@ -150,7 +144,7 @@ async function validate(
   });
 
   if (!reader.done()) {
-    die(`File read incomplete; ${reader.bytesRemaining()} bytes remain after parsing`);
+    throw new Error(`File read incomplete; ${reader.bytesRemaining()} bytes remain after parsing`);
   }
 
   const durationMs = performance.now() - startTime;
