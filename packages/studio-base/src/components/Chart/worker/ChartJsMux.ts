@@ -30,7 +30,7 @@ import {
 } from "chart.js";
 import AnnotationPlugin from "chartjs-plugin-annotation";
 
-import RobotoMono from "@foxglove/studio-base/styles/assets/latin-roboto-mono.woff2";
+import RobotoMono from "@foxglove/studio-base/assets/latin-roboto-mono.woff2";
 import Rpc from "@foxglove/studio-base/util/Rpc";
 import { setupWorker } from "@foxglove/studio-base/util/RpcWorkerUtils";
 
