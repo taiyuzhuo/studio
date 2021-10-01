@@ -5,11 +5,56 @@
 import { mergeStyles, useTheme } from "@fluentui/react";
 import { PropsWithChildren } from "react";
 
-import "@foxglove/studio-base/styles/assets/latin-roboto-mono.scss";
+import robotoMonoBoldItalic from "@foxglove/studio-base/assets/latin-roboto-mono-bold-italic.woff2";
+import robotoMonoBold from "@foxglove/studio-base/assets/latin-roboto-mono-bold.woff2";
+import robotoMonoItalic from "@foxglove/studio-base/assets/latin-roboto-mono-italic.woff2";
+import robotoMono from "@foxglove/studio-base/assets/latin-roboto-mono.woff2";
 import { fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
+
+const unicodeRange = `U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD`;
 
 export default function CssBaseline(props: PropsWithChildren<unknown>): JSX.Element {
   const theme = useTheme();
+
+  mergeStyles({
+    ":global(@font-face)": {
+      fontFamily: "Roboto Mono",
+      fontStyle: "italic",
+      fontWeight: 700,
+      src: `url(${robotoMonoBoldItalic}) format("woff2")`,
+      unicodeRange,
+    },
+  });
+
+  mergeStyles({
+    ":global(@font-face)": {
+      fontFamily: "Roboto Mono",
+      fontStyle: "normal",
+      fontWeight: 700,
+      src: `url(${robotoMonoBold}) format("woff2")`,
+      unicodeRange,
+    },
+  });
+
+  mergeStyles({
+    ":global(@font-face)": {
+      fontFamily: "Roboto Mono",
+      fontStyle: "italic",
+      fontWeight: 400,
+      src: `url(${robotoMonoItalic}) format("woff2")`,
+      unicodeRange,
+    },
+  });
+
+  mergeStyles({
+    ":global(@font-face)": {
+      fontFamily: "Roboto Mono",
+      fontStyle: "normal",
+      fontWeight: 400,
+      src: `url(${robotoMono}) format("woff2")`,
+      unicodeRange,
+    },
+  });
 
   // styles scoped to our container
   const className = mergeStyles({
