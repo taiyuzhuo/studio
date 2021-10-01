@@ -8,12 +8,35 @@ declare module "@foxglove/studio" {
     nsec: number;
   }
 
+  export type SchemaType = "record" | "array" | "string" | "integer" | "number" | "boolean";
+
+  export type Schema = {
+    // The name of the schema. For top level schemas this is typically the name of the schema
+    // for field schemas this is the name of the field.
+    name: string;
+
+    // The type of the schema. For type "record", the _fields_ property describes the record
+    type: SchemaType;
+
+    // For type "array", this contains the type of each individual item
+    // If the item type is "record", the _fields_ property describes the record
+    items?: SchemaType;
+
+    // For schema type "record", this contains the fields of the record
+    fields?: Schema[];
+
+    // For field schemas of record types, this indicates whether the field is optional.
+    optional?: boolean;
+  };
+
   // A topic is a namespace for specific types of messages
   export type Topic = {
     // topic name i.e. "/some/topic"
     name: string;
     // topic datatype
     datatype: string;
+    // datatype schema
+    schema?: Schema;
   };
 
   /**

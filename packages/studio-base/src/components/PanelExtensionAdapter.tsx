@@ -28,9 +28,10 @@ import {
 import {
   AdvertiseOptions,
   PlayerCapabilities,
-  PlayerState,
+  PlayerStateActiveData,
 } from "@foxglove/studio-base/players/types";
 import { SaveConfig } from "@foxglove/studio-base/types/panels";
+import { rosDatatypeToSchema } from "@foxglove/studio-base/util/rosDatatypeToSchema";
 
 const log = Logger.getLogger(__filename);
 
@@ -44,8 +45,6 @@ type PanelExtensionAdapterProps = {
   /** Help document for the panel */
   help?: string;
 };
-
-const EmptyTopics: readonly Topic[] = [];
 
 function selectSetSubscriptions(ctx: MessagePipelineContext) {
   return ctx.setSubscriptions;
@@ -86,7 +85,8 @@ function PanelExtensionAdapter(props: PanelExtensionAdapterProps): JSX.Element {
   const [error, setError] = useState<Error | undefined>();
   const watchedFieldsRef = useRef(new Set<keyof RenderState>());
   const subscribedTopicsRef = useRef(new Set<string>());
-  const previousPlayerStateRef = useRef<PlayerState | undefined>(undefined);
+  const previousTopics = useRef<PlayerStateActiveData["topics"]>();
+  const previousDatatypes = useRef<PlayerStateActiveData["datatypes"]>();
 
   // To avoid updating extended message stores once message pipeline blocks are no longer updating
   // we store a ref to the blocks and only update stores when the ref is different
@@ -130,7 +130,6 @@ function PanelExtensionAdapter(props: PanelExtensionAdapterProps): JSX.Element {
     }
 
     const playerState = ctx.playerState;
-    previousPlayerStateRef.current = playerState;
 
     if (renderingRef.current) {
       setSlowRender(true);
@@ -159,10 +158,34 @@ function PanelExtensionAdapter(props: PanelExtensionAdapterProps): JSX.Element {
     }
 
     if (watchedFieldsRef.current.has("topics")) {
-      const newTopics = playerState.activeData?.topics ?? EmptyTopics;
-      if (newTopics !== prevRenderState.current.topics) {
+      const currentTopics = playerState.activeData?.topics;
+      const currentDatatypes = playerState.activeData?.datatypes;
+
+      // Topics or datatypes have changed in the player. Re-create the topics array for our panel
+      // context
+      if (
+        currentTopics !== previousTopics.current ||
+        currentDatatypes !== previousDatatypes.current
+      ) {
+        previousTopics.current = currentTopics;
+        previousDatatypes.current = currentDatatypes;
+
+        const outTopics: Topic[] = [];
+        for (const topic of currentTopics ?? []) {
+          if (!currentDatatypes) {
+            continue;
+          }
+
+          const schema = rosDatatypeToSchema(topic.datatype, currentDatatypes);
+          outTopics.push({
+            name: topic.name,
+            datatype: topic.datatype,
+            schema,
+          });
+        }
+
         shouldRender = true;
-        renderState.topics = newTopics;
+        renderState.topics = outTopics;
       }
     }
 
