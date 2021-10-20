@@ -22,11 +22,11 @@ import {
   TextField,
   useTheme,
   Text,
+  Checkbox,
 } from "@fluentui/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLatest } from "react-use";
 import { Color } from "regl-worldview";
-import styled from "styled-components";
 
 import AutoSizingCanvas from "@foxglove/studio-base/components/AutoSizingCanvas";
 import {
@@ -35,13 +35,11 @@ import {
 } from "@foxglove/studio-base/util/colorUtils";
 import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-const GRADIENT_LINE_HEIGHT = 6;
-const GRADIENT_LINE_WIDTH = 1;
-const GRADIENT_COLOR_PICKER_SIZE = 25;
-const GRADIENT_BAR_INSET = (GRADIENT_COLOR_PICKER_SIZE - GRADIENT_LINE_WIDTH) / 2;
 const GRADIENT_BAR_HEIGHT = 10;
 const GRADIENT_KNOB_SIZE = 15;
-const GRADIENT_KNOB_SIZE_SELECTED = 20;
+const GRADIENT_KNOB_SIZE_SELECTED = 19;
+
+type ColorStop = { position: number; color: string; discrete?: boolean };
 
 export default function GradientPicker({
   minColor,
@@ -56,23 +54,32 @@ export default function GradientPicker({
   const rgbMaxColor = defaultedRGBStringFromColorObj(maxColor);
   const theme = useTheme();
 
-  const [colorStops, setColorStops] = useState<readonly { position: number; color: string }[]>([
+  const [colorStops, setColorStops] = useState<readonly ColorStop[]>([
     { position: 0, color: colorObjToIColor(minColor).str },
     { position: 1, color: colorObjToIColor(maxColor).str },
   ]);
+  const sortedStops = useMemo(
+    () => [...colorStops].sort((a, b) => a.position - b.position),
+    [colorStops],
+  );
 
   //FIXME: maybe prevent dragging out of sorted order? then we wouldn't need auto-sorting and you'd be able to make 2 with the same offset...but then they'd be impossible to see on the scale :(
 
   const drawGradient = useCallback(
     (ctx: CanvasRenderingContext2D, width: number, height: number) => {
       const gradient = ctx.createLinearGradient(0, 0, width, 0);
-      for (const { position, color } of colorStops) {
-        gradient.addColorStop(position, color);
+      let prevStop: ColorStop | undefined;
+      for (const stop of sortedStops) {
+        if (prevStop?.discrete === true) {
+          gradient.addColorStop(stop.position, prevStop.color);
+        }
+        gradient.addColorStop(stop.position, stop.color);
+        prevStop = stop;
       }
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
     },
-    [colorStops],
+    [sortedStops],
   );
 
   const colorStopsRef = useLatest(colorStops);
@@ -80,6 +87,7 @@ export default function GradientPicker({
   const onBarMouseDown = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       event.stopPropagation();
+      event.preventDefault();
       const rect = event.currentTarget.getBoundingClientRect();
       const newPosition = (event.clientX - rect.left) / rect.width;
       const stops = [...colorStopsRef.current].sort((a, b) => a.position - b.position);
@@ -189,28 +197,64 @@ export default function GradientPicker({
       ref={barRef}
     >
       <AutoSizingCanvas draw={drawGradient} />
-      {colorStops.map(({ position, color }, index) => {
-        const isSelected = index === draggingIndex || index === editingIndex;
-        return (
-          <div
-            key={index}
-            style={{
-              backgroundColor: color,
-              position: "absolute",
-              top: "50%",
-              left: `${position * 100}%`,
-              transform: "translateX(-50%) translateY(-50%)",
-              width: isSelected ? GRADIENT_KNOB_SIZE_SELECTED : GRADIENT_KNOB_SIZE,
-              height: isSelected ? GRADIENT_KNOB_SIZE_SELECTED : GRADIENT_KNOB_SIZE,
-              borderRadius: "50%",
-              border: isSelected ? "2px solid gold" : "2px solid white",
-              boxShadow: "rgba(0,0,0,70%) 0 0 5px",
-            }}
-            onMouseDown={(event) => onKnobMouseDown(event, index)}
-            onDoubleClick={(event) => onKnobDoubleClick(event, index)}
-          />
-        );
-      })}
+
+      <div
+        style={{
+          // Inset stops so the 2px vertical lines never extend outside the canvas
+          position: "absolute",
+          top: 0,
+          bottom: 0,
+          left: 1,
+          right: 1,
+        }}
+      >
+        {colorStops.map(({ position, color, discrete = false }, index) => {
+          const isSelected = index === draggingIndex || index === editingIndex;
+          const knobInnerWidth = Math.ceil(
+            (isSelected ? GRADIENT_KNOB_SIZE_SELECTED : GRADIENT_KNOB_SIZE) * (discrete ? 0.5 : 1),
+          );
+          return (
+            <div
+              key={index}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: `${position * 100}%`,
+              }}
+            >
+              <div
+                style={{
+                  width: 2,
+                  height: GRADIENT_BAR_HEIGHT * 1.5,
+                  backgroundColor: isSelected ? "gold" : "white",
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  transform: "translateX(-50%)",
+                }}
+              />
+              <div
+                style={{
+                  backgroundColor: color,
+                  width: knobInnerWidth,
+                  height: isSelected ? GRADIENT_KNOB_SIZE_SELECTED : GRADIENT_KNOB_SIZE,
+                  borderRadius: discrete ? `100% 0% 0% 100% / 50% 0% 0% 50%` : "50%",
+                  border: isSelected ? "1px solid gold" : "1px solid white",
+                  // boxShadow: "rgba(0,0,0,70%) 0 0 5px",
+                  position: "absolute",
+                  bottom: GRADIENT_BAR_HEIGHT * 1.5,
+                  left: 0,
+                  transform: `${
+                    discrete ? "translateX(-100%) translateX(1px)" : "translateX(-50%)"
+                  } translateY(50%)`,
+                }}
+                onMouseDown={(event) => onKnobMouseDown(event, index)}
+                onDoubleClick={(event) => onKnobDoubleClick(event, index)}
+              />
+            </div>
+          );
+        })}
+      </div>
       {editingStop != undefined && barRef.current != undefined && (
         <Callout
           directionalHint={DirectionalHint.bottomCenter}
@@ -229,6 +273,25 @@ export default function GradientPicker({
                 childrenGap: theme.spacing.s1,
               }}
             >
+              <Checkbox
+                label="Discrete"
+                checked={editingStop.discrete ?? false}
+                onChange={(_event, newValue) => {
+                  if (newValue == undefined) {
+                    return;
+                  }
+                  setColorStops((stops) => {
+                    if (editingIndex == undefined || editingIndex >= stops.length) {
+                      return stops;
+                    }
+                    return [
+                      ...stops.slice(0, editingIndex),
+                      { ...stops[editingIndex]!, discrete: newValue },
+                      ...stops.slice(editingIndex + 1),
+                    ];
+                  });
+                }}
+              />
               <Text>Offset:</Text>
               <TextField
                 styles={{ root: { width: 70 } }}
