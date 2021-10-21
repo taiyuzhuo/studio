@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Stack } from "@fluentui/react";
 import DotsVerticalIcon from "@mdi/svg/svg/dots-vertical.svg";
 import EarthIcon from "@mdi/svg/svg/earth.svg";
 import { groupBy, defaults } from "lodash";
@@ -32,10 +33,11 @@ import TooltipRow from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTr
 import TooltipTable from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/TooltipTable";
 import { TreeUINode } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/types";
 import { SECOND_SOURCE_PREFIX } from "@foxglove/studio-base/util/globalConstants";
+import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { joinTopics } from "@foxglove/studio-base/util/topicUtils";
 
-import { SLeft, SRightActions, SToggles, STreeNodeRow } from "./TreeNodeRow";
-import VisibilityToggle from "./VisibilityToggle";
+import { SRightActions, SToggles } from "./TreeNodeRow";
+import VisibilityToggle, { TOGGLE_WRAPPER_SIZE, TOPIC_ROW_PADDING } from "./VisibilityToggle";
 import { TREE_SPACING, ROW_HEIGHT } from "./constants";
 
 // TODO: Dedupe from renderNamespaceNodes
@@ -169,14 +171,30 @@ function StyleExpressionNode(props: {
   );
 
   return (
-    <STreeNodeRow
-      visibleInScene={activeRowActive}
-      style={{
-        width: rowWidth,
-        marginLeft: `-${OUTER_LEFT_MARGIN}px`,
+    <Stack
+      horizontal
+      horizontalAlign="space-between"
+      verticalAlign="center"
+      styles={{
+        root: {
+          width: rowWidth,
+          marginLeft: `-${OUTER_LEFT_MARGIN}px`,
+          color: activeRowActive ? "inherit" : colors.TEXT_MUTED,
+        },
       }}
     >
-      <SLeft data-test={`ns~${name}`}>
+      <Stack
+        horizontal
+        verticalAlign="center"
+        grow={1}
+        styles={{
+          root: {
+            minHeight: TOGGLE_WRAPPER_SIZE,
+            padding: `${TOPIC_ROW_PADDING}px 0px`,
+          },
+        }}
+        data-test={`ns~${name}`}
+      >
         <Icon style={{ color: "rgba(255,255,255, 0.3)" }}>
           <EarthIcon style={{ width: 16, height: 16 }} />
         </Icon>
@@ -185,7 +203,7 @@ function StyleExpressionNode(props: {
             .{markerKeyPath.join(".")} == ${name}
           </SDisplayName>
         </Tooltip>
-      </SLeft>
+      </Stack>
       <SRightActions>
         {colorOverridesByColumnIdx != undefined && (
           <SToggles>
@@ -264,6 +282,6 @@ function StyleExpressionNode(props: {
           </Menu>
         </ChildToggle>
       </SRightActions>
-    </STreeNodeRow>
+    </Stack>
   );
 }

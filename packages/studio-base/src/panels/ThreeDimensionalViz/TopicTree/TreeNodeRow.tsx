@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Stack } from "@fluentui/react";
 import AlertCircleIcon from "@mdi/svg/svg/alert-circle.svg";
 import LeadPencilIcon from "@mdi/svg/svg/lead-pencil.svg";
 import { useCallback, useContext, useMemo } from "react";
@@ -40,22 +41,6 @@ export const ICON_SIZE = 22;
 const MAX_GROUP_ERROR_WIDTH = 64;
 const VISIBLE_COUNT_WIDTH = 18;
 const VISIBLE_COUNT_MARGIN = 4;
-
-export const STreeNodeRow = styled.div`
-  color: ${(props: { visibleInScene: boolean }) =>
-    props.visibleInScene ? "unset" : colors.TEXT_MUTED};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-export const SLeft = styled.div`
-  display: flex;
-  align-items: center;
-  flex: 1 1 auto;
-  min-height: ${TOGGLE_WRAPPER_SIZE}px;
-  padding: ${TOPIC_ROW_PADDING}px 0px;
-`;
 
 const SErrorCount = styled.small`
   color: ${colors.RED};
@@ -217,9 +202,28 @@ export default function TreeNodeRow({
   } = useGuaranteedContext(TopicTreeContext, "TopicTreeContext");
 
   return (
-    <STreeNodeRow visibleInScene={nodeVisibleInScene} style={{ width: rowWidth }}>
-      <SLeft
-        style={{ cursor: hasChildren && filterText.length === 0 ? "pointer" : "default" }}
+    <Stack
+      horizontal
+      horizontalAlign="space-between"
+      verticalAlign="center"
+      styles={{
+        root: {
+          color: nodeVisibleInScene ? "inherit" : colors.TEXT_MUTED,
+          width: rowWidth,
+        },
+      }}
+    >
+      <Stack
+        horizontal
+        verticalAlign="center"
+        grow={1}
+        styles={{
+          root: {
+            cursor: hasChildren && filterText.length === 0 ? "pointer" : "default",
+            minHeight: TOGGLE_WRAPPER_SIZE,
+            padding: `${TOPIC_ROW_PADDING}px 0px`,
+          },
+        }}
         data-test={`name~${key}`}
         onClick={hasChildren ? () => toggleNodeExpanded(key) : undefined}
       >
@@ -280,7 +284,7 @@ export default function TreeNodeRow({
             </Icon>
           </SIconWrapper>
         )}
-      </SLeft>
+      </Stack>
 
       <SRightActions>
         {providerAvailable && (
@@ -332,6 +336,6 @@ export default function TreeNodeRow({
           topicName={topicName}
         />
       </SRightActions>
-    </STreeNodeRow>
+    </Stack>
   );
 }
