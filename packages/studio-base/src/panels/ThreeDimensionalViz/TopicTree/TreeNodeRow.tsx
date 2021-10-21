@@ -25,7 +25,7 @@ import {
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/constants";
 import { TopicTreeContext } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/useTopicTree";
 import { SECOND_SOURCE_PREFIX } from "@foxglove/studio-base/util/globalConstants";
-import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
+import { colors, fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { joinTopics } from "@foxglove/studio-base/util/topicUtils";
 
 import NodeName from "./NodeName";
@@ -41,10 +41,7 @@ const VISIBLE_COUNT_MARGIN = 4;
 
 const iconStyles = (color: IColor["str"]) =>
   ({
-    root: {
-      width: 18,
-      height: 18,
-    },
+    root: { width: 18, height: 18 },
     rootHovered: { backgroundColor: "transparent" },
     rootPressed: { backgroundColor: "transparent" },
     rootFocused: { backgroundColor: "transparent" },
@@ -62,18 +59,18 @@ const iconStyles = (color: IColor["str"]) =>
     },
   } as Partial<IButtonStyles>);
 
-const topicsCountStyles = (color: IColor["str"]) => ({
-  root: {
-    height: ROW_HEIGHT - 6,
-    paddingTop: 2,
-    fontSize: 10,
-    margin: `0 ${VISIBLE_COUNT_MARGIN}px`,
-    color,
-  },
-  rootHovered: {
-    color,
-  },
-});
+const actionButtonStyles = (color: IColor["str"]) =>
+  ({
+    root: {
+      height: ROW_HEIGHT - 6,
+      paddingTop: 2,
+      fontSize: 10,
+      margin: `0 ${VISIBLE_COUNT_MARGIN}px`,
+      color,
+    },
+    rootHovered: { color },
+    rootPressed: { color },
+  } as Partial<IButtonStyles>);
 
 type Props = {
   checkedKeysSet: Set<string>;
@@ -181,7 +178,11 @@ export default function TreeNodeRow({
     contents: (
       <Stack styles={{ root: { maxWidth: 240, wordWrap: "break-word" } }}>
         {sceneErrors?.map((errStr) => (
-          <Text key={errStr} variant="small" styles={{ root: { color: "inherit" } }}>
+          <Text
+            key={errStr}
+            variant="small"
+            styles={{ root: { color: "inherit", fontFamily: fonts.MONOSPACE } }}
+          >
             {errStr}
           </Text>
         ))}
@@ -230,7 +231,10 @@ export default function TreeNodeRow({
               {topicsCount.tooltip}
               <ActionButton
                 elementRef={topicsCount.ref}
-                styles={topicsCountStyles(colors.TEXT_SORTA_MUTED)}
+                styles={actionButtonStyles(colors.TEXT_SORTA_MUTED)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
               >
                 {visibleTopicsCount}
               </ActionButton>
@@ -238,7 +242,13 @@ export default function TreeNodeRow({
           )}
           {showGroupError && sceneErrors && (
             <Stack.Item>
-              <ActionButton elementRef={alertIcon.ref} styles={topicsCountStyles(colors.RED)}>
+              <ActionButton
+                elementRef={alertIcon.ref}
+                styles={actionButtonStyles(colors.RED)}
+                onClick={(event) => {
+                  event.stopPropagation();
+                }}
+              >
                 {pluralize("error", sceneErrors?.length ?? 0, true)}
               </ActionButton>
             </Stack.Item>
