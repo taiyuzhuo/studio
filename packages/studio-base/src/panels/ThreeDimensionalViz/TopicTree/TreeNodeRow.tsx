@@ -51,6 +51,7 @@ const iconStyles = (color: IColor["str"]) =>
     icon: {
       color,
       fontSize: 14,
+      height: 14,
       lineHeight: 14,
 
       svg: {
@@ -61,19 +62,18 @@ const iconStyles = (color: IColor["str"]) =>
     },
   } as Partial<IButtonStyles>);
 
-const topicsCountStyles = {
+const topicsCountStyles = (color: IColor["str"]) => ({
   root: {
-    width: VISIBLE_COUNT_WIDTH,
     height: ROW_HEIGHT - 6,
     paddingTop: 2,
     fontSize: 10,
     margin: `0 ${VISIBLE_COUNT_MARGIN}px`,
-    color: colors.TEXT_SORTA_MUTED,
+    color,
   },
   rootHovered: {
-    color: colors.TEXT_SORTA_MUTED,
+    color,
   },
-};
+});
 
 type Props = {
   checkedKeysSet: Set<string>;
@@ -190,128 +190,134 @@ export default function TreeNodeRow({
   });
 
   return (
-    <Stack
-      horizontal
-      horizontalAlign="space-between"
-      verticalAlign="center"
-      styles={{
-        root: {
-          color: nodeVisibleInScene ? "inherit" : colors.TEXT_MUTED,
-          width: rowWidth,
-        },
-      }}
-    >
+    <div>
+      {alertIcon.tooltip}
       <Stack
         horizontal
+        horizontalAlign="space-between"
         verticalAlign="center"
-        grow={1}
-        data-test={`name~${key}`}
-        onClick={hasChildren ? () => toggleNodeExpanded(key) : undefined}
         styles={{
           root: {
-            cursor: hasChildren && filterText.length === 0 ? "pointer" : "default",
-            minHeight: TOGGLE_WRAPPER_SIZE,
-            padding: `${TOPIC_ROW_PADDING}px 0px`,
+            color: nodeVisibleInScene ? "inherit" : colors.TEXT_MUTED,
+            width: rowWidth,
           },
         }}
       >
-        <NodeName
-          isXSWidth={isXSWidth}
-          maxWidth={maxNodeNameWidth}
-          displayName={name ? name : topicName}
-          tooltips={tooltips}
-          topicName={topicName}
-          searchText={filterText}
-        />
-        {showVisibleTopicsCount && (
-          <Stack.Item>
-            {topicsCount.tooltip}
-            <ActionButton elementRef={topicsCount.ref} styles={topicsCountStyles}>
-              {visibleTopicsCount}
-            </ActionButton>
-          </Stack.Item>
-        )}
-        {showTopicSettingsChanged && datatype && (
-          <Stack.Item>
-            {editIcon.tooltip}
-            <IconButton
-              elementRef={editIcon.ref}
-              onClick={() => setCurrentEditingTopic({ name: topicName, datatype })}
-              iconProps={{ iconName: "LeadPencil" }}
-              styles={iconStyles(colors.ACCENT)}
-            />
-          </Stack.Item>
-        )}
-        {showTopicError && (
-          <Stack horizontal verticalAlign="center">
+        <Stack
+          horizontal
+          verticalAlign="center"
+          grow={1}
+          data-test={`name~${key}`}
+          onClick={hasChildren ? () => toggleNodeExpanded(key) : undefined}
+          styles={{
+            root: {
+              cursor: hasChildren && filterText.length === 0 ? "pointer" : "default",
+              minHeight: TOGGLE_WRAPPER_SIZE,
+              padding: `${TOPIC_ROW_PADDING}px 0px`,
+            },
+          }}
+        >
+          <NodeName
+            isXSWidth={isXSWidth}
+            maxWidth={maxNodeNameWidth}
+            displayName={name ? name : topicName}
+            tooltips={tooltips}
+            topicName={topicName}
+            searchText={filterText}
+          />
+          {showVisibleTopicsCount && (
+            <Stack.Item grow>
+              {topicsCount.tooltip}
+              <ActionButton
+                elementRef={topicsCount.ref}
+                styles={topicsCountStyles(colors.TEXT_SORTA_MUTED)}
+              >
+                {visibleTopicsCount}
+              </ActionButton>
+            </Stack.Item>
+          )}
+          {showGroupError && sceneErrors && (
             <Stack.Item>
-              {alertIcon.tooltip}
+              <ActionButton elementRef={alertIcon.ref} styles={topicsCountStyles(colors.RED)}>
+                {pluralize("error", sceneErrors?.length ?? 0, true)}
+              </ActionButton>
+            </Stack.Item>
+          )}
+          {showTopicSettingsChanged && datatype && (
+            <Stack.Item>
+              {editIcon.tooltip}
               <IconButton
-                elementRef={alertIcon.ref}
-                iconProps={{ iconName: "AlertCircle" }}
-                styles={iconStyles(colors.RED1)}
+                elementRef={editIcon.ref}
+                onClick={() => setCurrentEditingTopic({ name: topicName, datatype })}
+                iconProps={{ iconName: "LeadPencil" }}
+                styles={iconStyles(colors.HIGHLIGHT)}
               />
             </Stack.Item>
-            <Text
-              variant="small"
-              styles={{ root: { color: colors.RED1, width: MAX_GROUP_ERROR_WIDTH } }}
-            >
-              {pluralize("error", sceneErrors?.length ?? 0, true)}
-            </Text>
-          </Stack>
-        )}
-      </Stack>
-
-      <Stack horizontal horizontalAlign="end" verticalAlign="center">
-        {providerAvailable && (
-          <Stack horizontal verticalAlign="center">
-            {availableByColumn.map((available, columnIdx) => {
-              const checked = checkedKeysSet.has(columnIdx === 1 ? featureKey : key);
-              return (
-                <VisibilityToggle
-                  available={available}
-                  dataTest={`visibility-toggle~${key}~column${columnIdx}`}
-                  key={columnIdx}
-                  size={node.type === "topic" ? "SMALL" : "NORMAL"}
-                  overrideColor={derivedCustomSettings?.overrideColorByColumn?.[columnIdx]}
-                  checked={checked}
-                  onToggle={() => {
-                    toggleNodeChecked(key, columnIdx);
-                    updateHoveredMarkerMatchers(columnIdx, !checked);
-                  }}
-                  onShiftToggle={() => {
-                    toggleCheckAllDescendants(key, columnIdx);
-                    updateHoveredMarkerMatchers(columnIdx, !checked);
-                  }}
-                  onAltToggle={() => {
-                    toggleCheckAllAncestors(key, columnIdx);
-                    updateHoveredMarkerMatchers(columnIdx, !checked);
-                  }}
-                  unavailableTooltip={
-                    node.type === "group"
-                      ? "None of the topics in this group are currently available"
-                      : "Unavailable"
-                  }
-                  visibleInScene={visibleByColumn[columnIdx] ?? false}
-                  {...mouseEventHandlersByColumnIdx[columnIdx]}
-                  diffModeEnabled={diffModeEnabled}
-                  columnIndex={columnIdx}
+          )}
+          {showTopicError && (
+            <Stack horizontal verticalAlign="center">
+              <Stack.Item>
+                <IconButton
+                  elementRef={alertIcon.ref}
+                  iconProps={{ iconName: "AlertCircle" }}
+                  styles={iconStyles(colors.RED)}
                 />
-              );
-            })}
-          </Stack>
-        )}
-        <TreeNodeMenu
-          datatype={showTopicSettings ? datatype : undefined}
-          disableBaseColumn={diffModeEnabled || !(availableByColumn[0] ?? false)}
-          disableFeatureColumn={diffModeEnabled || !(availableByColumn[1] ?? false)}
-          hasFeatureColumn={hasFeatureColumn && (availableByColumn[1] ?? false)}
-          nodeKey={key}
-          providerAvailable={providerAvailable}
-          setCurrentEditingTopic={setCurrentEditingTopic}
-          topicName={topicName}
-        />
+              </Stack.Item>
+            </Stack>
+          )}
+        </Stack>
+
+        <Stack horizontal horizontalAlign="end" verticalAlign="center">
+          {providerAvailable && (
+            <Stack horizontal verticalAlign="center">
+              {availableByColumn.map((available, columnIdx) => {
+                const checked = checkedKeysSet.has(columnIdx === 1 ? featureKey : key);
+                return (
+                  <VisibilityToggle
+                    available={available}
+                    dataTest={`visibility-toggle~${key}~column${columnIdx}`}
+                    key={columnIdx}
+                    size={node.type === "topic" ? "SMALL" : "NORMAL"}
+                    overrideColor={derivedCustomSettings?.overrideColorByColumn?.[columnIdx]}
+                    checked={checked}
+                    onToggle={() => {
+                      toggleNodeChecked(key, columnIdx);
+                      updateHoveredMarkerMatchers(columnIdx, !checked);
+                    }}
+                    onShiftToggle={() => {
+                      toggleCheckAllDescendants(key, columnIdx);
+                      updateHoveredMarkerMatchers(columnIdx, !checked);
+                    }}
+                    onAltToggle={() => {
+                      toggleCheckAllAncestors(key, columnIdx);
+                      updateHoveredMarkerMatchers(columnIdx, !checked);
+                    }}
+                    unavailableTooltip={
+                      node.type === "group"
+                        ? "None of the topics in this group are currently available"
+                        : "Unavailable"
+                    }
+                    visibleInScene={visibleByColumn[columnIdx] ?? false}
+                    {...mouseEventHandlersByColumnIdx[columnIdx]}
+                    diffModeEnabled={diffModeEnabled}
+                    columnIndex={columnIdx}
+                  />
+                );
+              })}
+            </Stack>
+          )}
+          <TreeNodeMenu
+            datatype={showTopicSettings ? datatype : undefined}
+            disableBaseColumn={diffModeEnabled || !(availableByColumn[0] ?? false)}
+            disableFeatureColumn={diffModeEnabled || !(availableByColumn[1] ?? false)}
+            hasFeatureColumn={hasFeatureColumn && (availableByColumn[1] ?? false)}
+            nodeKey={key}
+            providerAvailable={providerAvailable}
+            setCurrentEditingTopic={setCurrentEditingTopic}
+            topicName={topicName}
+          />
+        </Stack>
       </Stack>
-    </Stack>
+    </div>
   );
 }
