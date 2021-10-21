@@ -11,6 +11,7 @@ declare global {
     | CustomIconNames
     | "Add"
     | "AddIn"
+    | "AlertCircle"
     | "ArrowCollapse"
     | "ArrowDown"
     | "ArrowLeftRight"
@@ -59,6 +60,7 @@ declare global {
     | "HelpCircle"
     | "Info"
     | "Layers"
+    | "LeadPencil"
     | "LocationDot"
     | "Loop"
     | "LoopFilled"

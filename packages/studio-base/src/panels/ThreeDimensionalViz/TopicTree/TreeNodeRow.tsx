@@ -11,14 +11,11 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { Stack } from "@fluentui/react";
-import AlertCircleIcon from "@mdi/svg/svg/alert-circle.svg";
-import LeadPencilIcon from "@mdi/svg/svg/lead-pencil.svg";
+import { ActionButton, IconButton, Stack, Text, IButtonStyles, IColor } from "@fluentui/react";
+import pluralize from "pluralize";
 import { useCallback, useContext, useMemo } from "react";
-import styled from "styled-components";
 
-import Icon from "@foxglove/studio-base/components/Icon";
-import Tooltip from "@foxglove/studio-base/components/Tooltip";
+import { useTooltip } from "@foxglove/studio-base/components/Tooltip";
 import useGuaranteedContext from "@foxglove/studio-base/hooks/useGuaranteedContext";
 import { ThreeDimensionalVizContext } from "@foxglove/studio-base/panels/ThreeDimensionalViz/ThreeDimensionalVizContext";
 import { canEditDatatype } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicSettingsEditor";
@@ -42,56 +39,41 @@ const MAX_GROUP_ERROR_WIDTH = 64;
 const VISIBLE_COUNT_WIDTH = 18;
 const VISIBLE_COUNT_MARGIN = 4;
 
-const SErrorCount = styled.small`
-  color: ${colors.RED};
-  width: ${MAX_GROUP_ERROR_WIDTH}px;
-`;
+const iconStyles = (color: IColor["str"]) =>
+  ({
+    root: {
+      width: 18,
+      height: 18,
+    },
+    rootHovered: { backgroundColor: "transparent" },
+    rootPressed: { backgroundColor: "transparent" },
+    rootFocused: { backgroundColor: "transparent" },
+    icon: {
+      color,
+      fontSize: 14,
+      lineHeight: 14,
 
-const SIconWrapper = styled.div`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: ${ICON_SIZE}px;
-  height: ${ICON_SIZE}px;
-`;
+      svg: {
+        fill: "currentColor",
+        height: "1em",
+        width: "1em",
+      },
+    },
+  } as Partial<IButtonStyles>);
 
-const SErrorList = styled.ul`
-  max-width: 240px;
-  word-wrap: break-word;
-  padding-left: 16px;
-`;
-
-const SErrorItem = styled.li`
-  list-style: outside;
-`;
-
-export const SRightActions = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-`;
-
-export const SToggles = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-export const SDotMenuPlaceholder = styled.span`
-  width: ${DOT_MENU_WIDTH}px;
-  height: ${ROW_HEIGHT}px;
-`;
-
-const SVisibleCount = styled.span`
-  width: ${VISIBLE_COUNT_WIDTH}px;
-  height: ${ROW_HEIGHT - 6}px;
-  padding-top: 2px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 10px;
-  margin: 0 ${VISIBLE_COUNT_MARGIN}px;
-`;
+const topicsCountStyles = {
+  root: {
+    width: VISIBLE_COUNT_WIDTH,
+    height: ROW_HEIGHT - 6,
+    paddingTop: 2,
+    fontSize: 10,
+    margin: `0 ${VISIBLE_COUNT_MARGIN}px`,
+    color: colors.TEXT_SORTA_MUTED,
+  },
+  rootHovered: {
+    color: colors.TEXT_SORTA_MUTED,
+  },
+};
 
 type Props = {
   checkedKeysSet: Set<string>;
@@ -141,11 +123,13 @@ export default function TreeNodeRow({
     node.type === "topic" && sceneErrors != undefined && sceneErrors.length > 0;
   const showGroupError =
     node.type === "group" && sceneErrors != undefined && sceneErrors.length > 0;
-
-  const rowWidth = width - (isXSWidth ? 0 : TREE_SPACING * 2);
+  const showVisibleTopicsCount =
+    providerAvailable && node.type === "group" && node.children && visibleTopicsCount > 0;
 
   const togglesWidth = hasFeatureColumn ? TOGGLE_WRAPPER_SIZE * 2 : TOGGLE_WRAPPER_SIZE;
   const rightActionWidth = providerAvailable ? togglesWidth + DOT_MENU_WIDTH : DOT_MENU_WIDTH;
+  const rowWidth = width - (isXSWidth ? 0 : TREE_SPACING * 2);
+
   // -8px to add some spacing between the name and right action area.
   let maxNodeNameWidth = rowWidth - rightActionWidth - 8;
 
@@ -158,18 +142,6 @@ export default function TreeNodeRow({
   if (showTopicError) {
     maxNodeNameWidth -= ICON_SIZE;
   }
-
-  const errorTooltip = sceneErrors && (
-    <SErrorList>
-      {sceneErrors.map((errStr) => (
-        <SErrorItem key={errStr}>{errStr}</SErrorItem>
-      ))}
-    </SErrorList>
-  );
-
-  const showVisibleTopicsCount =
-    providerAvailable && node.type === "group" && node.children && visibleTopicsCount > 0;
-
   maxNodeNameWidth -= showVisibleTopicsCount ? VISIBLE_COUNT_WIDTH + VISIBLE_COUNT_MARGIN * 2 : 0;
 
   const { setHoveredMarkerMatchers } = useContext(ThreeDimensionalVizContext);
@@ -201,6 +173,22 @@ export default function TreeNodeRow({
     toggleCheckAllDescendants,
   } = useGuaranteedContext(TopicTreeContext, "TopicTreeContext");
 
+  const topicsCount = useTooltip({
+    contents: `${pluralize("visible topic", visibleTopicsCount, true)} in this group`,
+  });
+  const editIcon = useTooltip({ contents: "Topic settings editor" });
+  const alertIcon = useTooltip({
+    contents: (
+      <Stack styles={{ root: { maxWidth: 240, wordWrap: "break-word" } }}>
+        {sceneErrors?.map((errStr) => (
+          <Text key={errStr} variant="small" styles={{ root: { color: "inherit" } }}>
+            {errStr}
+          </Text>
+        ))}
+      </Stack>
+    ),
+  });
+
   return (
     <Stack
       horizontal
@@ -217,6 +205,8 @@ export default function TreeNodeRow({
         horizontal
         verticalAlign="center"
         grow={1}
+        data-test={`name~${key}`}
+        onClick={hasChildren ? () => toggleNodeExpanded(key) : undefined}
         styles={{
           root: {
             cursor: hasChildren && filterText.length === 0 ? "pointer" : "default",
@@ -224,8 +214,6 @@ export default function TreeNodeRow({
             padding: `${TOPIC_ROW_PADDING}px 0px`,
           },
         }}
-        data-test={`name~${key}`}
-        onClick={hasChildren ? () => toggleNodeExpanded(key) : undefined}
       >
         <NodeName
           isXSWidth={isXSWidth}
@@ -234,61 +222,49 @@ export default function TreeNodeRow({
           tooltips={tooltips}
           topicName={topicName}
           searchText={filterText}
-          {...(showVisibleTopicsCount
-            ? {
-                additionalElem: (
-                  <Tooltip
-                    placement="top"
-                    contents={`${visibleTopicsCount} visible ${
-                      visibleTopicsCount === 1 ? "topic" : "topics"
-                    } in this group`}
-                  >
-                    <SVisibleCount>{visibleTopicsCount}</SVisibleCount>
-                  </Tooltip>
-                ),
-              }
-            : undefined)}
         />
+        {showVisibleTopicsCount && (
+          <Stack.Item>
+            {topicsCount.tooltip}
+            <ActionButton elementRef={topicsCount.ref} styles={topicsCountStyles}>
+              {visibleTopicsCount}
+            </ActionButton>
+          </Stack.Item>
+        )}
         {showTopicSettingsChanged && datatype && (
-          <Icon
-            style={{ padding: "0 4px", color: colors.HIGHLIGHT, lineHeight: 1 }}
-            fade
-            tooltip="Topic settings edited"
-            onClick={() => setCurrentEditingTopic({ name: topicName, datatype })}
-          >
-            <LeadPencilIcon />
-          </Icon>
+          <Stack.Item>
+            {editIcon.tooltip}
+            <IconButton
+              elementRef={editIcon.ref}
+              onClick={() => setCurrentEditingTopic({ name: topicName, datatype })}
+              iconProps={{ iconName: "LeadPencil" }}
+              styles={iconStyles(colors.ACCENT)}
+            />
+          </Stack.Item>
         )}
-        {showGroupError && errorTooltip && sceneErrors && (
-          <Tooltip contents={errorTooltip} placement="top">
-            <SErrorCount>{`${sceneErrors.length} ${
-              sceneErrors.length === 1 ? "error" : "errors"
-            }`}</SErrorCount>
-          </Tooltip>
-        )}
-        {showTopicError && errorTooltip && (
-          <SIconWrapper>
-            <Icon
-              style={{
-                color: colors.RED,
-                fontSize: 14,
-                display: "inline-flex",
-                alignItems: "center",
-              }}
-              size="small"
-              tooltipProps={{ placement: "top" }}
-              tooltip={errorTooltip}
-              onClick={(e) => e.stopPropagation()}
+        {showTopicError && (
+          <Stack horizontal verticalAlign="center">
+            <Stack.Item>
+              {alertIcon.tooltip}
+              <IconButton
+                elementRef={alertIcon.ref}
+                iconProps={{ iconName: "AlertCircle" }}
+                styles={iconStyles(colors.RED1)}
+              />
+            </Stack.Item>
+            <Text
+              variant="small"
+              styles={{ root: { color: colors.RED1, width: MAX_GROUP_ERROR_WIDTH } }}
             >
-              <AlertCircleIcon />
-            </Icon>
-          </SIconWrapper>
+              {pluralize("error", sceneErrors?.length ?? 0, true)}
+            </Text>
+          </Stack>
         )}
       </Stack>
 
-      <SRightActions>
+      <Stack horizontal horizontalAlign="end" verticalAlign="center">
         {providerAvailable && (
-          <SToggles>
+          <Stack horizontal verticalAlign="center">
             {availableByColumn.map((available, columnIdx) => {
               const checked = checkedKeysSet.has(columnIdx === 1 ? featureKey : key);
               return (
@@ -323,7 +299,7 @@ export default function TreeNodeRow({
                 />
               );
             })}
-          </SToggles>
+          </Stack>
         )}
         <TreeNodeMenu
           datatype={showTopicSettings ? datatype : undefined}
@@ -335,7 +311,7 @@ export default function TreeNodeRow({
           setCurrentEditingTopic={setCurrentEditingTopic}
           topicName={topicName}
         />
-      </SRightActions>
+      </Stack>
     </Stack>
   );
 }

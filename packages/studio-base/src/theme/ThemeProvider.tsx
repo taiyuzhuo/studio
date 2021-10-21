@@ -18,6 +18,7 @@ import {
 } from "@fluentui/react-icons";
 import * as Icons from "@fluentui/react-icons-mdl2";
 import { registerIcons, unregisterIcons } from "@fluentui/style-utilities";
+import AlertCircleIcon from "@mdi/svg/svg/alert-circle.svg";
 import ArrowCollapseIcon from "@mdi/svg/svg/arrow-collapse.svg";
 import ArrowLeftRightIcon from "@mdi/svg/svg/arrow-left-right.svg";
 import ArrowUpDownIcon from "@mdi/svg/svg/arrow-up-down.svg";
@@ -34,6 +35,7 @@ import DragIcon from "@mdi/svg/svg/drag.svg";
 import FitToPageIcon from "@mdi/svg/svg/fit-to-page-outline.svg";
 import HelpCircleIcon from "@mdi/svg/svg/help-circle-outline.svg";
 import LayersIcon from "@mdi/svg/svg/layers.svg";
+import LeadPencilIcon from "@mdi/svg/svg/lead-pencil.svg";
 import SearchIcon from "@mdi/svg/svg/magnify.svg";
 import MenuDownIcon from "@mdi/svg/svg/menu-down.svg";
 import MenuLeftIcon from "@mdi/svg/svg/menu-left.svg";
@@ -60,6 +62,7 @@ const icons: {
 } = {
   Add: <Icons.AddIcon />,
   AddIn: <Icons.AddInIcon />,
+  AlertCircle: <AlertCircleIcon />,
   ArrowCollapse: <ArrowCollapseIcon />,
   ArrowDown: <ArrowDownIcon />,
   ArrowLeftRight: <ArrowLeftRightIcon />,
@@ -108,6 +111,7 @@ const icons: {
   HelpCircle: <HelpCircleIcon />,
   Info: <Icons.InfoIcon />,
   Layers: <LayersIcon />,
+  LeadPencil: <LeadPencilIcon />,
   LocationDot: <Icons.LocationDotIcon />,
   Loop: <LoopIcon strokeWidth={1.375} />,
   LoopFilled: <LoopIcon strokeWidth={1.875} />,

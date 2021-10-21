@@ -104,6 +104,7 @@ export const colors = {
   TEXT_NORMAL: "rgba(247, 247, 243, 0.77)",
   TEXT_DISABLED: "rgba(247, 247, 243, 0.15)",
   TEXT_MUTED: "rgba(247, 247, 243, 0.3)",
+  TEXT_SORTA_MUTED: "rgba(247, 247, 243, 0.5)",
   TEXT_CONTROL: "rgba(247, 247, 243, 0.77)",
   TEXT_CONTROL_HOVER: "rgba(247, 247, 243, 1)",
 

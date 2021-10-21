@@ -28,7 +28,7 @@ import { TopicTreeContext } from "@foxglove/studio-base/panels/ThreeDimensionalV
 import clipboard from "@foxglove/studio-base/util/clipboard";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-import { SDotMenuPlaceholder } from "./TreeNodeRow";
+import { DOT_MENU_WIDTH } from "./TreeNodeMenu";
 import { OnNamespaceOverrideColorChange } from "./types";
 
 const DISABLED_STYLE = { cursor: "not-allowed", color: colors.TEXT_MUTED };
@@ -41,6 +41,11 @@ const SItemContent = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+`;
+
+const SDotMenuPlaceholder = styled.span`
+  width: ${DOT_MENU_WIDTH}px;
+  height: ${ROW_HEIGHT}px;
 `;
 
 const SColorPickerWrapper = styled.span`

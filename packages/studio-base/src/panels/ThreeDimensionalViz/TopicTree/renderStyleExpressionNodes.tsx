@@ -36,7 +36,6 @@ import { SECOND_SOURCE_PREFIX } from "@foxglove/studio-base/util/globalConstants
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { joinTopics } from "@foxglove/studio-base/util/topicUtils";
 
-import { SRightActions, SToggles } from "./TreeNodeRow";
 import VisibilityToggle, { TOGGLE_WRAPPER_SIZE, TOPIC_ROW_PADDING } from "./VisibilityToggle";
 import { TREE_SPACING, ROW_HEIGHT } from "./constants";
 
@@ -204,9 +203,9 @@ function StyleExpressionNode(props: {
           </SDisplayName>
         </Tooltip>
       </Stack>
-      <SRightActions>
+      <Stack horizontal horizontalAlign="end" verticalAlign="center">
         {colorOverridesByColumnIdx != undefined && (
-          <SToggles>
+          <Stack horizontal verticalAlign="center">
             {filterMap(colorOverridesByColumnIdx, (override, sourceIdx) => {
               if (!hasFeatureColumn && sourceIdx === 1) {
                 return ReactNull;
@@ -234,7 +233,7 @@ function StyleExpressionNode(props: {
                 />
               );
             })}
-          </SToggles>
+          </Stack>
         )}
         <ChildToggle position="below" dataTest={`topic-row-menu-${topic}`}>
           <Icon
@@ -281,7 +280,7 @@ function StyleExpressionNode(props: {
             )}
           </Menu>
         </ChildToggle>
-      </SRightActions>
+      </Stack>
     </Stack>
   );
 }

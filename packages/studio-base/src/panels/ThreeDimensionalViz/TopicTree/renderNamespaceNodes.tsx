@@ -28,7 +28,7 @@ import NamespaceMenu from "./NamespaceMenu";
 import NodeName from "./NodeName";
 import TooltipRow from "./TooltipRow";
 import TooltipTable from "./TooltipTable";
-import { SToggles, SRightActions, ICON_SIZE } from "./TreeNodeRow";
+import { ICON_SIZE } from "./TreeNodeRow";
 import VisibilityToggle, { TOGGLE_WRAPPER_SIZE, TOPIC_ROW_PADDING } from "./VisibilityToggle";
 import {
   GetIsTreeNodeVisibleInTree,
@@ -207,8 +207,8 @@ function NamespaceNodeRow({
           searchText={filterText}
         />
       </Stack>
-      <SRightActions>
-        <SToggles>
+      <Stack horizontal horizontalAlign="end" verticalAlign="center">
+        <Stack horizontal verticalAlign="center">
           {availableByColumn.map((available, columnIndex) => (
             <VisibilityToggle // Some namespaces are statically available. But we want to make sure the parent topic is also available
               // before showing it as available.
@@ -227,7 +227,7 @@ function NamespaceNodeRow({
               columnIndex={columnIndex}
             />
           ))}
-        </SToggles>
+        </Stack>
         <NamespaceMenu
           disableBaseColumn={!(availableByColumn[0] ?? false)}
           disableFeatureColumn={!(availableByColumn[1] ?? false)}
@@ -240,7 +240,7 @@ function NamespaceNodeRow({
           providerAvailable={topicNodeAvailable}
           topicName={topicName}
         />
-      </SRightActions>
+      </Stack>
     </Stack>
   );
 }

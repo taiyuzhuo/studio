@@ -122,5 +122,9 @@
     "webpack-cli": "4.8.0",
     "webpack-dev-server": "3.11.2",
     "webpack-hot-middleware": "2.25.0"
+  },
+  "dependencies": {
+    "@types/pluralize": "0.0.29",
+    "pluralize": "8.0.0"
   }
 }
