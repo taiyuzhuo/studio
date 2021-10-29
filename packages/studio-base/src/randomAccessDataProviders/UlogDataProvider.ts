@@ -40,6 +40,8 @@ const log = Logger.getLogger(__filename);
 type UlogPath = { type: "file"; file: Blob };
 type Options = { filePath: UlogPath };
 
+// https://github.com/PX4/PX4-Autopilot/blob/master/msg
+
 export default class UlogDataProvider implements RandomAccessDataProvider {
   private _options: Options;
   private _ulog?: ULog;
@@ -75,6 +77,8 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
     const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
     const header = this._ulog.header!;
 
+    // logs in ulog are a first class concept in the log file rather than messages
+    // Explicitly include
     topics.push({
       name: LOG_TOPIC,
       datatype: "rosgraph_msgs/Log",
@@ -96,7 +100,16 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
       const name = messageIdToTopic(msgId, this._ulog);
       if (name && !topicNames.has(name)) {
         topicNames.add(name);
-        topics.push({ name, datatype: msgDef.name, numMessages: count });
+
+        let alternativeDatatypes: string[] | undefined;
+
+        // fixme - is this a well known name in ulog?
+        if (msgDef.name === "vehicle_global_position") {
+          alternativeDatatypes = ["dev.foxglove.sensors.navsat"];
+        }
+
+        topics.push({ name, datatype: msgDef.name, numMessages: count, alternativeDatatypes });
+
         messageDefinitionsByTopic[name] = msgDef.format;
         const rosMsgDef = datatypes.get(msgDef.name);
         if (rosMsgDef) {
@@ -155,16 +168,52 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
       return {};
     }
 
+    // console.log(subscriptions.subscriptions);
+
+    const subs = subscriptions.subscriptions ?? [];
+
     const startTime = BigInt(Math.floor(toMicroSec(start)));
     const endTime = BigInt(Math.floor(toMicroSec(end)));
     const parsedMessages: MessageEvent<unknown>[] = [];
+
+    // topic subscriptions for the navsat topic
+    const navsatTopics = subs
+      .filter((sub) => sub.datatype === "dev.foxglove.sensors.navsat")
+      .map((sub) => sub.topic);
+
+    console.log("nav sat topics", navsatTopics);
+    console.log("subscripts", subscriptions);
 
     for await (const msg of this._ulog.readMessages({ startTime, endTime })) {
       if (msg.type === MessageType.Data) {
         const timestamp = (msg.value as { timestamp: bigint }).timestamp;
         const receiveTime = fromMicros(Number(timestamp));
         const topic = messageIdToTopic(msg.msgId, this._ulog);
-        if (topic && topics.includes(topic) && isTimeInRangeInclusive(receiveTime, start, end)) {
+
+        // fixme - problem - our topic events do not have datatype specific information
+        // it is assumed that each topic emits only one datatype - there is no provision for receiving
+        // topics with different datatypes
+        if (
+          topic &&
+          navsatTopics.includes(topic) &&
+          isTimeInRangeInclusive(receiveTime, start, end)
+        ) {
+          console.log("nav sat topic", msg.value);
+          const typedMessage = msg.value as unknown as { lat: number; lon: number };
+          parsedMessages.push({
+            topic,
+            receiveTime,
+            datatype: "dev.foxglove.sensors.navsat",
+            message: {
+              latitude: typedMessage.lat,
+              longitude: typedMessage.lon,
+            },
+          });
+        } else if (
+          topic &&
+          topics.includes(topic) &&
+          isTimeInRangeInclusive(receiveTime, start, end)
+        ) {
           parsedMessages.push({
             topic,
             receiveTime,
@@ -173,7 +222,9 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
         }
       } else if (msg.type === MessageType.Log || msg.type === MessageType.LogTagged) {
         const receiveTime = fromMicros(Number(msg.timestamp));
-        if (topics.includes(LOG_TOPIC) && isTimeInRangeInclusive(receiveTime, start, end)) {
+        //if (topics.includes(LOG_TOPIC) && isTimeInRangeInclusive(receiveTime, start, end)) {
+        const containsRosoutTopic = subs.find((sub) => sub.topic === LOG_TOPIC);
+        if (containsRosoutTopic && isTimeInRangeInclusive(receiveTime, start, end)) {
           parsedMessages.push({
             topic: LOG_TOPIC,
             receiveTime,

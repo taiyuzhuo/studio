@@ -133,6 +133,7 @@ export default class RandomAccessPlayer implements Player {
   private _seekToTime: SeekToTimeSpec;
   private _lastRangeMillis?: number;
   private _parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
+  private _subscriptions?: SubscribePayload[];
 
   // To keep reference equality for downstream user memoization cache the currentTime provided in the last activeData update
   // See additional comments below where _currentTime is set
@@ -447,8 +448,10 @@ export default class RandomAccessPlayer implements Player {
     if (!this.hasCachedRange(start, end)) {
       this._metricsCollector.recordUncachedRangeRequest();
     }
+    console.log("subs", this._subscriptions);
     const messages = await this._provider.getMessages(start, end, {
       parsedMessages: parsedTopics,
+      subscriptions: this._subscriptions,
     });
     const { parsedMessages } = messages;
     if (parsedMessages == undefined) {
@@ -608,7 +611,9 @@ export default class RandomAccessPlayer implements Player {
   }
 
   setSubscriptions(newSubscriptions: SubscribePayload[]): void {
+    console.log("set subs", newSubscriptions);
     this._parsedSubscribedTopics = new Set(newSubscriptions.map(({ topic }) => topic));
+    this._subscriptions = newSubscriptions;
     this._metricsCollector.setSubscriptions(newSubscriptions);
   }
 

@@ -14,6 +14,8 @@ declare module "@foxglove/studio" {
     name: string;
     // topic datatype
     datatype: string;
+
+    alternativeDatatypes?: string[];
   };
 
   /**
@@ -23,6 +25,7 @@ declare module "@foxglove/studio" {
     topic: string;
     receiveTime: Time;
     message: T;
+    datatype?: string;
   }>;
 
   export interface LayoutActions {
@@ -129,6 +132,8 @@ declare module "@foxglove/studio" {
      * Subscribe to an array of topic names.
      */
     subscribe(topics: string[]): void;
+
+    subscribe2(topic: string, datatype: string): void;
 
     /**
      * Unsubscribe from all topics.

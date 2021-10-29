@@ -223,6 +223,8 @@ export type Topic = {
   // The number of messages present on the topic. Valid only for sources with a fixed number of
   // messages, such as bags.
   numMessages?: number;
+  // Alternative datatypes the topic supports for subscriptions
+  alternativeDatatypes?: string[];
 };
 
 type RosSingularField = number | string | boolean | RosObject; // No time -- consider it a message.
@@ -262,6 +264,8 @@ export type SubscribePayload = {
 
   // Optionally, where the request came from. Used in the "Internals" panel to improve debugging.
   requester?: { type: "panel" | "node" | "other"; name: string };
+
+  datatype?: string;
 };
 
 // Represents a single topic publisher, for use in `setPublishers`.

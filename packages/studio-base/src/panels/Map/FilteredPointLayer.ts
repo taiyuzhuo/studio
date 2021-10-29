@@ -38,6 +38,9 @@ function FilteredPointLayer(args: Args): FeatureGroup {
   const markersLayer = new FeatureGroup();
 
   const localBounds = bounds;
+  if (!localBounds.isValid()) {
+    return markersLayer;
+  }
 
   // track which pixels have been used
   const sparse2d: (boolean | undefined)[][] = [];

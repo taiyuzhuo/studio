@@ -24,10 +24,10 @@ import FilteredPointLayer, {
 } from "@foxglove/studio-base/panels/Map/FilteredPointLayer";
 import { Topic } from "@foxglove/studio-base/players/types";
 
-import { NavSatFixMsg, NavSatFixStatus, Point } from "./types";
+import { NavSatFixMsg, Point } from "./types";
 
 const COLOR_HISTORY = "#6771ef";
-const COLOR_ACTIVE_FIX = "#ec1515";
+//const COLOR_ACTIVE_FIX = "#ec1515";
 const COLOR_ACTIVE_NO_FIX = "#5f0909";
 
 // Persisted panel state
@@ -75,15 +75,21 @@ function MapPanel(props: MapPanelProps): JSX.Element {
       .filter(
         (topic) =>
           topic.datatype === "sensor_msgs/NavSatFix" ||
-          topic.datatype === "sensor_msgs/msg/NavSatFix",
+          topic.datatype === "sensor_msgs/msg/NavSatFix" ||
+          topic.alternativeDatatypes?.includes("dev.foxglove.sensors.navsat"),
       )
       .map((topic) => topic.name);
   }, [topics]);
 
+  console.log(eligibleTopics);
+
   // Subscribe to eligible and enabled topics
   useEffect(() => {
     const eligibleEnabled = eligibleTopics.filter((topic) => !disabledTopics.has(topic));
-    context.subscribe(eligibleEnabled);
+    //context.subscribe(eligibleEnabled);
+    for (const eligible of eligibleEnabled) {
+      context.subscribe2(eligible, "dev.foxglove.sensors.navsat");
+    }
     return () => {
       context.unsubscribeAll();
     };
@@ -282,6 +288,7 @@ function MapPanel(props: MapPanelProps): JSX.Element {
       }
 
       for (const messageEvent of navMessages) {
+        console.log("message event", messageEvent);
         const point: Point = {
           lat: messageEvent.message.latitude,
           lon: messageEvent.message.longitude,
@@ -352,18 +359,21 @@ function MapPanel(props: MapPanelProps): JSX.Element {
         continue;
       }
 
-      const hasFix = (ev: MessageEvent<NavSatFixMsg>) =>
-        ev.message.status.status !== NavSatFixStatus.STATUS_NO_FIX;
-      const noFixEvents = events.filter((ev) => !hasFix(ev));
-      const fixEvents = events.filter(hasFix);
+      //const hasFix = (ev: MessageEvent<NavSatFixMsg>) =>
+      //  ev.message.status.status !== NavSatFixStatus.STATUS_NO_FIX;
+      //const noFixEvents = events.filter((ev) => !hasFix(ev));
+      //const fixEvents = events.filter(hasFix);
+      const noFixEvents = events;
+      //const fixEvents = [];
 
       const pointLayerNoFix = FilteredPointLayer({
         map: currentMap,
         navSatMessageEvents: noFixEvents,
         bounds: filterBounds ?? currentMap.getBounds(),
         color: COLOR_ACTIVE_NO_FIX,
-        showAccuracy: true,
+        showAccuracy: false, //true,
       });
+      /*
       const pointLayerFix = FilteredPointLayer({
         map: currentMap,
         navSatMessageEvents: fixEvents,
@@ -371,11 +381,12 @@ function MapPanel(props: MapPanelProps): JSX.Element {
         color: COLOR_ACTIVE_FIX,
         showAccuracy: true,
       });
+      */
 
       // clear any previous layers to only display the current frame
       topicLayer.currentFrame.clearLayers();
       topicLayer.currentFrame.addLayer(pointLayerNoFix);
-      topicLayer.currentFrame.addLayer(pointLayerFix);
+      //topicLayer.currentFrame.addLayer(pointLayerFix);
     }
   }, [currentMap, filterBounds, navMessages, topicLayers]);
 

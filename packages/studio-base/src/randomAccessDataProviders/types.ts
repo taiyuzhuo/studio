@@ -60,6 +60,9 @@ export type RandomAccessDataProviderProblem = {
 export type GetMessagesTopics = Readonly<{
   parsedMessages?: readonly string[];
   rosBinaryMessages?: readonly string[];
+
+  // fixme - name?
+  subscriptions?: readonly { topic: string; datatype?: string }[];
 }>;
 
 export type GetMessagesResult = Readonly<{

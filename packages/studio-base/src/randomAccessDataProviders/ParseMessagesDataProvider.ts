@@ -74,10 +74,11 @@ export default class ParseMessagesDataProvider implements RandomAccessDataProvid
     // Kick off the request to the data provder to get the messages
     // This might trigger some background reading so we can do some other work before waiting
 
-    const { parsedMessages, rosBinaryMessages } = await this._provider.getMessages(start, end, {
-      parsedMessages: topics.parsedMessages,
-      rosBinaryMessages: topics.rosBinaryMessages,
-    });
+    const { parsedMessages, rosBinaryMessages } = await this._provider.getMessages(
+      start,
+      end,
+      topics,
+    );
 
     return {
       parsedMessages,

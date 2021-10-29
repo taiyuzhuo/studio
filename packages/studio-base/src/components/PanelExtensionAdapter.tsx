@@ -332,6 +332,25 @@ function PanelExtensionAdapter(props: PanelExtensionAdapterProps): JSX.Element {
         requestBackfill();
       },
 
+      // fixme
+      subscribe2: (topic: string, datatype: string) => {
+        // If the player has loaded all the blocks, the blocks reference won't change so our message
+        // pipeline handler for allFrames won't create a new set of all frames for the newly
+        // subscribed topic. To ensure a new set of allFrames with the newly subscribed topic is
+        // created, we unset the blocks ref which will force re-creating allFrames.
+        prevBlocksRef.current = undefined;
+
+        setSubscriptions(panelId, [
+          {
+            topic,
+            datatype,
+          },
+        ]);
+        subscribedTopicsRef.current.add(topic);
+
+        requestBackfill();
+      },
+
       advertise: capabilities.includes(PlayerCapabilities.advertise)
         ? (topic: string, datatype: string, options) => {
             const ctx = latestPipelineContextRef.current;
