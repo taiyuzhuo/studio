@@ -51,13 +51,12 @@ export function getRemoteBagDescriptor(
   return wrapInWorker(bagDataProvider);
 }
 
-export function getLocalRosbag2Descriptor(
-  folder: FileSystemDirectoryHandle,
-): RandomAccessDataProviderDescriptor {
+export function getLocalRosbag2Descriptor(file: File): RandomAccessDataProviderDescriptor {
   return {
-    label: folder.name,
+    label: file.name,
     name: CoreDataProviders.Rosbag2DataProvider,
-    args: { bagFolderPath: { type: "folder", folder } },
+    filePath: (file as { path?: string }).path, // File.path is added by Electron
+    args: { bagPath: { type: "file", file } },
     children: [],
   };
 }

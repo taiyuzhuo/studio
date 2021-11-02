@@ -2221,25 +2221,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@foxglove/rosbag2-web@npm:1.0.3":
-  version: 1.0.3
-  resolution: "@foxglove/rosbag2-web@npm:1.0.3"
+"@foxglove/rosbag2-web@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@foxglove/rosbag2-web@npm:2.1.0"
   dependencies:
-    "@foxglove/rosbag2": ^1.0.2
-    sql.js: ^1.6.1
-  checksum: cc1c108a8ee0078a1d5144e940d2b16119be3ae0ea136e6580fcb1a290b0d893ffbacad9ec297b41907f6b74a44f12df0dd14d96a3c7c9ec6cde4b0be2f66c42
+    "@foxglove/rosbag2": ^2.0.0
+    sql.js: ^1.6.2
+  checksum: 0dba02ca90d5c714ede0d3eb0cc065f95a5d7deb5e5548fa5497e3c085c5adad44a4a90b029fd7e5a27cfcd7cfee53af8edacdb9ccbcaa3ff7304de680d7c577
   languageName: node
   linkType: hard
 
-"@foxglove/rosbag2@npm:^1.0.2":
-  version: 1.0.2
-  resolution: "@foxglove/rosbag2@npm:1.0.2"
+"@foxglove/rosbag2@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "@foxglove/rosbag2@npm:2.0.0"
   dependencies:
     "@foxglove/rosmsg-msgs-common": ^1.0.1
     "@foxglove/rosmsg2-serialization": ^1.0.2
     "@foxglove/rostime": ^1.1.0
     js-yaml: ^4.1.0
-  checksum: 06acc162ee443e189d6d04b5478e7241ea9bbfed544b1ddefad78063e1b397340ef6e75c04d1a0e467ef7456486a935e782155ac67e07cc989623c244b26f340
+  checksum: 10fb7758b8fc291abf8bce6898a6096a4fd53355a43fe67a00e821301439a13057dd4436475bb0d4607ebc11052fb641422f52d22d7a1e17c6b8e81ef95c25f0
   languageName: node
   linkType: hard
 
@@ -2336,7 +2336,7 @@ __metadata:
     "@foxglove/ros1": 1.3.3
     "@foxglove/ros2": 1.0.5
     "@foxglove/rosbag": 0.1.2
-    "@foxglove/rosbag2-web": 1.0.3
+    "@foxglove/rosbag2-web": 2.1.0
     "@foxglove/rosmsg": 3.0.0
     "@foxglove/rosmsg-msgs-common": 1.0.4
     "@foxglove/rosmsg-msgs-foxglove": 2.0.3
@@ -21182,10 +21182,10 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"sql.js@npm:^1.6.1":
-  version: 1.6.1
-  resolution: "sql.js@npm:1.6.1"
-  checksum: 30e6898a274215f7923772635bfff9b1397f8360c6302f5126bfec4920b1a2558a5461bcdd6ad655fa2d2e14069866fd35bc83287e2909eb6ebf4e80c1e4b251
+"sql.js@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "sql.js@npm:1.6.2"
+  checksum: 880a98527be7a62f1c25099192b0760a105ea0ac634b78293d9bd46244209f9e96329974316ad98cbdf2ba3f7c8db167588139c31d9f7dfed2a779eb05da2809
   languageName: node
   linkType: hard
 

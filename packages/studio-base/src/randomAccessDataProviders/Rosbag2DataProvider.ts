@@ -4,7 +4,7 @@
 
 import { Md5 } from "md5-typescript";
 
-import { ROS2_TO_DEFINITIONS, Rosbag2, openFileSystemDirectoryHandle } from "@foxglove/rosbag2-web";
+import { ROS2_TO_DEFINITIONS, Rosbag2, openFileSystemFile } from "@foxglove/rosbag2-web";
 import { stringify } from "@foxglove/rosmsg";
 import { Time } from "@foxglove/rostime";
 import { MessageEvent } from "@foxglove/studio";
@@ -25,9 +25,9 @@ import {
 } from "@foxglove/studio-base/randomAccessDataProviders/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
-type BagFolderPath = { type: "folder"; folder: FileSystemDirectoryHandle | string };
+type BagPath = { type: "file"; file: Blob };
 
-type Options = { bagFolderPath: BagFolderPath };
+type Options = { bagPath: BagPath };
 
 export default class Rosbag2DataProvider implements RandomAccessDataProvider {
   private options_: Options;
@@ -41,14 +41,12 @@ export default class Rosbag2DataProvider implements RandomAccessDataProvider {
   }
 
   async initialize(_extensionPoint: ExtensionPoint): Promise<InitializationResult> {
-    const folder = this.options_.bagFolderPath.folder;
-    if (folder instanceof FileSystemDirectoryHandle) {
-      const res = await fetch(new URL("sql.js/dist/sql-wasm.wasm", import.meta.url).toString());
-      const sqlWasm = await (await res.blob()).arrayBuffer();
-      this.bag_ = await openFileSystemDirectoryHandle(folder, sqlWasm);
-    } else {
-      throw new Error("Opening ROS2 bags via the native interface is not implemented yet");
-    }
+    const file = this.options_.bagPath.file;
+
+    const res = await fetch(new URL("sql.js/dist/sql-wasm.wasm", import.meta.url).toString());
+    const sqlJsWasm = await (await res.blob()).arrayBuffer();
+
+    this.bag_ = await openFileSystemFile(file, sqlJsWasm);
 
     const [start, end] = await this.bag_.timeRange();
     const topicDefs = await this.bag_.readTopics();
