@@ -19,15 +19,6 @@ html, body {
 *, *:before, *:after {
   box-sizing: inherit;
 }
-body {
-  background: ${({ theme }) => theme.semanticColors.bodyBackground};
-  color: ${({ theme }) => theme.semanticColors.bodyText};
-  font: inherit;
-  font-family: ${({ theme }) => theme.fonts.small.fontFamily};
-  font-feature-settings: ${({ theme }) => theme.fonts.small.fontFeatureSettings};
-  font-size: ${({ theme }) => theme.fonts.small.fontSize};
-  font-weight: ${({ theme }) => theme.fonts.small.fontWeight};
-}
 #root {
   height: 100%;
   width: 100%;
