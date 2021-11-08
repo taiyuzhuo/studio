@@ -91,7 +91,7 @@ export default function ConnectionList(): JSX.Element {
         styles={{ root: { color: theme.palette.neutralTertiary, marginBottom: theme.spacing.l1 } }}
       >
         {playerPresence === PlayerPresence.NOT_PRESENT
-          ? "Not connected. Choose a data source below to get started."
+          ? "Choose a data source below to get started."
           : playerName}
       </Text>
       {availableSources.map((source) => {

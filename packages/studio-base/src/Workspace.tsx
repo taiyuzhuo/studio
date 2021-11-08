@@ -102,7 +102,7 @@ type SidebarItemKey =
 
 function Connection() {
   return (
-    <SidebarContent title="Connection" helpContent={connectionHelpContent}>
+    <SidebarContent title="Data Source" helpContent={connectionHelpContent}>
       <ConnectionList />
     </SidebarContent>
   );
@@ -416,7 +416,7 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
   const sidebarItems = useMemo<Map<SidebarItemKey, SidebarItem>>(() => {
     const connectionItem: SidebarItem = {
       iconName: "DataManagementSettings",
-      title: "Connection",
+      title: "Data Source",
       component: Connection,
     };
 

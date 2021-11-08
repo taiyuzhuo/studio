@@ -42,6 +42,18 @@ export function buildPlayerFromDescriptor(
   });
 }
 
+// This is separate from buildPlayerFromDescriptor because we can't use ParseMessages and
+// MemoryCache with non-ROS1 DataProviders currently (they only support ROS1 binary messages)
+export function buildNonRos1PlayerFromDescriptor(
+  rootDescriptor: RandomAccessDataProviderDescriptor,
+  options: BuildPlayerOptions,
+): Player {
+  return new RandomAccessPlayer(rootDescriptor, {
+    metricsCollector: options.metricsCollector,
+    seekToTime: getSeekToTime(),
+  });
+}
+
 export function buildPlayerFromFiles(files: File[], options: BuildPlayerOptions): Player {
   const name = files.map((file) => String(file.name)).join(", ");
   if (files.length === 1) {

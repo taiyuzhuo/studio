@@ -18,15 +18,13 @@ import {
   ConsoleApi,
   ConsoleApiContext,
   ConsoleApiRemoteLayoutStorageProvider,
-  Ros1LocalBagDataSourceFactory,
-  Ros2LocalBagDataSourceFactory,
+  OpenFileDataSourceFactory,
   RosbridgeDataSourceFactory,
   VelodyneDataSourceFactory,
   Ros1RemoteBagDataSourceFactory,
   Ros1SocketDataSourceFactory,
   Ros2SocketDataSourceFactory,
   FoxgloveDataPlatformDataSourceFactory,
-  UlogLocalDataSourceFactory,
 } from "@foxglove/studio-base";
 
 import { Desktop } from "../common/types";
@@ -43,13 +41,11 @@ const DEMO_BAG_URL = "https://storage.googleapis.com/foxglove-public-assets/demo
 const desktopBridge = (global as unknown as { desktopBridge: Desktop }).desktopBridge;
 
 const dataSources: IDataSourceFactory[] = [
-  new Ros1SocketDataSourceFactory(),
-  new Ros1LocalBagDataSourceFactory(),
+  new OpenFileDataSourceFactory(),
   new Ros1RemoteBagDataSourceFactory(),
+  new Ros1SocketDataSourceFactory(),
   new Ros2SocketDataSourceFactory(),
-  new Ros2LocalBagDataSourceFactory(),
   new RosbridgeDataSourceFactory(),
-  new UlogLocalDataSourceFactory(),
   new VelodyneDataSourceFactory(),
   new FoxgloveDataPlatformDataSourceFactory(),
 ];

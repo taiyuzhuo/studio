@@ -20,12 +20,10 @@ import {
   ConsoleApiRemoteLayoutStorageProvider,
   AppSetting,
   useAppConfigurationValue,
-  Ros1LocalBagDataSourceFactory,
-  Ros2LocalBagDataSourceFactory,
+  OpenFileDataSourceFactory,
   RosbridgeDataSourceFactory,
   Ros1RemoteBagDataSourceFactory,
   FoxgloveDataPlatformDataSourceFactory,
-  UlogLocalDataSourceFactory,
 } from "@foxglove/studio-base";
 
 import ConsoleApiCookieUserProvider from "./components/ConsoleApiCookieCurrentUserProvider";
@@ -39,15 +37,13 @@ import ExtensionLoaderProvider from "./providers/ExtensionLoaderProvider";
 const DEMO_BAG_URL = "https://storage.googleapis.com/foxglove-public-assets/demo.bag";
 
 const dataSources: IDataSourceFactory[] = [
-  new Ros1UnavailableDataSourceFactory(),
-  new Ros1LocalBagDataSourceFactory(),
+  new OpenFileDataSourceFactory(),
   new Ros1RemoteBagDataSourceFactory(),
-  new Ros2UnavailableDataSourceFactory(),
-  new Ros2LocalBagDataSourceFactory(),
   new RosbridgeDataSourceFactory(),
-  new UlogLocalDataSourceFactory(),
-  new VelodyneUnavailableDataSourceFactory(),
   new FoxgloveDataPlatformDataSourceFactory(),
+  new Ros1UnavailableDataSourceFactory(),
+  new Ros2UnavailableDataSourceFactory(),
+  new VelodyneUnavailableDataSourceFactory(),
 ];
 
 function ColorSchemeThemeProvider({ children }: React.PropsWithChildren<unknown>): JSX.Element {
