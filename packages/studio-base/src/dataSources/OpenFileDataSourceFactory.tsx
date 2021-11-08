@@ -11,8 +11,10 @@ import {
   buildPlayerFromFiles,
 } from "@foxglove/studio-base/players/buildPlayer";
 import { Player } from "@foxglove/studio-base/players/types";
-import { getLocalRosbag2Descriptor } from "@foxglove/studio-base/randomAccessDataProviders/standardDataProviderDescriptors";
-import { getLocalUlogDescriptor } from "@foxglove/studio-base/randomAccessDataProviders/standardDataProviderDescriptors";
+import {
+  getLocalRosbag2Descriptor,
+  getLocalUlogDescriptor,
+} from "@foxglove/studio-base/randomAccessDataProviders/standardDataProviderDescriptors";
 
 enum FileType {
   Ros1Bag,
