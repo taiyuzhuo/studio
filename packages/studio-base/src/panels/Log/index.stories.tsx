@@ -13,7 +13,7 @@
 
 import TestUtils from "react-dom/test-utils";
 
-import Rosout from "@foxglove/studio-base/panels/Rosout";
+import Log from "@foxglove/studio-base/panels/Log";
 import PanelSetup from "@foxglove/studio-base/stories/PanelSetup";
 
 const fixture = {
@@ -27,7 +27,7 @@ const fixture = {
           file: "some_topic_utils/src/foo.cpp",
           function: "vector<int> some_topic::findInt",
           header: { stamp: { sec: 123, nsec: 0 } },
-          level: 4,
+          level: 1,
           line: 242,
           msg: "Couldn't find int 83757.",
           name: "/some_topic",
@@ -40,7 +40,7 @@ const fixture = {
           file: "other_topic_utils/src/foo.cpp",
           function: "vector<int> other_node::findInt",
           header: { stamp: { sec: 123, nsec: 0 } },
-          level: 4,
+          level: 2,
           line: 242,
           msg: "Couldn't find int 2121.",
           name: "/other_node",
@@ -64,9 +64,23 @@ const fixture = {
         receiveTime: { sec: 0, nsec: 0 },
         message: {
           header: { seq: 335, stamp: { sec: 1529678605, nsec: 521518001 }, frame_id: "" },
-          level: 4,
+          level: 8,
           name: "/some_node",
           msg: "26826:\nheader: \n  seq: 0\n  stamp: 1529678605.349576000\n  Adipisicing minim veniam sint occaecat anim laborum irure velit ut non do labore.\n",
+          file: "somefile.cpp",
+          function: "SomeFunction:SomeContext",
+          line: 491,
+          topics: [],
+        },
+      },
+      {
+        topic: "/rosout",
+        receiveTime: { sec: 0, nsec: 0 },
+        message: {
+          header: { seq: 335, stamp: { sec: 1529678605, nsec: 521518001 }, frame_id: "" },
+          level: 16,
+          name: "/some_node",
+          msg: "fatal message",
           file: "somefile.cpp",
           function: "SomeFunction:SomeContext",
           line: 491,
@@ -78,14 +92,14 @@ const fixture = {
 };
 
 export default {
-  title: "panels/Rosout/index",
-  component: Rosout,
+  title: "panels/Log",
+  component: Log,
 };
 
 export const Simple = (): JSX.Element => {
   return (
     <PanelSetup fixture={fixture}>
-      <Rosout />
+      <Log />
     </PanelSetup>
   );
 };
@@ -121,15 +135,16 @@ export const TopicToRender = (): JSX.Element => {
         });
       }}
     >
-      <Rosout overrideConfig={{ searchTerms: [], minLogLevel: 1, topicToRender: "/foo/rosout" }} />
+      <Log overrideConfig={{ searchTerms: [], minLogLevel: 1, topicToRender: "/foo/rosout" }} />
     </PanelSetup>
   );
 };
+TopicToRender.parameters = { colorScheme: "dark" };
 
 export const FilteredTerms = (): JSX.Element => {
   return (
     <PanelSetup fixture={fixture}>
-      <Rosout
+      <Log
         overrideConfig={{
           searchTerms: ["multiple", "/some_topic"],
           minLogLevel: 1,
@@ -145,7 +160,7 @@ FilteredTerms.title = `filtered terms: "multiple", "/some_topic"`;
 export const CaseInsitiveFilter = (): JSX.Element => {
   return (
     <PanelSetup fixture={fixture}>
-      <Rosout
+      <Log
         overrideConfig={{
           searchTerms: ["could", "Ipsum"],
           minLogLevel: 1,
