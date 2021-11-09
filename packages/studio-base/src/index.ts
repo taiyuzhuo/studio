@@ -52,6 +52,7 @@ export { default as CurrentUserContext } from "./context/CurrentUserContext";
 export type { User } from "./context/CurrentUserContext";
 export { default as DeviceCodeDialog } from "./components/DeviceCodeDialog";
 export { default as OpenFileDataSourceFactory } from "./dataSources/OpenFileDataSourceFactory";
+export { default as OpenFolderDataSourceFactory } from "./dataSources/OpenFolderDataSourceFactory";
 export { default as FoxgloveDataPlatformDataSourceFactory } from "./dataSources/FoxgloveDataPlatformDataSourceFactory";
 export { default as Ros1RemoteBagDataSourceFactory } from "./dataSources/Ros1RemoteBagDataSourceFactory";
 export { default as Ros1SocketDataSourceFactory } from "./dataSources/Ros1SocketDataSourceFactory";

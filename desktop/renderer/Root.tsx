@@ -19,6 +19,7 @@ import {
   ConsoleApiContext,
   ConsoleApiRemoteLayoutStorageProvider,
   OpenFileDataSourceFactory,
+  OpenFolderDataSourceFactory,
   RosbridgeDataSourceFactory,
   VelodyneDataSourceFactory,
   Ros1RemoteBagDataSourceFactory,
@@ -42,6 +43,7 @@ const desktopBridge = (global as unknown as { desktopBridge: Desktop }).desktopB
 
 const dataSources: IDataSourceFactory[] = [
   new OpenFileDataSourceFactory(),
+  new OpenFolderDataSourceFactory(),
   new Ros1RemoteBagDataSourceFactory(),
   new Ros1SocketDataSourceFactory(),
   new Ros2SocketDataSourceFactory(),

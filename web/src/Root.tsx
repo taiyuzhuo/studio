@@ -21,6 +21,7 @@ import {
   AppSetting,
   useAppConfigurationValue,
   OpenFileDataSourceFactory,
+  OpenFolderDataSourceFactory,
   RosbridgeDataSourceFactory,
   Ros1RemoteBagDataSourceFactory,
   FoxgloveDataPlatformDataSourceFactory,
@@ -38,6 +39,7 @@ const DEMO_BAG_URL = "https://storage.googleapis.com/foxglove-public-assets/demo
 
 const dataSources: IDataSourceFactory[] = [
   new OpenFileDataSourceFactory(),
+  new OpenFolderDataSourceFactory(),
   new Ros1RemoteBagDataSourceFactory(),
   new RosbridgeDataSourceFactory(),
   new FoxgloveDataPlatformDataSourceFactory(),
