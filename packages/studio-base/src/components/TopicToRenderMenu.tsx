@@ -114,14 +114,7 @@ export default function TopicToRenderMenu({
         },
       },
     }),
-    [
-      availableTopics,
-      onChange,
-      renderTopics,
-      theme.fonts.small.fontSize,
-      theme.palette.themePrimary,
-      topicToRender,
-    ],
+    [availableTopics, onChange, renderTopics, theme, topicToRender],
   );
 
   return (
