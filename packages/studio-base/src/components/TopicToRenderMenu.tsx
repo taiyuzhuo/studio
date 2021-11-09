@@ -24,23 +24,25 @@ type Props = {
 };
 
 const topicButtonStyles = (theme: ITheme, { available }: { available: boolean }) => {
-  const color = available ? theme.palette.neutralPrimary : theme.semanticColors.warningBackground;
+  const rootStyle = {
+    backgroundColor: "transparent",
+    color: available ? theme.palette.neutralPrimary : theme.semanticColors.warningBackground,
+  };
 
   return {
     root: {
+      ...rootStyle,
       opacity: 0.6,
-      backgroundColor: "transparent",
       height: 16,
       padding: 0,
-      color,
     },
-    rootDisabled: { opacity: 0.4, backgroundColor: "transparent" },
-    rootExpanded: { opacity: 1, backgroundColor: "transparent" },
-    rootExpandedHovered: { opacity: 1, backgroundColor: "transparent" },
-    rootFocused: { backgroundColor: "transparent", color },
-    rootHasMenu: { backgroundColor: "transparent", color },
-    rootHovered: { opacity: 0.8, backgroundColor: "transparent", color },
-    rootPressed: { opacity: 1, backgroundColor: "transparent", color },
+    rootDisabled: { ...rootStyle, opacity: 0.4 },
+    rootExpanded: { ...rootStyle, opacity: 1 },
+    rootExpandedHovered: { ...rootStyle, opacity: 1 },
+    rootFocused: { ...rootStyle, opacity: 0.8 },
+    rootHasMenu: { ...rootStyle, opacity: 0.6 },
+    rootHovered: { ...rootStyle, opacity: 0.8 },
+    rootPressed: { ...rootStyle, opacity: 1 },
     icon: {
       fontSize: 14,
       margin: "0 1px",
@@ -51,12 +53,8 @@ const topicButtonStyles = (theme: ITheme, { available }: { available: boolean })
         width: "1em",
       },
     },
-    iconHovered: {
-      color: "currentColor",
-    },
-    menuIcon: {
-      display: "none",
-    },
+    iconHovered: { color: "currentColor" },
+    menuIcon: { display: "none" },
   } as Partial<IButtonStyles>;
 };
 
