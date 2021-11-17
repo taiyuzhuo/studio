@@ -67,6 +67,7 @@ export type GetMessagesResult = Readonly<{
   rosBinaryMessages?: readonly MessageEvent<ArrayBuffer>[];
 }>;
 
+/*
 export type ParsedMessageDefinitions = Readonly<{
   type: "parsed";
   datatypes: RosDatatypes;
@@ -75,15 +76,15 @@ export type ParsedMessageDefinitions = Readonly<{
   messageDefinitionsByTopic: MessageDefinitionsByTopic;
   parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic;
 }>;
-export type MessageDefinitions =
-  | Readonly<{
-      type: "raw";
-      // The ROS message definitions for each provided topic. Entries are required for topics that are
-      // available through the data provider in binary format, either directly through getMessages calls
-      // or indirectly through the player progress mechanism.
-      messageDefinitionsByTopic: MessageDefinitionsByTopic;
-    }>
-  | ParsedMessageDefinitions;
+*/
+
+export type MessageDefinitions = {
+  type: "raw";
+  // The ROS message definitions for each provided topic. Entries are required for topics that are
+  // available through the data provider in binary format, either directly through getMessages calls
+  // or indirectly through the player progress mechanism.
+  messageDefinitionsByTopic: MessageDefinitionsByTopic;
+};
 
 export interface RandomAccessDataProvider {
   // Do any up-front initializing of the provider, and takes an optional extension point for
@@ -123,11 +124,6 @@ export type InitializationResult = {
   connections: Connection[];
   parameters?: Map<string, ParameterValue>;
 
-  // Signals whether the messages returned from calls to getMessages are parsed into Javascript
-  // objects or are returned in ROS binary format.
-  // TODO(steel/hernan): Replace topics and providesParsedMessages with a GetMessagesResult, and
-  // update the ApiCheckerDataProvider to enforce it.
-  providesParsedMessages: boolean;
   messageDefinitions: MessageDefinitions;
 
   // Any errors or warnings that should be surfaced to the user as a result of initializing a data

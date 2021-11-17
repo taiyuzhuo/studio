@@ -37,7 +37,6 @@ import {
   PublishPayload,
   SubscribePayload,
   Topic,
-  ParsedMessageDefinitionsByTopic,
   PlayerPresence,
   PlayerMetricsCollectorInterface,
   ParameterValue,
@@ -83,7 +82,6 @@ export default class RosbridgePlayer implements Player {
   private _topicPublishers = new Map<string, roslib.Topic>();
   // which topics we want to advertise to other nodes
   private _advertisements: AdvertiseOptions[] = [];
-  private _parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
   private _parsedTopics: Set<string> = new Set();
   private _receivedBytes: number = 0;
   private _metricsCollector: PlayerMetricsCollectorInterface;
@@ -228,7 +226,6 @@ export default class RosbridgePlayer implements Player {
           rosVersion === 1
             ? new LazyMessageReader(parsedDefinition)
             : new ROS2MessageReader(parsedDefinition);
-        this._parsedMessageDefinitionsByTopic[topicName] = parsedDefinition;
       }
 
       // Sort them for easy comparison. If nothing has changed here, bail out.
@@ -347,7 +344,6 @@ export default class RosbridgePlayer implements Player {
         publishedTopics: this._publishedTopics,
         subscribedTopics: this._subscribedTopics,
         services: this._services,
-        parsedMessageDefinitionsByTopic: this._parsedMessageDefinitionsByTopic,
       },
     });
   });

@@ -106,18 +106,11 @@ export default class ApiCheckerDataProvider implements RandomAccessDataProvider 
       this._topicNames.push(topic.name);
       if (initializationResult.messageDefinitions.type === "raw") {
         if (
-          !initializationResult.providesParsedMessages &&
           initializationResult.messageDefinitions.messageDefinitionsByTopic[topic.name] == undefined
         ) {
           this._warn(`Topic "${topic.name}"" not present in messageDefinitionsByTopic`);
         }
       } else {
-        if (
-          !initializationResult.providesParsedMessages &&
-          !initializationResult.messageDefinitions.parsedMessageDefinitionsByTopic[topic.name]
-        ) {
-          this._warn(`Topic "${topic.name}"" not present in parsedMessageDefinitionsByTopic`);
-        }
         if (!initializationResult.messageDefinitions.datatypes.get(topic.datatype)) {
           this._warn(`Topic "${topic.name}" datatype "${topic.datatype}" not present in datatypes`);
         }

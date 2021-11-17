@@ -82,10 +82,8 @@ export default class TestProvider implements RandomAccessDataProvider {
       connections: [],
       providesParsedMessages: true,
       messageDefinitions: {
-        type: "parsed",
         datatypes: this._datatypes,
         messageDefinitionsByTopic: {},
-        parsedMessageDefinitionsByTopic: {},
       },
       problems: [],
     };

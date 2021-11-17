@@ -17,7 +17,6 @@ import { Time, compare, isGreaterThan, isLessThan } from "@foxglove/rostime";
 import {
   Topic,
   MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
   MessageEvent,
 } from "@foxglove/studio-base/players/types";
 import {

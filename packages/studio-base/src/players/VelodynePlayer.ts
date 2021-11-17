@@ -236,7 +236,6 @@ export default class VelodynePlayer implements Player {
         subscribedTopics: undefined,
         services: undefined,
         parameters: undefined,
-        parsedMessageDefinitionsByTopic: {},
       },
     });
   });

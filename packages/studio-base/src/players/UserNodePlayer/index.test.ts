@@ -84,7 +84,6 @@ const basicPlayerState: PlayerStateActiveData = {
   isPlaying: true,
   speed: 0.2,
   lastSeekTime: 0,
-  parsedMessageDefinitionsByTopic: {},
   totalBytesReceived: 1234,
   messages: [],
   messageOrder: "receiveTime",

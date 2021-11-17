@@ -132,7 +132,6 @@ export default class RandomAccessPlayer implements Player {
   private _closed = false;
   private _seekToTime: SeekToTimeSpec;
   private _lastRangeMillis?: number;
-  private _parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
 
   // To keep reference equality for downstream user memoization cache the currentTime provided in the last activeData update
   // See additional comments below where _currentTime is set
@@ -249,8 +248,6 @@ export default class RandomAccessPlayer implements Player {
         if (parameters) {
           this._capabilities.push(PlayerCapabilities.getParameters);
         }
-        this._parsedMessageDefinitionsByTopic =
-          parsedMessageDefinitions.parsedMessageDefinitionsByTopic;
         this._initializing = false;
         problems.forEach((problem, i) => {
           this._problems.set(`initialization-${i}`, problem);
@@ -357,7 +354,6 @@ export default class RandomAccessPlayer implements Player {
             datatypes: this._providerDatatypes,
             parameters: this._providerParameters,
             publishedTopics,
-            parsedMessageDefinitionsByTopic: this._parsedMessageDefinitionsByTopic,
           },
     };
 

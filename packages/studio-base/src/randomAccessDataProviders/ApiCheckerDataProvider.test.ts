@@ -41,7 +41,6 @@ function getProvider({ isRoot = false }: { isRoot?: boolean } = {}) {
     ],
     datatypes: new Map(Object.entries({ some_datatype: { definitions: [] } })),
     messageDefinitionsByTopic: { "/some_other_topic": "dummy" },
-    parsedMessageDefinitionsByTopic: { "/some_topic": [], "/some_other_topic": [] },
     providesParsedMessages: false, // to test missing messageDefinitionsByTopic
   });
 
@@ -65,7 +64,6 @@ describe("ApiCheckerDataProvider", () => {
           type: "parsed",
           // with parsed messageDefintions, the string messageDefintionsByTopic does not need to be complete.
           messageDefinitionsByTopic: { "/some_other_topic": "dummy" },
-          parsedMessageDefinitionsByTopic: { "/some_topic": [], "/some_other_topic": [] },
           datatypes: new Map(Object.entries({ some_datatype: { definitions: [] } })),
         },
         connections: [],
@@ -86,7 +84,6 @@ describe("ApiCheckerDataProvider", () => {
         "/some_topic": "dummy",
         "/some_other_topic": "dummy",
       };
-      memoryDataProvider.parsedMessageDefinitionsByTopic = undefined;
       memoryDataProvider.datatypes = undefined;
       const initializationResult = await provider.initialize(mockExtensionPoint().extensionPoint);
       expect(initializationResult).toEqual({
@@ -131,17 +128,8 @@ describe("ApiCheckerDataProvider", () => {
         await expect(provider.initialize(mockExtensionPoint().extensionPoint)).rejects.toThrow();
       });
 
-      it("throws when topic is missing from parsedMessageDefinitionsByTopic", async () => {
-        const { provider, memoryDataProvider } = getProvider();
-        memoryDataProvider.parsedMessageDefinitionsByTopic = {
-          "/some_other_topic": [],
-        };
-        await expect(provider.initialize(mockExtensionPoint().extensionPoint)).rejects.toThrow();
-      });
-
       it("throws when topic is missing from messageDefinitionsByTopic (raw messageDefinitions)", async () => {
         const { provider, memoryDataProvider } = getProvider({ isRoot: true });
-        memoryDataProvider.parsedMessageDefinitionsByTopic = undefined;
         memoryDataProvider.datatypes = undefined;
         await expect(provider.initialize(mockExtensionPoint().extensionPoint)).rejects.toThrow();
       });
@@ -152,7 +140,6 @@ describe("ApiCheckerDataProvider", () => {
           "/some_topic": "dummy",
           "/some_other_topic": "dummy",
         };
-        memoryDataProvider.parsedMessageDefinitionsByTopic = undefined;
         memoryDataProvider.datatypes = undefined;
         await expect(provider.initialize(mockExtensionPoint().extensionPoint)).rejects.toThrow();
       });
