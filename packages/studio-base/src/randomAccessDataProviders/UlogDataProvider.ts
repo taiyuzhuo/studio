@@ -10,7 +10,6 @@ import { MessageEvent } from "@foxglove/studio";
 import {
   MessageDefinitionsByTopic,
   ParameterValue,
-  ParsedMessageDefinitionsByTopic,
   Topic,
 } from "@foxglove/studio-base/players/types";
 import {
@@ -72,7 +71,6 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
     const connections: Connection[] = [];
     const datatypes: RosDatatypes = new Map();
     const messageDefinitionsByTopic: MessageDefinitionsByTopic = {};
-    const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
     const header = this._ulog.header!;
 
     topics.push({
@@ -98,10 +96,6 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
         topicNames.add(name);
         topics.push({ name, datatype: msgDef.name, numMessages: count });
         messageDefinitionsByTopic[name] = msgDef.format;
-        const rosMsgDef = datatypes.get(msgDef.name);
-        if (rosMsgDef) {
-          parsedMessageDefinitionsByTopic[name] = [rosMsgDef];
-        }
       }
 
       if (name) {
@@ -130,10 +124,8 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
       parameters,
       providesParsedMessages: true,
       messageDefinitions: {
-        type: "parsed",
         datatypes,
         messageDefinitionsByTopic,
-        parsedMessageDefinitionsByTopic,
       },
       problems,
     };

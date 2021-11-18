@@ -59,9 +59,7 @@ type MemoryDataProviderOptions = {
   topics?: Topic[];
   datatypes?: RosDatatypes;
   messageDefinitionsByTopic?: MessageDefinitionsByTopic;
-  parsedMessageDefinitionsByTopic?: ParsedMessageDefinitionsByTopic;
   initiallyLoaded?: boolean;
-  providesParsedMessages?: boolean;
 };
 
 // in-memory data provider for tests
@@ -71,10 +69,8 @@ export default class MemoryDataProvider implements RandomAccessDataProvider {
   topics?: Topic[];
   datatypes?: RosDatatypes;
   messageDefinitionsByTopic: MessageDefinitionsByTopic;
-  parsedMessageDefinitionsByTopic?: ParsedMessageDefinitionsByTopic;
   extensionPoint?: ExtensionPoint;
   initiallyLoaded: boolean;
-  providesParsedMessages: boolean;
 
   constructor({
     messages,
@@ -82,16 +78,12 @@ export default class MemoryDataProvider implements RandomAccessDataProvider {
     datatypes,
     initiallyLoaded = false,
     messageDefinitionsByTopic,
-    parsedMessageDefinitionsByTopic,
-    providesParsedMessages,
   }: MemoryDataProviderOptions) {
     this.messages = messages;
     this.topics = topics;
     this.datatypes = datatypes;
     this.messageDefinitionsByTopic = messageDefinitionsByTopic ?? {};
-    this.parsedMessageDefinitionsByTopic = parsedMessageDefinitionsByTopic;
     this.initiallyLoaded = initiallyLoaded;
-    this.providesParsedMessages = providesParsedMessages ?? messages.parsedMessages != undefined;
   }
 
   async initialize(extensionPoint: ExtensionPoint): Promise<InitializationResult> {
@@ -109,11 +101,9 @@ export default class MemoryDataProvider implements RandomAccessDataProvider {
     );
 
     let messageDefinitions: MessageDefinitions;
-    if (this.datatypes || this.parsedMessageDefinitionsByTopic) {
+    if (this.datatypes) {
       messageDefinitions = {
-        type: "parsed",
         datatypes: this.datatypes ?? new Map(),
-        parsedMessageDefinitionsByTopic: this.parsedMessageDefinitionsByTopic ?? {},
         messageDefinitionsByTopic: this.messageDefinitionsByTopic,
       };
     } else {

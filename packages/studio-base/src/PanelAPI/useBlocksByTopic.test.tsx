@@ -15,7 +15,6 @@
 import { mount } from "enzyme";
 import { cloneDeep } from "lodash";
 
-import { parse as parseMessageDefinition } from "@foxglove/rosmsg";
 import MockMessagePipelineProvider from "@foxglove/studio-base/components/MessagePipeline/MockMessagePipelineProvider";
 
 import * as PanelAPI from ".";
@@ -46,12 +45,9 @@ describe("useBlocksByTopic", () => {
   });
 
   it("returns no messagesByTopic when the player does not provide blocks", async () => {
-    const activeData = {
-      parsedMessageDefinitionsByTopic: { "/topic": parseMessageDefinition("uint32 id") },
-    };
     const Test = createTest();
     const root = mount(
-      <MockMessagePipelineProvider activeData={activeData}>
+      <MockMessagePipelineProvider>
         <Test topics={["/topic1"]} />
       </MockMessagePipelineProvider>,
     );
@@ -84,9 +80,6 @@ describe("useBlocksByTopic", () => {
   });
 
   it("maintains block identity across repeated renders", async () => {
-    const activeData = {
-      parsedMessageDefinitionsByTopic: { "/topic": parseMessageDefinition("uint32 id") },
-    };
     const progress = {
       messageCache: {
         blocks: [{ sizeInBytes: 0, messagesByTopic: { "/topic": [] } }],
@@ -96,7 +89,7 @@ describe("useBlocksByTopic", () => {
     const Test = createTest();
 
     const root = mount(
-      <MockMessagePipelineProvider activeData={activeData} progress={progress}>
+      <MockMessagePipelineProvider progress={progress}>
         <Test topics={["/topic"]} />
       </MockMessagePipelineProvider>,
     );

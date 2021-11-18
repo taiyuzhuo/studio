@@ -35,7 +35,6 @@ import {
   PublishPayload,
   SubscribePayload,
   Topic,
-  ParsedMessageDefinitionsByTopic,
   PlayerPresence,
   ParameterValue,
   PlayerProblem,
@@ -215,20 +214,8 @@ export default class RandomAccessPlayer implements Player {
         },
       })
       .then((result) => {
-        const {
-          start,
-          end,
-          topics,
-          connections,
-          parameters,
-          messageDefinitions,
-          providesParsedMessages,
-          problems,
-        } = result;
-        if (!providesParsedMessages) {
-          this._setError("Incorrect message format");
-          return;
-        }
+        const { start, end, topics, connections, parameters, messageDefinitions, problems } =
+          result;
         const parsedMessageDefinitions = messageDefinitions;
         if (parsedMessageDefinitions.type === "raw") {
           this._setError("Missing message definitions");

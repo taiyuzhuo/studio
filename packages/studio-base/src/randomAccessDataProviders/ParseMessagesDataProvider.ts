@@ -53,21 +53,13 @@ export default class ParseMessagesDataProvider implements RandomAccessDataProvid
   async initialize(extensionPoint: ExtensionPoint): Promise<InitializationResult> {
     const result = await this._provider.initialize(extensionPoint);
     const { topics } = result;
-    if (result.providesParsedMessages) {
-      throw new Error(
-        "ParseMessagesDataProvider should not be used with a provider provides already-parsed messages",
-      );
-    }
-    const messageDefinitions =
-      result.messageDefinitions.type === "parsed"
-        ? result.messageDefinitions
-        : rawMessageDefinitionsToParsed(result.messageDefinitions, topics);
 
+    const messageDefinitions = result.messageDefinitions;
     topics.forEach(({ name, datatype }) => {
       this._datatypeNamesByTopic[name] = datatype;
     });
     // Initialize the readers asynchronously - we can load data without having the readers ready to parse it.
-    return { ...result, providesParsedMessages: true, messageDefinitions };
+    return { ...result, messageDefinitions };
   }
 
   async getMessages(start: Time, end: Time, topics: GetMessagesTopics): Promise<GetMessagesResult> {

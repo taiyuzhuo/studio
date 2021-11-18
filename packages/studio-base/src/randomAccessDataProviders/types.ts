@@ -16,11 +16,9 @@ import {
   Progress,
   Topic,
   MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
   MessageEvent,
   ParameterValue,
 } from "@foxglove/studio-base/players/types";
-import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 // `RandomAccessDataProvider` describes a more specific kind of data ingesting than `Player`, namely ingesting
 // data that we have random access to. From Wikipedia:
@@ -66,17 +64,6 @@ export type GetMessagesResult = Readonly<{
   parsedMessages?: readonly MessageEvent<unknown>[];
   rosBinaryMessages?: readonly MessageEvent<ArrayBuffer>[];
 }>;
-
-/*
-export type ParsedMessageDefinitions = Readonly<{
-  type: "parsed";
-  datatypes: RosDatatypes;
-  // Note that these might not be "complete" - rely on the parsedMessageDefinitionsByTopic for the
-  // complete list of message definitions!
-  messageDefinitionsByTopic: MessageDefinitionsByTopic;
-  parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic;
-}>;
-*/
 
 export type MessageDefinitions = {
   type: "raw";

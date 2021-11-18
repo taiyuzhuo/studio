@@ -327,15 +327,9 @@ export default class Ros1MemoryCacheDataProvider implements RandomAccessDataProv
     this._blocks = Array.from({ length: blockCount });
 
     const msgDefs = result.messageDefinitions;
-    if (msgDefs.type === "parsed") {
-      for (const [topic, msgDef] of Object.entries(msgDefs.parsedMessageDefinitionsByTopic)) {
-        this._lazyMessageReadersByTopic.set(topic, new LazyMessageReader(msgDef));
-      }
-    } else if (msgDefs.type === "raw") {
-      for (const [topic, rawMsgDef] of Object.entries(msgDefs.messageDefinitionsByTopic)) {
-        const msgDef = parseMessageDefinition(rawMsgDef);
-        this._lazyMessageReadersByTopic.set(topic, new LazyMessageReader(msgDef));
-      }
+    for (const [topic, rawMsgDef] of Object.entries(msgDefs.messageDefinitionsByTopic)) {
+      const msgDef = parseMessageDefinition(rawMsgDef);
+      this._lazyMessageReadersByTopic.set(topic, new LazyMessageReader(msgDef));
     }
 
     this._updateProgress();

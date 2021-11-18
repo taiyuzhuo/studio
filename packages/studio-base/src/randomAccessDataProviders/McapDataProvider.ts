@@ -168,10 +168,8 @@ export default class McapDataProvider implements RandomAccessDataProvider {
       connections,
       providesParsedMessages: true,
       messageDefinitions: {
-        type: "parsed",
         datatypes,
         messageDefinitionsByTopic: {},
-        parsedMessageDefinitionsByTopic: {},
       },
       problems: [],
     };

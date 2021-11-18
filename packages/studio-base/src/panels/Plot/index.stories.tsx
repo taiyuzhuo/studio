@@ -263,9 +263,6 @@ const fixture = {
     endTime: { sec: 24, nsec: 999997069 },
     currentTime: { sec: 0, nsec: 750000000 },
     isPlaying: false,
-    parsedMessageDefinitionsByTopic: {
-      "/preloaded_topic": parseMessageDefinition(float64StampedDefinition),
-    },
     speed: 0.2,
   },
   frame: {

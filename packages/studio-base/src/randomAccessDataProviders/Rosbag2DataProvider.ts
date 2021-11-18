@@ -8,11 +8,7 @@ import { ROS2_TO_DEFINITIONS, Rosbag2, openFileSystemDirectoryHandle } from "@fo
 import { stringify } from "@foxglove/rosmsg";
 import { Time } from "@foxglove/rostime";
 import { MessageEvent } from "@foxglove/studio";
-import {
-  MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
-  Topic,
-} from "@foxglove/studio-base/players/types";
+import { MessageDefinitionsByTopic, Topic } from "@foxglove/studio-base/players/types";
 import {
   Connection,
   RandomAccessDataProvider,
@@ -59,7 +55,6 @@ export default class Rosbag2DataProvider implements RandomAccessDataProvider {
     const connections: Connection[] = [];
     const datatypes: RosDatatypes = new Map();
     const messageDefinitionsByTopic: MessageDefinitionsByTopic = {};
-    const parsedMessageDefinitionsByTopic: ParsedMessageDefinitionsByTopic = {};
 
     for (const topicDef of topicDefs) {
       const parsedMsgdef = ROS2_TO_DEFINITIONS.get(topicDef.type);
@@ -91,7 +86,6 @@ export default class Rosbag2DataProvider implements RandomAccessDataProvider {
       });
       datatypes.set(topicDef.type, { name: topicDef.type, definitions: parsedMsgdef.definitions });
       messageDefinitionsByTopic[topicDef.name] = messageDefinition;
-      parsedMessageDefinitionsByTopic[topicDef.name] = fullParsedMessageDefinitions;
     }
 
     return {
@@ -101,10 +95,8 @@ export default class Rosbag2DataProvider implements RandomAccessDataProvider {
       connections,
       providesParsedMessages: true,
       messageDefinitions: {
-        type: "parsed",
         datatypes,
         messageDefinitionsByTopic,
-        parsedMessageDefinitionsByTopic,
       },
       problems,
     };

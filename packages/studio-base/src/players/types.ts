@@ -11,7 +11,6 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-// import { RosMsgDefinition } from "@foxglove/rosmsg";
 import { Time } from "@foxglove/rostime";
 import type { MessageEvent } from "@foxglove/studio";
 import { GlobalVariables } from "@foxglove/studio-base/hooks/useGlobalVariables";
@@ -32,12 +31,6 @@ export type { MessageEvent };
 export type MessageDefinitionsByTopic = {
   [topic: string]: string;
 };
-
-/*
-export type ParsedMessageDefinitionsByTopic = {
-  [topic: string]: RosMsgDefinition[];
-};
-*/
 
 // Valid types for parameter data (such as rosparams)
 export type ParameterValue =
