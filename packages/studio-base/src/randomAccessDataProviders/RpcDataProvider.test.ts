@@ -32,7 +32,6 @@ const data = {
   },
   topics: [{ name: "/some_topic", datatype: "some_datatype" }],
   messageDefinitionsByTopic: { some_datatype: "dummy" },
-  providesParsedMessages: false,
 };
 const dummyChildren = [{ name: "MemoryDataProvider", args: {}, children: [] }];
 
@@ -52,7 +51,6 @@ describe("RpcDataProvider", () => {
         type: "raw",
         messageDefinitionsByTopic: { some_datatype: "dummy" },
       },
-      providesParsedMessages: false,
       problems: [],
     });
   });

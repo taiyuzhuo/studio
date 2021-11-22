@@ -41,7 +41,6 @@ function getProvider({ isRoot = false }: { isRoot?: boolean } = {}) {
     ],
     datatypes: new Map(Object.entries({ some_datatype: { definitions: [] } })),
     messageDefinitionsByTopic: { "/some_other_topic": "dummy" },
-    providesParsedMessages: false, // to test missing messageDefinitionsByTopic
   });
 
   return {
@@ -73,7 +72,6 @@ describe("ApiCheckerDataProvider", () => {
           { datatype: "some_datatype", name: "/some_topic" },
           { datatype: "some_datatype", name: "/some_other_topic" },
         ],
-        providesParsedMessages: false,
         problems: [],
       });
     });
@@ -98,7 +96,6 @@ describe("ApiCheckerDataProvider", () => {
           { datatype: "some_datatype", name: "/some_topic" },
           { datatype: "some_datatype", name: "/some_other_topic" },
         ],
-        providesParsedMessages: false,
         problems: [],
       });
     });

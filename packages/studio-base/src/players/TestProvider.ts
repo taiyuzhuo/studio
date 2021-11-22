@@ -80,7 +80,6 @@ export default class TestProvider implements RandomAccessDataProvider {
       end: this._end,
       topics: this._topics,
       connections: [],
-      providesParsedMessages: true,
       messageDefinitions: {
         datatypes: this._datatypes,
         messageDefinitionsByTopic: {},

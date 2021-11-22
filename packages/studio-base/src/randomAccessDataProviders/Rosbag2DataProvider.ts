@@ -93,7 +93,6 @@ export default class Rosbag2DataProvider implements RandomAccessDataProvider {
       end,
       topics,
       connections,
-      providesParsedMessages: true,
       messageDefinitions: {
         datatypes,
         messageDefinitionsByTopic,

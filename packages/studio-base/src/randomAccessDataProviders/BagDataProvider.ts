@@ -235,7 +235,6 @@ export default class BagDataProvider implements RandomAccessDataProvider {
         type: "raw",
         messageDefinitionsByTopic,
       },
-      providesParsedMessages: false,
       problems: [],
     };
   }

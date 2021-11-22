@@ -166,7 +166,6 @@ export default class McapDataProvider implements RandomAccessDataProvider {
       end: endTime ?? { sec: 0, nsec: 0 },
       topics,
       connections,
-      providesParsedMessages: true,
       messageDefinitions: {
         datatypes,
         messageDefinitionsByTopic: {},

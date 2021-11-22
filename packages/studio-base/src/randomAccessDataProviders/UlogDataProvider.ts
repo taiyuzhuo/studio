@@ -122,7 +122,6 @@ export default class UlogDataProvider implements RandomAccessDataProvider {
       topics,
       connections,
       parameters,
-      providesParsedMessages: true,
       messageDefinitions: {
         datatypes,
         messageDefinitionsByTopic,

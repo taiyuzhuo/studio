@@ -125,7 +125,6 @@ export default class MemoryDataProvider implements RandomAccessDataProvider {
       topics: this.topics ?? [],
       connections: [],
       messageDefinitions,
-      providesParsedMessages: this.providesParsedMessages,
       problems: [],
     };
   }

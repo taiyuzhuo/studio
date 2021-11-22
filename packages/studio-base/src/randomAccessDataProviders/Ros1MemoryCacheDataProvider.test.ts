@@ -83,7 +83,6 @@ function getProvider(
 ) {
   const memoryDataProvider = new MemoryDataProvider({
     messages: { parsedMessages: undefined, rosBinaryMessages: messages },
-    providesParsedMessages: false,
   });
   return {
     provider: new Ros1MemoryCacheDataProvider(
