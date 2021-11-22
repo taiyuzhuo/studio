@@ -27,6 +27,7 @@ import {
   subtract as subtractTimes,
   toSec,
 } from "@foxglove/rostime";
+import { ParameterValue } from "@foxglove/studio";
 import PlayerProblemManager from "@foxglove/studio-base/players/PlayerProblemManager";
 import {
   AdvertiseOptions,
@@ -39,7 +40,6 @@ import {
   Topic,
   PlayerPresence,
   PlayerMetricsCollectorInterface,
-  ParameterValue,
 } from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 import { bagConnectionsToDatatypes } from "@foxglove/studio-base/util/bagConnectionsHelper";

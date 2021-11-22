@@ -23,6 +23,7 @@ import {
   percentOf,
   subtract as subtractTimes,
 } from "@foxglove/rostime";
+import { ParameterValue } from "@foxglove/studio";
 import NoopMetricsCollector from "@foxglove/studio-base/players/NoopMetricsCollector";
 import {
   AdvertiseOptions,
@@ -36,7 +37,6 @@ import {
   SubscribePayload,
   Topic,
   PlayerPresence,
-  ParameterValue,
   PlayerProblem,
 } from "@foxglove/studio-base/players/types";
 import { rootGetDataProvider } from "@foxglove/studio-base/randomAccessDataProviders/rootGetDataProvider";

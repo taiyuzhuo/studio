@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
-import type { MessageEvent } from "@foxglove/studio";
+import type { MessageEvent, ParameterValue } from "@foxglove/studio";
 import { GlobalVariables } from "@foxglove/studio-base/hooks/useGlobalVariables";
 import { BlockCache } from "@foxglove/studio-base/randomAccessDataProviders/MemoryCacheDataProvider";
 import {
@@ -31,19 +31,6 @@ export type { MessageEvent };
 export type MessageDefinitionsByTopic = {
   [topic: string]: string;
 };
-
-// Valid types for parameter data (such as rosparams)
-export type ParameterValue =
-  | undefined
-  | boolean
-  | number
-  | string
-  | Date
-  | Uint8Array
-  | ParameterValue[]
-  | ParameterStruct;
-
-export type ParameterStruct = { [key: string]: ParameterValue };
 
 // A `Player` is a class that manages playback state. It manages subscriptions,
 // current time, which topics and datatypes are available, and so on.

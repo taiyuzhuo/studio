@@ -12,12 +12,12 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
+import { ParameterValue } from "@foxglove/studio";
 import {
   Progress,
   Topic,
   MessageDefinitionsByTopic,
   MessageEvent,
-  ParameterValue,
 } from "@foxglove/studio-base/players/types";
 
 // `RandomAccessDataProvider` describes a more specific kind of data ingesting than `Player`, namely ingesting
