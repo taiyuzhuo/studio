@@ -97,23 +97,12 @@ export default class ApiCheckerDataProvider implements RandomAccessDataProvider 
         "No topics returned at all; should have thrown error instead (with details of why this is happening)",
       );
     }
-    if (this._isRoot && initializationResult.messageDefinitions.type !== "parsed") {
-      this._warn(
-        `Root data provider should return parsed message definitions but instead returned raw`,
-      );
-    }
     for (const topic of initializationResult.topics) {
       this._topicNames.push(topic.name);
-      if (initializationResult.messageDefinitions.type === "raw") {
-        if (
-          initializationResult.messageDefinitions.messageDefinitionsByTopic[topic.name] == undefined
-        ) {
-          this._warn(`Topic "${topic.name}"" not present in messageDefinitionsByTopic`);
-        }
-      } else {
-        if (!initializationResult.messageDefinitions.datatypes.get(topic.datatype)) {
-          this._warn(`Topic "${topic.name}" datatype "${topic.datatype}" not present in datatypes`);
-        }
+      if (
+        initializationResult.messageDefinitions.messageDefinitionsByTopic[topic.name] == undefined
+      ) {
+        this._warn(`Topic "${topic.name}"" not present in messageDefinitionsByTopic`);
       }
     }
     return initializationResult;

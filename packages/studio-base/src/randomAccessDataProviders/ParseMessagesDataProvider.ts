@@ -13,7 +13,6 @@
 
 import { Time } from "@foxglove/rostime";
 
-import rawMessageDefinitionsToParsed from "./rawMessageDefinitionsToParsed";
 import {
   RandomAccessDataProvider,
   InitializationResult,

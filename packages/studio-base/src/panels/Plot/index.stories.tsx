@@ -13,7 +13,6 @@
 
 import { useCallback, useRef } from "react";
 
-import { parse as parseMessageDefinition } from "@foxglove/rosmsg";
 import { fromSec } from "@foxglove/rostime";
 import SchemaEditor from "@foxglove/studio-base/components/PanelSettings/SchemaEditor";
 import Plot, { PlotConfig } from "@foxglove/studio-base/panels/Plot";
@@ -21,15 +20,6 @@ import { BlockCache } from "@foxglove/studio-base/randomAccessDataProviders/Memo
 import PanelSetup, { triggerWheel } from "@foxglove/studio-base/stories/PanelSetup";
 import { useReadySignal } from "@foxglove/studio-base/stories/ReadySignalContext";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
-
-const float64StampedDefinition = `std_msgs/Header header
-float64 data
-
-================================================================================
-MSG: std_msgs/Header
-uint32 seq
-time stamp
-string frame_id`;
 
 const locationMessages = [
   {
