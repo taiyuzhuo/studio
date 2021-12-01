@@ -23,7 +23,6 @@ import TableHelp from "./Table/index.help.md";
 import TeleopHelp from "./Teleop/index.help.md";
 import ThreeDimensionalVizHelp from "./ThreeDimensionalViz/index.help.md";
 import TopicGraphHelp from "./TopicGraph/index.help.md";
-import URDFViewerHelp from "./URDFViewer/index.help.md";
 import DiagnosticStatusPanelHelp from "./diagnostics/DiagnosticStatusPanel.help.md";
 import DiagnosticSummaryHelp from "./diagnostics/DiagnosticSummary.help.md";
 
@@ -86,12 +85,6 @@ const builtin: PanelInfo[] = [
     module: async () => await import("./StateTransitions"),
   },
   { title: "Table", type: "Table", help: TableHelp, module: async () => await import("./Table") },
-  {
-    title: "URDF Viewer",
-    type: "URDFViewer",
-    help: URDFViewerHelp,
-    module: async () => await import("./URDFViewer"),
-  },
   {
     title: "Topic Graph",
     type: "TopicGraph",
