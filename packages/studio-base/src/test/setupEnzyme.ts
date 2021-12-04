@@ -3,6 +3,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import Adapter from "@wojtekmaj/enzyme-adapter-react-17";
-import { configure } from "enzyme";
+import enzyme from "enzyme";
 
-configure({ adapter: new Adapter() });
+enzyme.configure({ adapter: new Adapter() });

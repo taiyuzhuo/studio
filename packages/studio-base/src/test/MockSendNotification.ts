@@ -14,6 +14,8 @@
 // This file provides a mock implementation of sendNotification so tests can assert that a notification
 // was sent via a sendNotification call
 
+import { jest } from "@jest/globals";
+
 import type {
   DetailsType,
   NotificationHandler,

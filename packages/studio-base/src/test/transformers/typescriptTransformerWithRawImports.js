@@ -2,9 +2,9 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-const babelJest = require("babel-jest").default;
-const fs = require("fs");
-const path = require("path");
+import babelJest from "babel-jest";
+import * as fs from "fs";
+import * as path from "path";
 
 // look for `?raw` import statements
 // re-write these into `const variable = "string source";`;
@@ -17,11 +17,11 @@ function rewriteSource(source, sourcePath) {
   });
 }
 
-module.exports = {
+export default {
   process(sourceText, sourcePath, opt) {
-    return babelJest.process(rewriteSource(sourceText, sourcePath), sourcePath, opt);
+    return babelJest.default.process(rewriteSource(sourceText, sourcePath), sourcePath, opt);
   },
   getCacheKey(sourceText, sourcePath, opt) {
-    return babelJest.getCacheKey(rewriteSource(sourceText, sourcePath), sourcePath, opt);
+    return babelJest.default.getCacheKey(rewriteSource(sourceText, sourcePath), sourcePath, opt);
   },
 };

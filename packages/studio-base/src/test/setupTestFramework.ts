@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { diff } from "jest-diff";
-import { isEqual } from "lodash";
+import _ from "lodash";
 
 import {
   mockSendNotification,
@@ -53,7 +53,7 @@ afterEach(() => {
     }
     throw new Error(
       `console.error was called in the test.\n\n
-If this is expected, check the call values via console.error.mock.calls and 
+If this is expected, check the call values via console.error.mock.calls and
 clear with console.error.mockClear()`,
     );
   }
@@ -69,7 +69,7 @@ afterEach(() => {
     }
     throw new Error(
       `console.warn was called in the test.\n\n
-If this is expected, check the call values via console.warn.mock.calls and 
+If this is expected, check the call values via console.warn.mock.calls and
 clear with console.warn.mockClear()`,
     );
   }
@@ -121,13 +121,13 @@ expect.extend({
       pass = false;
     } else {
       for (const expectedItem of expectedArray) {
-        if (!receivedArray.some((receivedItem) => isEqual(receivedItem, expectedItem))) {
+        if (!receivedArray.some((receivedItem) => _.isEqual(receivedItem, expectedItem))) {
           pass = false;
           break;
         }
       }
       for (const receivedItem of receivedArray) {
-        if (!expectedArray.some((expectedItem) => isEqual(receivedItem, expectedItem))) {
+        if (!expectedArray.some((expectedItem) => _.isEqual(receivedItem, expectedItem))) {
           pass = false;
           break;
         }

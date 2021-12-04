@@ -2,12 +2,12 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-const nearley = require("nearley");
-const compile = require("nearley/lib/compile");
-const generate = require("nearley/lib/generate");
-const nearleyGrammar = require("nearley/lib/nearley-language-bootstrapped");
+import * as nearley from "nearley";
+import * as compile from "nearley/lib/compile.js";
+import * as generate from "nearley/lib/generate.js";
+import * as nearleyGrammar from "nearley/lib/nearley-language-bootstrapped.js";
 
-module.exports = {
+export default {
   // From https://nearley.js.org/docs/using-in-frontend
   process(sourceText) {
     // Parse the grammar source into an AST
