@@ -105,7 +105,7 @@ type SidebarItemKey =
 
 function Connection() {
   return (
-    <SidebarContent title="Connection" helpContent={connectionHelpContent}>
+    <SidebarContent noPadding title="Connection" helpContent={connectionHelpContent}>
       <ConnectionList />
     </SidebarContent>
   );

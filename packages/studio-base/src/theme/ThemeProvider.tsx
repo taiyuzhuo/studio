@@ -125,6 +125,7 @@ const icons: {
   Error: <Icons.ErrorIcon />,
   ErrorBadge: <Icons.ErrorBadgeIcon />,
   FileASPX: <Icons.FileASPXIcon />,
+  Filter: <Icons.FilterIcon />,
   FitToPage: <FitToPageIcon />,
   FiveTileGrid: <Icons.FiveTileGridIcon />,
   Flow: <Icons.FlowIcon />,

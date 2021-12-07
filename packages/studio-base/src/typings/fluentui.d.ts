@@ -59,6 +59,7 @@ declare global {
     | "Error"
     | "ErrorBadge"
     | "FileASPX"
+    | "Filter"
     | "FitToPage"
     | "FiveTileGrid"
     | "Flow"

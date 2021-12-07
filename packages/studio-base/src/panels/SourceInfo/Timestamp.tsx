@@ -10,60 +10,13 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
-import ChevronRightIcon from "@mdi/svg/svg/chevron-right.svg";
-import styled from "styled-components";
+import { Stack, Icon, Text, useTheme } from "@fluentui/react";
 
 import { Time } from "@foxglove/rostime";
 import CopyText from "@foxglove/studio-base/components/CopyText";
-import Icon from "@foxglove/studio-base/components/Icon";
 import { formatDate, formatTime } from "@foxglove/studio-base/util/formatTime";
 import { fonts } from "@foxglove/studio-base/util/sharedStyleConstants";
 import { formatTimeRaw } from "@foxglove/studio-base/util/time";
-
-const SRoot = styled.div`
-  display: flex;
-  flex: 0 0 auto;
-  align-items: center;
-`;
-
-const DateWrapper = styled.div`
-  font-family: ${fonts.MONOSPACE};
-  font-size: 14px;
-  font-weight: normal;
-  color: ${({ theme }) => theme.palette.neutralSecondary};
-  margin-left: 8px;
-`;
-
-const TimestampWrapper = styled.div`
-  display: flex;
-  font-family: ${fonts.MONOSPACE};
-  font-size: 14px;
-  font-weight: normal;
-  color: ${({ theme }) => theme.palette.neutralSecondary};
-  align-items: center;
-  flex: 0 0 auto;
-`;
-
-const RosTimeWrapper = styled.div`
-  display: inline-block;
-  color: ${({ theme }) => theme.palette.neutralTertiary};
-  margin: 0 8px;
-`;
-
-const RelativeTimeWrapper = styled.div`
-  display: inline-block;
-  color: ${({ theme }) => theme.palette.neutralSecondary};
-  margin: 0 8px;
-`;
-
-const TimeWrapper = styled.div`
-  display: inline-block;
-  margin: 0 8px;
-`;
-
-const ROSText = styled.div`
-  color: ${({ theme }) => theme.palette.neutralTertiary};
-`;
 
 type Props = {
   time: Time;
@@ -71,18 +24,27 @@ type Props = {
 };
 
 export default function Timestamp({ time, timezone }: Props): JSX.Element {
+  const theme = useTheme();
   const rawTime = formatTimeRaw(time);
 
   if (!isAbsoluteTime(time)) {
     return (
-      <SRoot>
-        <TimestampWrapper>
-          <RelativeTimeWrapper>{rawTime}</RelativeTimeWrapper>
-          <CopyText copyText={rawTime} tooltip="Copy time to clipboard">
-            sec
-          </CopyText>
-        </TimestampWrapper>
-      </SRoot>
+      <Stack horizontal verticalAlign="center" grow={0}>
+        <Text
+          variant="small"
+          styles={{
+            root: {
+              fontFamily: fonts.MONOSPACE,
+              color: theme.palette.neutralSecondary,
+            },
+          }}
+        >
+          {rawTime}
+        </Text>
+        <CopyText copyText={rawTime} tooltip="Copy time to clipboard">
+          sec
+        </CopyText>
+      </Stack>
     );
   }
 
@@ -90,23 +52,65 @@ export default function Timestamp({ time, timezone }: Props): JSX.Element {
   const date = formatDate(time, timezone);
 
   return (
-    <SRoot>
-      <DateWrapper>{date}</DateWrapper>
-      <Icon style={{ margin: "0 4px", opacity: "0.5" }} size="medium" clickable={false}>
-        <ChevronRightIcon />
-      </Icon>
-      <TimestampWrapper>
-        <TimeWrapper>
-          <span>{currentTimeStr}</span>
-        </TimeWrapper>
-        <RosTimeWrapper>
-          <span>{rawTime}</span>
-        </RosTimeWrapper>
+    <Stack horizontal grow verticalAlign="center" tokens={{ childrenGap: theme.spacing.s2 }}>
+      <Text
+        variant="small"
+        styles={{
+          root: {
+            fontFamily: fonts.MONOSPACE,
+            color: theme.palette.neutralSecondary,
+          },
+        }}
+      >
+        {date}
+      </Text>
+
+      <Icon iconName="ChevronRight" styles={{ root: { opacity: 0.5 } }} />
+
+      <Stack
+        horizontal
+        disableShrink
+        verticalAlign="center"
+        tokens={{ childrenGap: theme.spacing.s2 }}
+      >
+        <Text
+          variant="small"
+          styles={{
+            root: {
+              fontFamily: fonts.MONOSPACE,
+              color: theme.palette.neutralSecondary,
+            },
+          }}
+        >
+          {currentTimeStr}
+        </Text>
+        <Text
+          variant="small"
+          styles={{
+            root: {
+              fontFamily: fonts.MONOSPACE,
+              color: theme.palette.neutralTertiary,
+            },
+          }}
+        >
+          {rawTime}
+        </Text>
+
         <CopyText copyText={rawTime} tooltip="Copy ROS time to clipboard">
-          <ROSText>ROS</ROSText>
+          <Text
+            variant="small"
+            styles={{
+              root: {
+                fontFamily: fonts.MONOSPACE,
+                color: theme.palette.neutralTertiary,
+              },
+            }}
+          >
+            ROS
+          </Text>
         </CopyText>
-      </TimestampWrapper>
-    </SRoot>
+      </Stack>
+    </Stack>
   );
 }
 
