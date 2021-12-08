@@ -104,11 +104,7 @@ type SidebarItemKey =
   | "help";
 
 function Connection() {
-  return (
-    <SidebarContent noPadding title="Connection" helpContent={connectionHelpContent}>
-      <ConnectionList />
-    </SidebarContent>
-  );
+  return <ConnectionList />;
 }
 
 function AddPanel() {
@@ -421,7 +417,10 @@ export default function Workspace(props: WorkspaceProps): JSX.Element {
 
   const sidebarItems = useMemo<Map<SidebarItemKey, SidebarItem>>(() => {
     const connectionItem: SidebarItem = {
-      iconName: "DataManagementSettings",
+      iconName:
+        playerPresence === PlayerPresence.NOT_PRESENT
+          ? "PlugDisconnectedRegular"
+          : "PlugConnectedFilled",
       title: "Connection",
       component: Connection,
     };
