@@ -95,7 +95,7 @@ export function SidebarContent({
           <TextContent allowMarkdownHtml={true}>{helpContent}</TextContent>
         </Stack>
       ) : undefined}
-      <Stack.Item style={{ padding: noPadding ? undefined : `0px ${theme.spacing.m}` }} grow>
+      <Stack.Item style={{ padding: noPadding ? undefined : theme.spacing.m }} grow>
         {children}
       </Stack.Item>
     </Stack>
