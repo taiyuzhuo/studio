@@ -808,6 +808,9 @@ export default function Layout({
                 showTopicTree={showTopicTree}
                 topicDisplayMode={topicDisplayMode}
                 visibleTopicsCountByKey={visibleTopicsCountByKey}
+                transformTree={transforms}
+                tfToFollow={renderFrameId}
+                onFollowChange={onFollowChange}
               />
               {currentEditingTopic && (
                 <TopicSettingsModal

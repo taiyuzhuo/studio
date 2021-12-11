@@ -12,114 +12,20 @@
 //   You may not use this file except in compliance with the License.
 
 import { IButtonStyles, IconButton, Stack, useTheme } from "@fluentui/react";
-import { sortBy, debounce } from "lodash";
-import { memo, useCallback, useState, useMemo, useRef } from "react";
-import shallowequal from "shallowequal";
+import { memo, useCallback, useMemo } from "react";
 
-import Autocomplete, { IAutocomplete } from "@foxglove/studio-base/components/Autocomplete";
 import { useTooltip } from "@foxglove/studio-base/components/Tooltip";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
-import { TransformTree, CoordinateFrame } from "./transforms";
-
-type TfTreeNode = {
-  tf: CoordinateFrame;
-  children: TfTreeNode[];
-  depth: number;
-};
-
-type TfTree = {
-  roots: TfTreeNode[];
-  nodes: {
-    [key: string]: TfTreeNode;
-  };
-};
-
-const treeNodeToTfId = (node: TfTreeNode) => node.tf.id;
-
-const buildTfTree = (transforms: CoordinateFrame[]): TfTree => {
-  const tree: TfTree = {
-    roots: [],
-    nodes: {},
-  };
-  // Create treeNodes for all tfs.
-  for (const tf of transforms) {
-    if (tree.nodes[tf.id]) {
-      continue;
-    }
-    tree.nodes[tf.id] = {
-      tf,
-      children: [],
-      depth: 0,
-    };
-  }
-
-  // Now add children to their parents treenode.
-  for (const tf of transforms) {
-    const node = tree.nodes[tf.id] as TfTreeNode;
-    const parentId = tf.parent()?.id;
-    if (parentId) {
-      tree.nodes[parentId]?.children.push(node);
-    } else {
-      tree.roots.push(node);
-    }
-  }
-
-  // Do a final pass sorting all the children lists.
-  for (const node of Object.values(tree.nodes)) {
-    node.children = sortBy(node.children, treeNodeToTfId);
-  }
-  tree.roots = sortBy(tree.roots, treeNodeToTfId);
-
-  // Calculate depths
-  const setDepth = (node: TfTreeNode, depth: number) => {
-    node.depth = depth;
-    node.children.forEach((child) => setDepth(child, depth + 1));
-  };
-  tree.roots.forEach((root) => setDepth(root, 0));
-
-  return tree;
-};
-
 type Props = {
-  transforms: TransformTree;
   tfToFollow?: string;
   followOrientation: boolean;
   // eslint-disable-next-line @foxglove/no-boolean-parameters
   onFollowChange: (tfId?: string | false, followOrientation?: boolean) => void;
 };
 
-function* getDescendants(nodes: TfTreeNode[]): Iterable<TfTreeNode> {
-  for (const node of nodes) {
-    yield node;
-    yield* getDescendants(node.children);
-  }
-}
-
-function getItemText(node: TfTreeNode | { tf: { id: string }; depth: number }) {
-  return "".padEnd(node.depth * 4) + node.tf.id;
-}
-
-const arePropsEqual = (prevProps: Props, nextProps: Props) => {
-  if (!nextProps.tfToFollow) {
-    const tfTree = buildTfTree(Array.from(nextProps.transforms.frames().values()));
-    const allNodes = Array.from(getDescendants(tfTree.roots));
-    // As a result of various refactors this code does not make sense anymore and is in need of
-    // cleanup. An original version can be found at
-    // https://github.com/cruise-automation/webviz/blob/7407ef1687e19615a43194c003aec6608c4f7c51/packages/webviz-core/src/panels/ThreeDimensionalViz/FollowTFControl.js#L113
-    const nodesWithoutDefaultFollowTfFrame = allNodes?.length;
-    if (nodesWithoutDefaultFollowTfFrame !== 0) {
-      return false;
-    }
-  }
-  return shallowequal(prevProps, nextProps);
-};
-
 const FollowTFControl = memo<Props>(function FollowTFControl(props: Props) {
-  const { transforms, tfToFollow, followOrientation, onFollowChange } = props;
-  const [forceShowFrameList, setForceShowFrameList] = useState(false);
-  const [hovering, setHovering] = useState(false);
-  const [lastSelectedFrame, setLastSelectedFrame] = useState<string | undefined>(undefined);
+  const { tfToFollow, followOrientation, onFollowChange } = props;
   const theme = useTheme();
 
   const iconButtonStyles = useMemo(
@@ -144,163 +50,52 @@ const FollowTFControl = memo<Props>(function FollowTFControl(props: Props) {
     [theme],
   );
 
-  const tfTree = buildTfTree(Array.from(transforms.frames().values()));
-  const allNodes = Array.from(getDescendants(tfTree.roots));
-  // As a result of various refactors this code does not make sense anymore and is in need of
-  // cleanup. An original version can be found at
-  // https://github.com/cruise-automation/webviz/blob/7407ef1687e19615a43194c003aec6608c4f7c51/packages/webviz-core/src/panels/ThreeDimensionalViz/FollowTFControl.js#L113
-  const nodesWithoutDefaultFollowTfFrame = allNodes?.length;
-  const newFollowTfFrame = allNodes?.[0]?.tf?.id;
-
-  const autocomplete = useRef<IAutocomplete>(ReactNull);
-
-  const getDefaultFollowTransformFrame = useCallback(() => {
-    return nodesWithoutDefaultFollowTfFrame !== 0 ? newFollowTfFrame : undefined;
-  }, [nodesWithoutDefaultFollowTfFrame, newFollowTfFrame]);
-
   const getFollowButtonTooltip = useCallback(() => {
+    // fixme - the behavior here is if no follow tf is set, then
+    // we need to show tooltip indicating we can follow the selected render frame
     if (!tfToFollow) {
-      if (lastSelectedFrame) {
-        return `Follow ${lastSelectedFrame}`;
-      }
-      return `Follow ${getDefaultFollowTransformFrame()}`;
+      return `Follow ${tfToFollow}`;
     } else if (!followOrientation) {
       return "Follow Orientation";
     }
     return "Unfollow";
-  }, [tfToFollow, followOrientation, lastSelectedFrame, getDefaultFollowTransformFrame]);
+  }, [tfToFollow, followOrientation]);
 
   const onClickFollowButton = useCallback(() => {
     if (!tfToFollow) {
-      if (lastSelectedFrame) {
-        return onFollowChange(lastSelectedFrame);
-      }
-      return onFollowChange(getDefaultFollowTransformFrame());
+      // disable button
+      //return onFollowChange(getDefaultFollowTransformFrame());
     } else if (!followOrientation) {
       return onFollowChange(tfToFollow, true);
     }
     return onFollowChange(false);
-  }, [
-    tfToFollow,
-    lastSelectedFrame,
-    onFollowChange,
-    getDefaultFollowTransformFrame,
-    followOrientation,
-  ]);
+  }, [tfToFollow, onFollowChange, followOrientation]);
 
-  const onSelectFrame = useCallback(
-    (id: string, _item: unknown) => {
-      setLastSelectedFrame(id === getDefaultFollowTransformFrame() ? undefined : id);
-      onFollowChange(id, followOrientation);
-      autocomplete.current?.blur();
-    },
-    [
-      setLastSelectedFrame,
-      getDefaultFollowTransformFrame,
-      onFollowChange,
-      followOrientation,
-      autocomplete,
-    ],
-  );
-
-  const openFrameList = useCallback(() => {
-    setForceShowFrameList(true);
-    autocomplete.current?.focus();
-  }, [setForceShowFrameList, autocomplete]);
-
-  // slight delay to prevent the arrow from disappearing when you're trying to click it
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const onMouseLeaveDebounced = useCallback(
-    debounce(() => {
-      setHovering(false);
-    }, 200),
-    [setHovering],
-  );
-
-  const onMouseEnter = useCallback(() => {
-    onMouseLeaveDebounced.cancel();
-    setHovering(true);
-  }, [onMouseLeaveDebounced, setHovering]);
-
-  const followingCustomFrame = !!tfToFollow && tfToFollow !== getDefaultFollowTransformFrame();
-  const showFrameList =
-    lastSelectedFrame != undefined || forceShowFrameList || followingCustomFrame;
-  const selectedFrameId = tfToFollow ?? lastSelectedFrame;
-  const selectedFrame = selectedFrameId ? transforms.frame(selectedFrameId) : undefined;
-  const selectedItem: TfTreeNode | undefined = selectedFrame
-    ? { tf: selectedFrame, children: [], depth: 0 }
-    : undefined;
-
-  const followButton = useTooltip({ contents: getFollowButtonTooltip() });
-  const frameListButton = useTooltip({ contents: "Select a frame to follow…" });
+  const followButtonTooltip = useTooltip({ contents: getFollowButtonTooltip() });
 
   return (
     <Stack
       horizontal
-      grow={1}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeaveDebounced}
       verticalAlign="center"
       styles={{
         root: {
-          // see also ExpandingToolbar styles
+          pointerEvents: "auto",
           backgroundColor: theme.semanticColors.buttonBackgroundHovered,
           borderRadius: theme.effects.roundedCorner2,
-          pointerEvents: "auto",
-          color: tfToFollow ? undefined : theme.semanticColors.disabledText,
           position: "relative",
         },
       }}
     >
-      {showFrameList && (
-        <Autocomplete
-          ref={autocomplete}
-          items={allNodes}
-          getItemValue={treeNodeToTfId}
-          getItemText={getItemText}
-          selectedItem={selectedItem}
-          placeholder={selectedItem ? getItemText(selectedItem) : "choose a target frame"}
-          onSelect={onSelectFrame}
-          sortWhenFiltering={false}
-          minWidth={0}
-          clearOnFocus
-          autoSize
-          menuStyle={{
-            // bump the menu down to reduce likelihood of it appearing while the mouse is
-            // already over it, which causes onMouseEnter not to be delivered correctly and
-            // breaks selection
-            marginTop: 4,
-          }}
-          onBlur={() => {
-            setForceShowFrameList(false);
-            setHovering(false);
-          }}
-        />
-      )}
-      {(hovering || showFrameList) && (
-        <>
-          {frameListButton.tooltip}
-          <IconButton
-            elementRef={frameListButton.ref}
-            onClick={openFrameList}
-            iconProps={{ iconName: showFrameList ? "MenuDown" : "MenuLeft" }}
-            styles={{
-              ...iconButtonStyles,
-              root: { width: 16 },
-            }}
-          />
-        </>
-      )}
-      {followButton.tooltip}
+      {followButtonTooltip.tooltip}
       <IconButton
         checked={tfToFollow != undefined}
-        elementRef={followButton.ref}
+        elementRef={followButtonTooltip.ref}
         onClick={onClickFollowButton}
         iconProps={{ iconName: followOrientation ? "CompassOutline" : "CrosshairsGps" }}
         styles={iconButtonStyles}
       />
     </Stack>
   );
-}, arePropsEqual);
+});
 
 export default FollowTFControl;

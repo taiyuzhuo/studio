@@ -123,7 +123,6 @@ function LayoutToolbar({
           currentTime={currentTime}
         />
         <FollowTFControl
-          transforms={transforms}
           tfToFollow={typeof followTf === "string" && followTf.length > 0 ? followTf : undefined}
           followOrientation={followOrientation}
           onFollowChange={onFollowChange}

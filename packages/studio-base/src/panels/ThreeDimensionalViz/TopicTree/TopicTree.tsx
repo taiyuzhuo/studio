@@ -25,6 +25,9 @@ import {
   makeStyles,
   mergeStyleSets,
   useTheme,
+  ComboBox,
+  Label,
+  IComboBoxOption,
 } from "@fluentui/react";
 import { clamp, groupBy } from "lodash";
 import Tree from "rc-tree";
@@ -48,6 +51,7 @@ import renderTreeNodes, {
   SWITCHER_WIDTH,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/renderTreeNodes";
 import { TopicDisplayMode } from "@foxglove/studio-base/panels/ThreeDimensionalViz/TopicTree/types";
+import { TransformTree } from "@foxglove/studio-base/panels/ThreeDimensionalViz/transforms/TransformTree";
 
 import {
   DerivedCustomSettingsByKey,
@@ -392,6 +396,10 @@ type SharedProps = {
   shouldExpandAllKeys: boolean;
   topicDisplayMode: TopicDisplayMode;
   visibleTopicsCountByKey: VisibleTopicsCountByKey;
+  transformTree: TransformTree;
+  tfToFollow?: string;
+  // fixme - change to options object for eslint
+  onFollowChange: (followTf?: string | false, followOrientation?: boolean) => void;
 };
 
 type WrapperProps = SharedProps & {
@@ -411,6 +419,31 @@ const dropdownOptions = (Object.keys(TOPIC_DISPLAY_MODES) as TopicDisplayMode[])
   label: TOPIC_DISPLAY_MODES[key].label,
   value: TOPIC_DISPLAY_MODES[key].value,
 }));
+
+type TfTreeNode = {
+  id: string;
+  parent?: TfTreeNode;
+  children: TfTreeNode[];
+};
+
+function findNode(roots: TfTreeNode[], frameId: string): TfTreeNode | undefined {
+  for (const node of roots) {
+    if (node.id === frameId) {
+      return node;
+    }
+
+    if (node.children.length === 0) {
+      continue;
+    }
+
+    const found = findNode(node.children, frameId);
+    if (found) {
+      return found;
+    }
+  }
+
+  return undefined;
+}
 
 function TopicTree({
   allKeys,
@@ -434,6 +467,9 @@ function TopicTree({
   treeHeight,
   treeWidth,
   visibleTopicsCountByKey,
+  transformTree,
+  tfToFollow,
+  onFollowChange,
 }: TopicTreeProps) {
   const theme = useTheme();
   const classes = useStyles();
@@ -460,6 +496,86 @@ function TopicTree({
 
   const { linkedGlobalVariables } = useLinkedGlobalVariables();
   const linkedGlobalVariablesByTopic = groupBy(linkedGlobalVariables, ({ topic }) => topic);
+
+  const tfRoots = useMemo(() => {
+    const roots: TfTreeNode[] = [];
+
+    for (const transform of transformTree.frames().values()) {
+      // frame name? transform.id
+      const frameId = transform.id;
+      const parentId = transform.parent()?.id;
+
+      const existingNode = findNode(roots, frameId);
+
+      // When creating new nodes, we also create nodes for parents.
+      // If later we get a frame for the parent and the frame itself has a parent, we need to
+      // re-parent our existing node.
+      if (existingNode) {
+        if (parentId != undefined && existingNode.parent == undefined) {
+          // remove from roots
+          const idx = roots.findIndex((node) => node === existingNode);
+          roots.splice(idx, 1);
+
+          const existingParent = findNode(roots, parentId);
+          if (existingParent) {
+            existingParent.children.push(existingNode);
+          } else {
+            roots.push({
+              id: parentId,
+              children: [existingNode],
+            });
+          }
+        }
+      } else {
+        // No existing node is present in the tree so we add it.
+        // Maybe the parent is present. If no parent present we add the parent too.
+        const newNode = {
+          id: frameId,
+          children: [],
+        };
+
+        if (parentId == undefined) {
+          roots.push(newNode);
+        } else {
+          const existingParent = findNode(roots, parentId);
+          if (existingParent) {
+            existingParent.children.push(newNode);
+          } else {
+            roots.push({
+              id: parentId,
+              children: [newNode],
+            });
+          }
+        }
+      }
+    }
+
+    return roots;
+  }, [transformTree]);
+
+  const frameOptions = useMemo(() => {
+    const options: IComboBoxOption[] = [];
+
+    function addNode(node: TfTreeNode, depth: number = 0) {
+      options.push({
+        id: node.id,
+        key: node.id,
+        text: node.id,
+        data: {
+          depth,
+        },
+      });
+
+      for (const child of node.children) {
+        addNode(child, depth + 1);
+      }
+    }
+
+    for (const node of tfRoots) {
+      addNode(node);
+    }
+    return options;
+  }, [tfRoots]);
 
   // Close the TopicTree if the user hits the "Escape" key
   const onKeyDown = useCallback(
@@ -488,7 +604,7 @@ function TopicTree({
             iconProps={{ iconName: "Search" }}
             data-test="topic-tree-filter-input"
             value={filterText}
-            placeholder="Type to filter" // FIX ME: this should be "Search by Topic or Filter by topic"
+            placeholder="Filter by topic"
             onChange={(_, newValue) => setFilterText(newValue ?? "")}
             onKeyDown={onKeyDown}
             autoFocus
@@ -528,6 +644,40 @@ function TopicTree({
           }}
           styles={styles.expandIcon}
           title={topLevelNodesCollapsed ? "Expand all" : "Collapse all"}
+        />
+      </Stack>
+      <Stack
+        horizontal
+        verticalAlign="center"
+        styles={styles.header}
+        tokens={{
+          childrenGap: theme.spacing.s2,
+          padding: theme.spacing.s2,
+        }}
+      >
+        <Stack horizontal grow styles={{ root: { position: "relative" } }}>
+          <Label>Coordinate Frame</Label>
+        </Stack>
+        <ComboBox
+          placeholder="auto"
+          allowFreeform={true}
+          autoComplete={"on"}
+          options={frameOptions}
+          selectedKey={tfToFollow}
+          onChange={(_ev, option) => {
+            onFollowChange(option?.id ?? false);
+          }}
+          onRenderOption={(option) => {
+            const depth = option?.data?.depth;
+            return (
+              <>
+                {new Array(depth).fill(1).map(() => (
+                  <>&nbsp;&nbsp;</>
+                ))}
+                {option?.text}
+              </>
+            );
+          }}
         />
       </Stack>
       <div ref={scrollContainerRef} style={{ overflow: "auto", width: treeWidth }}>
