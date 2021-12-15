@@ -30,7 +30,9 @@ const DEFAULT_MAX_STORAGE_TIME: Duration = { sec: 10, nsec: 0 };
 const tempLower: TimeAndTransform = [{ sec: 0, nsec: 0 }, Transform.Identity()];
 const tempUpper: TimeAndTransform = [{ sec: 0, nsec: 0 }, Transform.Identity()];
 const tempTransform = Transform.Identity();
+const tempTransform2 = Transform.Identity();
 const tempMatrix = mat4Identity();
+const tempMatrix2 = mat4Identity();
 
 /**
  * CoordinateFrame is a named 3D coordinate frame with an optional parent frame
@@ -262,6 +264,60 @@ export class CoordinateFrame {
     }
 
     return undefined;
+  }
+
+  /**
+   * Compute the transform from this frame at `srcTime` to this frame at
+   * `dstTime` relative to its parent, represented as a pose object. This relies
+   * on the coordinate frame having a parent and a transform history.
+   * @param out Output pose, this will be modified with the result on success
+   * @param input Input pose that exists in this coordinate frame
+   * @param srcTime Time to compute the transform from
+   * @param dstTime Time to compute the transform to
+   * @param maxDelta The time parameters can exceed the bounds of the transform
+   *   history by up to this amount and still clamp to the oldest or newest
+   *   transform
+   * @returns A reference to `out` on success, otherwise undefined
+   */
+  interpolate(
+    out: MutablePose,
+    input: Pose,
+    srcTime: Time,
+    dstTime: Time,
+    maxDelta: Duration = { sec: 1, nsec: 0 },
+  ): MutablePose {
+    if (areEqual(srcTime, dstTime)) {
+      // Identity transform
+      copyPose(out, input);
+      return out;
+    }
+
+    // Create the source transform
+    if (!this.findClosestTransforms(tempLower, tempUpper, srcTime, maxDelta)) {
+      // Transforming to the same frame always succeeds, just return the identity
+      copyPose(out, input);
+      return out;
+    }
+    CoordinateFrame.Interpolate(undefined, tempTransform, tempLower, tempUpper, srcTime);
+
+    // Transform the input pose to the parent transform
+    mat4.multiply(tempMatrix, tempTransform.matrix(), tempTransform2.setPose(input).matrix());
+
+    // Create the destination transform
+    if (!this.findClosestTransforms(tempLower, tempUpper, dstTime, maxDelta)) {
+      // Transforming to the same frame always succeeds, just return the identity
+      copyPose(out, input);
+      return out;
+    }
+    CoordinateFrame.Interpolate(undefined, tempTransform2, tempLower, tempUpper, dstTime);
+
+    // Transform from the parent transform to the destination transform
+    mat4.invert(tempMatrix2, tempTransform2.matrix());
+    mat4.multiply(tempMatrix, tempMatrix2, tempMatrix);
+
+    // Convert the result to a pose
+    tempTransform.setMatrix(tempMatrix).toPose(out);
+    return out;
   }
 
   /**
