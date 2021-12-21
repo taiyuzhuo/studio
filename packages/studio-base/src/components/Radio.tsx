@@ -14,11 +14,11 @@ import RadioButtonUncheckedIcon from "@mdi/svg/svg/radiobox-blank.svg";
 import RadioButtonCheckedIcon from "@mdi/svg/svg/radiobox-marked.svg";
 import { ReactElement } from "react";
 import styled from "styled-components";
+import tinycolor from "tinycolor2";
 
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import Icon from "./Icon";
-import { colorToAlpha } from "./SegmentedControl";
 
 export type RadioOption = {
   id: string;
@@ -29,6 +29,12 @@ export type RadioProps = {
   options: RadioOption[];
   selectedId?: string;
   onChange: (selectedId: string) => void;
+};
+
+const colorToAlpha = (hex: string, alpha: number): string => {
+  const color = tinycolor(hex);
+  color.setAlpha(alpha);
+  return color.toRgbString();
 };
 
 const SOption = styled.div`

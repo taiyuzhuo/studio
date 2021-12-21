@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { Box, FormControl, FormHelperText, FormLabel, OutlinedInput, Stack } from "@mui/material";
+import { FormControl, FormHelperText, FormLabel, OutlinedInput, Stack } from "@mui/material";
 
 import { Color } from "@foxglove/regl-worldview";
 import ColorPicker from "@foxglove/studio-base/components/ColorPicker";

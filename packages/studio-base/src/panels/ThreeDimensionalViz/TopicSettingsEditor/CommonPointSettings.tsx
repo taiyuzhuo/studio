@@ -11,22 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import {
-  FormControl,
-  FormLabel,
-  MenuItem,
-  OutlinedInput,
-  Select,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { upperFirst } from "lodash";
-
-import DropdownItem from "@foxglove/studio-base/components/Dropdown/DropdownItem";
-import Dropdown from "@foxglove/studio-base/components/Dropdown/index";
-import Flex from "@foxglove/studio-base/components/Flex";
-
-import { SLabel, SInput } from "./common";
+import { FormControl, FormLabel, MenuItem, OutlinedInput, Select, Stack } from "@mui/material";
 
 export default function CommonPointSettings({
   defaultPointSize,

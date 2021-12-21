@@ -14,12 +14,10 @@
 import { FormControl, FormLabel, OutlinedInput, Stack } from "@mui/material";
 
 import ColorPicker from "@foxglove/studio-base/components/ColorPicker";
-import Flex from "@foxglove/studio-base/components/Flex";
 import { Color, PoseStamped } from "@foxglove/studio-base/types/Messages";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
 
 import { TopicSettingsEditorProps } from ".";
-import { SLabel, SInput } from "./common";
 
 export type PoseSettings = {
   overrideColor?: Color;

@@ -10,9 +10,8 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
-import styled from "styled-components";
 
-import { LegacyInput } from "@foxglove/studio-base/components/LegacyStyledComponents";
+import styled from "styled-components";
 
 export const SLabel = styled.label<{ strikethrough?: boolean }>`
   display: block;
@@ -20,14 +19,10 @@ export const SLabel = styled.label<{ strikethrough?: boolean }>`
   margin: 6px 2px;
   text-decoration: ${(props) => (props.strikethrough === true ? "line-through" : "none")};
 `;
+
 export const SDescription = styled.label`
   display: block;
   margin: 6px 2px;
   opacity: 0.8;
   line-height: 1.2;
-`;
-
-export const SInput = styled(LegacyInput)`
-  flex: 1 1 auto;
-  margin-bottom: 8px;
 `;
