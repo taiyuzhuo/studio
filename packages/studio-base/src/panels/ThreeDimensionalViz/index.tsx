@@ -150,18 +150,24 @@ function BaseRenderer(props: Props): JSX.Element {
   const [configCameraState, setConfigCameraState] = useState(config.cameraState);
   useEffect(() => setConfigCameraState(config.cameraState), [config]);
 
+  // unfollowPoseSnapshot has the pose of the follow frame in the fixed frame when following was
+  // turned off.
   const unfollowPoseSnapshot = useRef<MutablePose | undefined>();
   console.log({ unfollowPoseSnapshot });
 
+  // We always orient the camera to the render frame. The render frame continues to move relative to
+  // the fixed frame, but we want to keep the camera stationary. We calculate the location of the
+  // snapshot pose in render frame coordinates.
+  //
+  // This new pose tells us where to place the camera within the render frame to create the
+  // appearance that the camera is stationary.
   const poseInRenderRef = useRef<MutablePose | undefined>();
-
   poseInRenderRef.current = unfollowPoseSnapshot.current
     ? renderFrame.applyLocal(emptyPose(), unfollowPoseSnapshot.current, fixedFrame, currentTime)
     : undefined;
 
   console.log({ poseInRender: poseInRenderRef.current });
 
-  // fixme - feed some saved pose into this
   const { transformedCameraState, targetPose } = useTransformedCameraState({
     configCameraState,
     followTf,
@@ -169,6 +175,11 @@ function BaseRenderer(props: Props): JSX.Element {
     transforms,
     poseInRender: poseInRenderRef.current,
   });
+
+  // fixme - return any applied pose transformation so we can store in a ref
+  // the reverse transformation is applied before saving the camera state
+  // alternatively - we could look at the new camera state and apply the change to the snapshot
+  // so we adjust the snapshot pose?
 
   console.log({ transformedCameraState, targetPose });
 
@@ -280,10 +291,10 @@ function BaseRenderer(props: Props): JSX.Element {
 
   const onCameraStateChange = useCallback(
     (newCameraState: CameraState) => {
-      const targetOffset = { ...newCameraState.targetOffset };
-
       // fixme - comment
       if (poseInRenderRef.current) {
+        const targetOffset = newCameraState.targetOffset;
+
         newCameraState.targetOffset = [
           targetOffset[0] - poseInRenderRef.current.position.x,
           targetOffset[1] - poseInRenderRef.current.position.y,
