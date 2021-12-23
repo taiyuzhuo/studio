@@ -11,8 +11,10 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { quat, vec4 } from "gl-matrix";
 import { uniq, omit, debounce } from "lodash";
 import React, { useCallback, useMemo, useState, useRef, useEffect } from "react";
+import { useLatest } from "react-use";
 
 import { CameraState } from "@foxglove/regl-worldview";
 import { useDataSourceInfo } from "@foxglove/studio-base/PanelAPI";
@@ -33,7 +35,9 @@ import {
   DEFAULT_FRAME_IDS,
 } from "@foxglove/studio-base/panels/ThreeDimensionalViz/transforms";
 import { ThreeDimensionalVizConfig } from "@foxglove/studio-base/panels/ThreeDimensionalViz/types";
+import { MutablePose } from "@foxglove/studio-base/types/Messages";
 import { PanelConfigSchema, SaveConfig } from "@foxglove/studio-base/types/panels";
+import { emptyPose } from "@foxglove/studio-base/util/Pose";
 
 import useFrame from "./useFrame";
 import useTransforms from "./useTransforms";
@@ -146,12 +150,31 @@ function BaseRenderer(props: Props): JSX.Element {
   const [configCameraState, setConfigCameraState] = useState(config.cameraState);
   useEffect(() => setConfigCameraState(config.cameraState), [config]);
 
+  const unfollowPoseSnapshot = useRef<MutablePose | undefined>();
+  console.log({ unfollowPoseSnapshot });
+
+  const poseInRenderRef = useRef<MutablePose | undefined>();
+
+  poseInRenderRef.current = unfollowPoseSnapshot.current
+    ? renderFrame.applyLocal(emptyPose(), unfollowPoseSnapshot.current, fixedFrame, currentTime)
+    : undefined;
+
+  console.log({ poseInRender: poseInRenderRef.current });
+
+  // fixme - feed some saved pose into this
   const { transformedCameraState, targetPose } = useTransformedCameraState({
     configCameraState,
     followTf,
     followMode,
     transforms,
+    poseInRender: poseInRenderRef.current,
   });
+
+  console.log({ transformedCameraState, targetPose });
+
+  const renderFrameLatest = useLatest(renderFrame);
+  const currentTimeLatest = useLatest(currentTime);
+  const transformsLatest = useLatest(transforms);
 
   // use callbackInputsRef to make sure the input changes don't trigger `onFollowChange` or `onAlignXYAxis` to change
   const callbackInputsRef = useRef({
@@ -185,13 +208,50 @@ function BaseRenderer(props: Props): JSX.Element {
         newFollowMode,
       });
 
+      if (prevFollowMode === "no-follow" && newFollowMode !== "no-follow") {
+        unfollowPoseSnapshot.current = undefined;
+        poseInRenderRef.current = undefined;
+      }
+
+      if (prevFollowMode !== "no-follow" && newFollowMode === "no-follow") {
+        const renderId = renderFrameLatest.current.id;
+
+        const zero: MutablePose = {
+          position: { x: 0, y: 0, z: 0 },
+          orientation: { x: 0, y: 0, z: 0, w: 1 },
+        };
+
+        // get the current root frame for the render frame we are _currently_ following but want to stop following
+        const rootFrameForFollow = transformsLatest.current.frame(renderId)?.root();
+        if (!rootFrameForFollow) {
+          // fixme this is an assertion because we shouldn't have been able to have a renderId and not look it up
+          console.log(`frame does not exist: ${renderId}`);
+          return;
+        }
+
+        // calculate the pose of our current render frame in our fixed frame
+        const fakeFramePose = rootFrameForFollow.applyLocal(
+          emptyPose(),
+          zero,
+          renderFrameLatest.current,
+          currentTimeLatest.current,
+        );
+        if (!fakeFramePose) {
+          // fixme - toast?
+          console.log(`could not transform ${renderId} to ${rootFrameForFollow.id}`);
+          // return early with no save
+          return;
+        }
+        unfollowPoseSnapshot.current = fakeFramePose;
+      }
+
       saveConfig({
         followTf: newFollowTf,
         followMode: newFollowMode,
         cameraState: newCameraState,
       });
     },
-    [saveConfig],
+    [currentTimeLatest, renderFrameLatest, saveConfig, transformsLatest],
   );
 
   const onAlignXYAxis = useCallback(
@@ -220,6 +280,29 @@ function BaseRenderer(props: Props): JSX.Element {
 
   const onCameraStateChange = useCallback(
     (newCameraState: CameraState) => {
+      const targetOffset = { ...newCameraState.targetOffset };
+
+      // fixme - comment
+      if (poseInRenderRef.current) {
+        newCameraState.targetOffset = [
+          targetOffset[0] - poseInRenderRef.current.position.x,
+          targetOffset[1] - poseInRenderRef.current.position.y,
+          targetOffset[2] - poseInRenderRef.current.position.z,
+        ];
+
+        const outVec: vec4 = [0, 0, 0, 0];
+        const conjugate: quat = [0, 0, 0, 0];
+        quat.conjugate(conjugate, [
+          poseInRenderRef.current.orientation.x,
+          poseInRenderRef.current.orientation.y,
+          poseInRenderRef.current.orientation.z,
+          poseInRenderRef.current.orientation.w,
+        ]);
+        quat.multiply(outVec, newCameraState.targetOrientation, conjugate);
+
+        newCameraState.targetOrientation = outVec;
+      }
+
       const newCurrentCameraState = omit(newCameraState, ["target", "targetOrientation"]);
       setConfigCameraState(newCurrentCameraState);
 

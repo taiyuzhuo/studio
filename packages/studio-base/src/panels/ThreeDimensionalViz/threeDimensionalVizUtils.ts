@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { vec3 } from "gl-matrix";
+import { quat, vec3, vec4 } from "gl-matrix";
 // eslint-disable-next-line no-restricted-imports
 import { mergeWith, get } from "lodash";
 import { useRef } from "react";
@@ -28,7 +28,7 @@ import { GlobalVariables } from "@foxglove/studio-base/hooks/useGlobalVariables"
 import { InteractionData } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/types";
 import { LinkedGlobalVariables } from "@foxglove/studio-base/panels/ThreeDimensionalViz/Interactions/useLinkedGlobalVariables";
 import { TransformTree } from "@foxglove/studio-base/panels/ThreeDimensionalViz/transforms";
-import { InstancedLineListMarker } from "@foxglove/studio-base/types/Messages";
+import { InstancedLineListMarker, MutablePose } from "@foxglove/studio-base/types/Messages";
 
 export type TargetPose = { target: Vec3; targetOrientation: Vec4 };
 
@@ -48,11 +48,13 @@ export function useTransformedCameraState({
   followTf,
   followMode,
   transforms,
+  poseInRender,
 }: {
   configCameraState: Partial<CameraState>;
   followTf?: string;
   followMode: string;
   transforms: TransformTree;
+  poseInRender?: MutablePose;
 }): { transformedCameraState: CameraState; targetPose?: TargetPose } {
   const transformedCameraState = { ...configCameraState };
   const targetPose = getTargetPose(followTf, transforms);
@@ -60,6 +62,33 @@ export function useTransformedCameraState({
   // the player changes, and we want to avoid moving the camera when it disappears.
   const lastTargetPoseRef = useRef<TargetPose | undefined>();
   const lastTargetPose = lastTargetPoseRef.current;
+
+  // fixme - undefined? skip?
+  if (poseInRender) {
+    const originalTargetOffset = transformedCameraState.targetOffset;
+
+    if (originalTargetOffset) {
+      transformedCameraState.targetOffset = [
+        originalTargetOffset[0] + poseInRender.position.x,
+        originalTargetOffset[1] + poseInRender.position.y,
+        originalTargetOffset[2] + poseInRender.position.z,
+      ];
+    }
+
+    const originalTargetOrientation = transformedCameraState.targetOrientation;
+
+    if (originalTargetOrientation) {
+      const outVec: vec4 = [0, 0, 0, 0];
+      quat.multiply(outVec, originalTargetOrientation, [
+        poseInRender.orientation.x,
+        poseInRender.orientation.y,
+        poseInRender.orientation.z,
+        poseInRender.orientation.w,
+      ]);
+      transformedCameraState.targetOrientation = outVec;
+    }
+  }
+
   // Recompute cameraState based on the new inputs at each render
   if (targetPose) {
     lastTargetPoseRef.current = targetPose;
