@@ -48,13 +48,13 @@ export function useTransformedCameraState({
   followTf,
   followMode,
   transforms,
-  poseInRender,
+  poseDelta,
 }: {
   configCameraState: Partial<CameraState>;
   followTf?: string;
   followMode: string;
   transforms: TransformTree;
-  poseInRender?: MutablePose;
+  poseDelta?: MutablePose;
 }): { transformedCameraState: CameraState; targetPose?: TargetPose } {
   const transformedCameraState = { ...configCameraState };
   const targetPose = getTargetPose(followTf, transforms);
@@ -64,14 +64,14 @@ export function useTransformedCameraState({
   const lastTargetPose = lastTargetPoseRef.current;
 
   // fixme - undefined? skip?
-  if (poseInRender) {
+  if (poseDelta) {
     const originalTargetOffset = transformedCameraState.targetOffset;
 
     if (originalTargetOffset) {
       transformedCameraState.targetOffset = [
-        originalTargetOffset[0] + poseInRender.position.x,
-        originalTargetOffset[1] + poseInRender.position.y,
-        originalTargetOffset[2] + poseInRender.position.z,
+        originalTargetOffset[0] + poseDelta.position.x,
+        originalTargetOffset[1] + poseDelta.position.y,
+        originalTargetOffset[2] + poseDelta.position.z,
       ];
     }
 
@@ -80,10 +80,10 @@ export function useTransformedCameraState({
     if (originalTargetOrientation) {
       const outVec: vec4 = [0, 0, 0, 0];
       quat.multiply(outVec, originalTargetOrientation, [
-        poseInRender.orientation.x,
-        poseInRender.orientation.y,
-        poseInRender.orientation.z,
-        poseInRender.orientation.w,
+        poseDelta.orientation.x,
+        poseDelta.orientation.y,
+        poseDelta.orientation.z,
+        poseDelta.orientation.w,
       ]);
       transformedCameraState.targetOrientation = outVec;
     }
@@ -214,6 +214,12 @@ export function getNewCameraStateOnFollowChange({
     return newCameraState;
   }
 
+  // When entering a follow mode, reset the camera so it snaps to the frame we are rendering
+  if (prevFollowMode === "no-follow" && newFollowMode !== "no-follow") {
+    newCameraState.targetOffset = [0, 0, 0];
+  }
+
+  /* fixme - I think we no longer need this logic because the camera is always in render frame
   // When switching to follow orientation, adjust thetaOffset to preserve camera rotation.
   if (prevFollowMode !== "follow-orientation" && newFollowMode === "follow-orientation") {
     const heading: number = cameraStateSelectors.targetHeading({
@@ -244,6 +250,7 @@ export function getNewCameraStateOnFollowChange({
       { target: [0, 0, 0] },
     );
   }
+  */
 
   return newCameraState;
 }
