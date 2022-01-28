@@ -89,12 +89,12 @@ export const getItemStringForDiff = ({
             bgcolor={isInverted ? colors.DARK6 : colors.LIGHT1}
             marginRight={0.625}
           >
-            <Box color={colors.GREEN}>
+            <Box display="inline" color={colors.GREEN}>
               {counts[ADDED.labelText] !== 0
                 ? `${diffLabels.ADDED.indicator}${counts[ADDED.labelText]} `
                 : undefined}
             </Box>
-            <Box color={colors.RED}>
+            <Box display="inline" color={colors.RED}>
               {counts[DELETED.labelText] !== 0
                 ? `${diffLabels.DELETED.indicator}${counts[DELETED.labelText]}`
                 : undefined}
