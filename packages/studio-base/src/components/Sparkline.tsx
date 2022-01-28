@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { useTheme } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { useCallback } from "react";
 
 import AutoSizingCanvas from "@foxglove/studio-base/components/AutoSizingCanvas";
@@ -73,16 +74,14 @@ export function Sparkline(props: SparklineProps): JSX.Element {
     [props.maximum, props.nowStamp, props.points, props.timeRange, theme.palette.neutralDark],
   );
   return (
-    <div
-      style={{
-        display: "inline-block",
-        verticalAlign: "-10px",
-        backgroundColor: theme.palette.neutralLight,
-        width: props.width,
-        height: props.height,
-      }}
+    <Box
+      display="inline-block"
+      bgcolor={theme.palette.neutralLight}
+      width={props.width}
+      height={props.height}
+      sx={{ verticalAlign: -10 }}
     >
       <AutoSizingCanvas draw={drawCallback} />
-    </div>
+    </Box>
   );
 }

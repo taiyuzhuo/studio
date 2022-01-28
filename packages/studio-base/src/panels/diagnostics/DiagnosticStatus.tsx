@@ -16,7 +16,7 @@ import ChartLineVariantIcon from "@mdi/svg/svg/chart-line-variant.svg";
 import DotsHorizontalIcon from "@mdi/svg/svg/dots-horizontal.svg";
 import ChevronDownIcon from "@mdi/svg/svg/unfold-less-horizontal.svg";
 import ChevronUpIcon from "@mdi/svg/svg/unfold-more-horizontal.svg";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import cx from "classnames";
 import { clamp } from "lodash";
 import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
@@ -399,9 +399,9 @@ export default function DiagnosticStatus(props: Props): JSX.Element {
 
   return (
     <div>
-      <div
+      <Box
         className={classes.resizeHandle}
-        style={{ left: `${100 * splitFraction}%` }}
+        left={`${100 * splitFraction}%`}
         onMouseDown={resizeMouseDown}
         data-test-resizehandle
       />

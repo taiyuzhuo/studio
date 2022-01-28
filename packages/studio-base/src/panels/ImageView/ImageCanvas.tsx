@@ -13,6 +13,7 @@
 
 import { ContextualMenu, makeStyles } from "@fluentui/react";
 import MagnifyIcon from "@mdi/svg/svg/magnify.svg";
+import { Box } from "@mui/material";
 import cx from "classnames";
 import { useCallback, useLayoutEffect, useRef, MouseEvent, useState, useMemo } from "react";
 import { useResizeDetector } from "react-resize-detector";
@@ -49,12 +50,6 @@ type Props = {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    overflow: "hidden",
-    width: "100%",
-    height: "100%",
-    position: "relative",
-  },
   magnify: {
     position: "absolute !important" as unknown as "absolute",
     bottom: 5,
@@ -543,7 +538,7 @@ export default function ImageCanvas(props: Props): JSX.Element {
   }, [onZoom100, zoomIn, zoomOut]);
 
   return (
-    <div ref={rootRef} className={classes.root}>
+    <Box ref={rootRef} overflow="hidden" width="100%" height="100%" position="relative">
       <KeyListener keyDownHandlers={keyDownHandlers} />
       {error && <div className={classes.errorMessage}>Error: {error.message}</div>}
       {renderError && <div className={classes.errorMessage}>Error: {renderError.message}</div>}
@@ -563,12 +558,12 @@ export default function ImageCanvas(props: Props): JSX.Element {
           items={[{ key: "download", text: "Download Image", onClick: onDownloadImage }]}
         />
       )}
-      <div ref={zoomRef} style={{ visibility: mousePresent ? "visible" : "hidden" }}>
+      <Box ref={zoomRef} sx={{ visibility: mousePresent ? "visible" : "hidden" }}>
         {openZoomContext && zoomContextMenu}
         <LegacyButton className={classes.magnify} onClick={() => setOpenZoomContext((old) => !old)}>
           <MagnifyIcon />
         </LegacyButton>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
