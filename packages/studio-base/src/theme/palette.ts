@@ -21,6 +21,8 @@ export const dark: PaletteOptions & CustomPaletteOptions = {
     default: "#121217",
     paper: "#27272b",
   },
+  error: { main: "#db3553" },
+  warning: { main: "#eba800" },
   grey: {
     50: "#121212",
     100: "#1E1E1E",
@@ -52,6 +54,8 @@ export const light: PaletteOptions & CustomPaletteOptions = {
     primary: "#393939",
     secondary: "#5d5c65",
   },
+  error: { main: "#db3553" },
+  warning: { main: "#eba800" },
   grey: {
     50: "#fafafa",
     100: "#f5f5f5",

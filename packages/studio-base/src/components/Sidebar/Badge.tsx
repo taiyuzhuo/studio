@@ -11,7 +11,7 @@ export function Badge(props: PropsWithChildren<{ count?: number }>): JSX.Element
   const { count } = props;
 
   return (
-    <Box component="span" position="relative">
+    <Box position="relative">
       {props.children}
       <Box
         sx={{
@@ -27,7 +27,7 @@ export function Badge(props: PropsWithChildren<{ count?: number }>): JSX.Element
           fontWeight: 700,
           fontFeatureSettings: "normal",
           letterSpacing: "-0.025em",
-          lineHeight: RADIUS * 2,
+          lineHeight: `${RADIUS * 2}px`,
           textAlign: "center",
         }}
       >
