@@ -85,7 +85,7 @@ export const getItemStringForDiff = ({
             display="inline-block"
             fontSize="0.8em"
             padding={0.25}
-            borderRadius={3}
+            borderRadius="3px"
             bgcolor={isInverted ? colors.DARK6 : colors.LIGHT1}
             marginRight={0.625}
           >
