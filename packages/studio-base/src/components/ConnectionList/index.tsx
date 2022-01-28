@@ -46,7 +46,7 @@ export default function ConnectionList(): JSX.Element {
   return (
     <>
       <DataSourceInfo />
-      {playerProblems.length > 0 && <Divider />}
+      {playerProblems.length > 0 && <Divider sx={{ marginY: 1 }} />}
       {playerProblems.map((problem, idx) => {
         const iconName = problem.severity === "error" ? "Error" : "Warning";
         const color =
