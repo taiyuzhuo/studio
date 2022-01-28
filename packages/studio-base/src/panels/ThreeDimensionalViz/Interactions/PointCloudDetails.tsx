@@ -12,8 +12,8 @@
 //   You may not use this file except in compliance with the License.
 
 import ExportVariantIcon from "@mdi/svg/svg/export-variant.svg";
+import { Box, Stack } from "@mui/material";
 import { useMemo, useState, useCallback } from "react";
-import styled from "styled-components";
 
 import { MouseEventObject } from "@foxglove/regl-worldview";
 import ChildToggle from "@foxglove/studio-base/components/ChildToggle";
@@ -31,13 +31,6 @@ import { downloadFiles } from "@foxglove/studio-base/util/download";
 
 import { SValue, SLabel } from "./styling";
 
-const SRow = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0;
-  margin: 4px 0;
-`;
 type Props = {
   selectedObject: MouseEventObject;
 };
@@ -92,7 +85,7 @@ export default function PointCloudDetails({
 
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <Box display="flex" justifyContent="flex-end">
         <ChildToggle position="below" onToggle={setIsOpen} isOpen={isOpen}>
           <Icon
             size="small"
@@ -119,23 +112,20 @@ export default function PointCloudDetails({
             </Item>
           </Menu>
         </ChildToggle>
-      </div>
-      <SRow>
+      </Box>
+      <Stack alignItems="flex-start" marginY={0.5}>
         <SLabel width={hasAdditionalFieldNames ? 72 : 44}>Point:</SLabel>
         <SValue style={{ flex: 1, lineHeight: 1.4, ...colorStyle }}>
           {clickedPoint.map((x) => (typeof x === "number" ? x : JSON.stringify(x))).join(", ")}
         </SValue>
-      </SRow>
-      {additionalFieldValues && (
-        <>
-          {Object.keys(additionalFieldValues).map((fieldName) => (
-            <SRow key={fieldName}>
-              <SLabel width={72}>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}:</SLabel>
-              <SValue>{additionalFieldValues[fieldName]}</SValue>
-            </SRow>
-          ))}
-        </>
-      )}
+      </Stack>
+      {additionalFieldValues &&
+        Object.keys(additionalFieldValues).map((fieldName) => (
+          <Stack key={fieldName} alignItems="flex-start" marginY={0.5}>
+            <SLabel width={72}>{fieldName.charAt(0).toUpperCase() + fieldName.slice(1)}:</SLabel>
+            <SValue>{additionalFieldValues[fieldName]}</SValue>
+          </Stack>
+        ))}
     </>
   );
 }

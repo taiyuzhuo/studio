@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { ReactElement, useCallback, useEffect, useRef } from "react";
 
 // Invoke handler for matching key.
@@ -90,5 +91,5 @@ export default function KeyListener(props: Props): ReactElement {
     };
   }, [handleEvent, props.global]);
 
-  return <div style={{ display: "none" }} ref={element} />;
+  return <Box display="none" ref={element} />;
 }

@@ -15,7 +15,6 @@ import { useTheme } from "@fluentui/react";
 import { Stack } from "@mui/material";
 import { vec3 } from "gl-matrix";
 import { isEqual } from "lodash";
-import styled from "styled-components";
 
 import { CameraState, cameraStateSelectors, Vec3 } from "@foxglove/regl-worldview";
 import Button from "@foxglove/studio-base/components/Button";
@@ -43,11 +42,6 @@ const LABEL_WIDTH = 112;
 const TEMP_VEC3: vec3 = [0, 0, 0];
 const ZERO_VEC3 = Object.freeze([0, 0, 0]) as Readonly<vec3>;
 const DEFAULT_CAMERA_INFO_WIDTH = 260;
-
-const SRow = styled.div`
-  display: flex;
-  align-items: center;
-`;
 
 type CameraStateInfoProps = {
   cameraState: Partial<CameraState>;
@@ -86,7 +80,7 @@ function CameraStateInfo({ cameraState, onAlignXYAxis }: CameraStateInfoProps) {
           return [key, val as string];
         })
         .map(([key, val]) => (
-          <SRow key={key}>
+          <Stack key={key} direction="row" alignItems="center">
             <SLabel width={LABEL_WIDTH}>{key}:</SLabel> <SValue>{val}</SValue>
             {key === "thetaOffset" && (
               <Button
@@ -97,7 +91,7 @@ function CameraStateInfo({ cameraState, onAlignXYAxis }: CameraStateInfoProps) {
                 RESET
               </Button>
             )}
-          </SRow>
+          </Stack>
         ))}
     </>
   );
@@ -195,7 +189,7 @@ export default function CameraInfo({
               <Stack flex="auto">
                 <CameraStateInfo cameraState={cameraState} onAlignXYAxis={onAlignXYAxis} />
                 <Stack flex="auto">
-                  <SRow style={{ marginBottom: 8 }}>
+                  <Stack direction="row" alignItems="center" marginBottom={1}>
                     <Tooltip
                       placement="top"
                       contents="Automatically sync camera across all 3D panels"
@@ -215,8 +209,8 @@ export default function CameraInfo({
                         }
                       />
                     </SValue>
-                  </SRow>
-                  <SRow style={{ marginBottom: 8 }}>
+                  </Stack>
+                  <Stack direction="row" alignItems="center" marginBottom={1}>
                     <SLabel
                       style={
                         cameraState.perspective ? { color: theme.semanticColors.disabledText } : {}
@@ -232,9 +226,9 @@ export default function CameraInfo({
                         onChange={() => saveConfig({ showCrosshair: !showCrosshair })}
                       />
                     </SValue>
-                  </SRow>
+                  </Stack>
                   {showCrosshair && !cameraState.perspective && (
-                    <SRow style={{ paddingLeft: LABEL_WIDTH, marginBottom: 8 }}>
+                    <Stack direction="row" paddingLeft={`${LABEL_WIDTH}px`} marginBottom={1}>
                       <SValue>
                         <JsonInput
                           inputStyle={{ width: 140 }}
@@ -259,18 +253,18 @@ export default function CameraInfo({
                           dataValidator={point2DValidator}
                         />
                       </SValue>
-                    </SRow>
+                    </Stack>
                   )}
                 </Stack>
                 {followMode === "no-follow" && <p>Not following</p>}
                 {followMode !== "no-follow" && (
-                  <SRow>
+                  <Stack direction="row" alignItems="center">
                     <SLabel>Following frame:</SLabel>
                     <SValue>
                       <code>{followTf}</code>
                       {followMode === "follow-orientation" && " with orientation"}
                     </SValue>
-                  </SRow>
+                  </Stack>
                 )}
               </Stack>
             )}

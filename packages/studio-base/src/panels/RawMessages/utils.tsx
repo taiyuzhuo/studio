@@ -10,6 +10,8 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
+
+import { Box } from "@mui/material";
 import { first, last } from "lodash";
 import { ReactNode } from "react";
 
@@ -77,45 +79,41 @@ export const getItemStringForDiff = ({
           {itemType} {idLabel}
         </span>
       ) : undefined}
-      <span style={{ float: "right", color: CHANGED.color }}>
+      <Box color={CHANGED.color} sx={{ float: "right" }}>
         {counts[ADDED.labelText] !== 0 || counts[DELETED.labelText] !== 0 ? (
-          <span
-            style={{
-              display: "inline-block",
-              fontSize: "0.8em",
-              padding: 2,
-              borderRadius: 3,
-              backgroundColor: isInverted ? colors.DARK6 : colors.LIGHT1,
-              marginRight: 5,
-            }}
+          <Box
+            display="inline-block"
+            fontSize="0.8em"
+            padding={0.25}
+            borderRadius={3}
+            bgcolor={isInverted ? colors.DARK6 : colors.LIGHT1}
+            marginRight={0.625}
           >
-            <span style={{ color: colors.GREEN }}>
+            <Box color={colors.GREEN}>
               {counts[ADDED.labelText] !== 0
                 ? `${diffLabels.ADDED.indicator}${counts[ADDED.labelText]} `
                 : undefined}
-            </span>
-            <span style={{ color: colors.RED }}>
+            </Box>
+            <Box color={colors.RED}>
               {counts[DELETED.labelText] !== 0
                 ? `${diffLabels.DELETED.indicator}${counts[DELETED.labelText]}`
                 : undefined}
-            </span>
-          </span>
+            </Box>
+          </Box>
         ) : undefined}
         {counts[CHANGED.labelText] !== 0 ? (
-          <span
-            style={{
-              display: "inline-block",
-              width: 3,
-              height: 3,
-              borderRadius: 3,
-              backgroundColor: CHANGED.color,
-              marginRight: 5,
-            }}
+          <Box
+            display="inline-block"
+            width={3}
+            height={3}
+            borderRadius={3}
+            bgcolor={CHANGED.color}
+            marginRight={0.625}
           >
             {counts[CHANGED.labelText] !== 0 ? " " : undefined}
-          </span>
+          </Box>
         ) : undefined}
-      </span>
+      </Box>
     </>
   );
 };

@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { useTheme } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { ScaleOptions } from "chart.js";
 import { AnnotationOptions } from "chartjs-plugin-annotation";
 import { ComponentProps, useMemo } from "react";
@@ -121,7 +122,7 @@ export default function PlotChart(props: PlotChartProps): JSX.Element {
   }, [datasets]);
 
   return (
-    <div style={{ width: "100%", flexGrow: 1, overflow: "hidden", padding: "2px" }} ref={sizeRef}>
+    <Box flex="auto" width="100%" overflow="hidden" padding={0.25} ref={sizeRef}>
       <TimeBasedChart
         key={xAxisVal}
         isSynced={isSynced}
@@ -139,6 +140,6 @@ export default function PlotChart(props: PlotChartProps): JSX.Element {
         defaultView={defaultView}
         onClick={onClick}
       />
-    </div>
+    </Box>
   );
 }

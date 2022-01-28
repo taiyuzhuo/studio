@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { MessageBar, MessageBarType } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { PropsWithChildren, useCallback, useEffect, useRef, useState } from "react";
 import { ToastProps, ToastProvider } from "react-toast-notifications";
 
@@ -42,7 +43,13 @@ const StudioToast = ({
   }, [transitionState]);
 
   return (
-    <div ref={elementRef} style={{ height, transition: `height ${transitionDuration}ms` }}>
+    <Box
+      ref={elementRef}
+      height={height}
+      sx={({ transitions }) => ({
+        transition: transitions.create("height", { duration: transitionDuration }),
+      })}
+    >
       <MessageBar
         messageBarType={barType}
         isMultiline={false}
@@ -59,7 +66,7 @@ const StudioToast = ({
       >
         {children}
       </MessageBar>
-    </div>
+    </Box>
   );
 };
 

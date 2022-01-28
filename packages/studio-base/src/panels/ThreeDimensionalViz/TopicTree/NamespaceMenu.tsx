@@ -13,8 +13,8 @@
 
 import DotsVerticalIcon from "@mdi/svg/svg/dots-vertical.svg";
 import UndoVariantIcon from "@mdi/svg/svg/undo-variant.svg";
+import { Box, BoxProps } from "@mui/material";
 import { useState } from "react";
-import styled from "styled-components";
 
 import { Color } from "@foxglove/regl-worldview";
 import ChildToggle from "@foxglove/studio-base/components/ChildToggle";
@@ -37,16 +37,9 @@ const COLOR_PICKER_ICON_SPACING = 4;
 const COLOR_PICKER_SIZE = 16;
 const COLOR_PICKER_AND_ICON_WIDTH = COLOR_PICKER_SIZE + ICON_SIZE + COLOR_PICKER_ICON_SPACING;
 
-const SItemContent = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const SColorPickerWrapper = styled.span`
-  display: inline-flex;
-  align-items: center;
-`;
+const ItemContent = (props: BoxProps): JSX.Element => (
+  <Box display="flex" alignItems="center" justifyContent="space-between" {...props} />
+);
 
 type Props = {
   disableBaseColumn: boolean;
@@ -125,10 +118,10 @@ export default function NamespaceMenu({
                 setIsOpen(false);
               }}
             >
-              <SItemContent>
-                <span style={{ paddingRight: 8 }}>Toggle ancestors</span>
+              <ItemContent>
+                <Box paddingRight={8}>Toggle ancestors</Box>
                 <KeyboardShortcut keys={["Alt", "Enter"]} />
-              </SItemContent>
+              </ItemContent>
             </Item>
             {overrideColor && (
               <>
@@ -139,9 +132,9 @@ export default function NamespaceMenu({
                     ...(disableBaseColumn ? DISABLED_STYLE : undefined),
                   }}
                 >
-                  <SItemContent>
-                    <span style={{ paddingRight: 8 }}>Marker color</span>
-                    <SColorPickerWrapper style={colorPickerWrapperStyle}>
+                  <ItemContent>
+                    <Box paddingRight={1}>Marker color</Box>
+                    <Box display="inline-flex" alignItems="center" sx={colorPickerWrapperStyle}>
                       <ColorPicker
                         color={overrideColor}
                         buttonShape={"circle"}
@@ -159,8 +152,8 @@ export default function NamespaceMenu({
                           <UndoVariantIcon />
                         </Icon>
                       )}
-                    </SColorPickerWrapper>
-                  </SItemContent>
+                    </Box>
+                  </ItemContent>
                 </Item>
               </>
             )}

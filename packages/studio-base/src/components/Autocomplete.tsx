@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { Layer, makeStyles } from "@fluentui/react";
+import { Box } from "@mui/material";
 import cx from "classnames";
 import { Fzf, FzfResultItem } from "fzf";
 import { maxBy } from "lodash";
@@ -179,9 +180,9 @@ const HighlightChars = (props: { str: string; indices: Set<number> }) => {
   const nodes = chars.map((char, i) => {
     if (props.indices.has(i)) {
       return (
-        <b key={i} style={{ color: colors.HIGHLIGHT }}>
+        <Box key={i} fontWeight="bold" display="inline" color={colors.HIGHLIGHT}>
           {char}
-        </b>
+        </Box>
       );
     } else {
       return char;

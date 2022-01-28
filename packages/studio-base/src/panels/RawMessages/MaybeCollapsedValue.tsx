@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { useCallback, useState } from "react";
 
 import Tooltip from "@foxglove/studio-base/components/Tooltip";
@@ -33,9 +34,13 @@ export default function MaybeCollapsedValue({ itemLabel }: Props): JSX.Element {
 
   return (
     <Tooltip contents={!showingEntireLabel ? "Text was truncated, click to see all" : undefined}>
-      <span onClick={expandText} style={{ cursor: !showingEntireLabel ? "pointer" : "inherit" }}>
+      <Box
+        component="span"
+        onClick={expandText}
+        sx={{ cursor: !showingEntireLabel ? "pointer" : "inherit" }}
+      >
         {`${truncatedItemText}${!showingEntireLabel ? "..." : ""}`}
-      </span>
+      </Box>
     </Tooltip>
   );
 }

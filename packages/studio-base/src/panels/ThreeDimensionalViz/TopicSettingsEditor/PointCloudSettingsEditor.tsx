@@ -109,9 +109,13 @@ const RainbowText = React.memo(function RainbowText({ children }: { children: st
     <>
       {Array.from(children, (child, idx) => (
         // Rainbow gradient goes from magenta (300) to red (0)
-        <span key={idx} style={{ color: `hsl(${300 - 300 * (idx / (length - 1))}, 100%, 60%)` }}>
+        <Box
+          component="span"
+          key={idx}
+          color={`hsl(${300 - 300 * (idx / (length - 1))}, 100%, 60%)`}
+        >
           {child}
-        </span>
+        </Box>
       ))}
     </>
   );
@@ -121,9 +125,9 @@ const TurboText = React.memo(function TurboText({ children }: { children: string
   return (
     <>
       {Array.from(children, (child, idx) => (
-        <span key={idx} style={{ color: turboColorString((idx + 1) / (children.length + 1)) }}>
+        <Box component="span" key={idx} color={turboColorString((idx + 1) / (children.length + 1))}>
           {child}
-        </span>
+        </Box>
       ))}
     </>
   );

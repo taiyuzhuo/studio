@@ -14,6 +14,7 @@ import { makeStyles } from "@fluentui/react";
 import FullscreenExitIcon from "@mdi/svg/svg/fullscreen-exit.svg";
 import FullscreenIcon from "@mdi/svg/svg/fullscreen.svg";
 import HelpCircleOutlineIcon from "@mdi/svg/svg/help-circle-outline.svg";
+import { Box } from "@mui/material";
 import cx from "classnames";
 import { useContext, useState, useMemo, useRef } from "react";
 
@@ -168,13 +169,14 @@ export default React.memo<Props>(function PanelToolbar({
   }
 
   return (
-    <div
+    <Box
       ref={containerRef}
+      display={shouldShow ? "flex" : "none"}
       className={cx(styles.panelToolbarContainer, {
         floating,
         hasChildren: Boolean(children),
       })}
-      style={{ backgroundColor, display: shouldShow ? "flex" : "none" }}
+      sx={{ bgcolor: backgroundColor }}
     >
       {children}
       <PanelToolbarControls
@@ -186,6 +188,6 @@ export default React.memo<Props>(function PanelToolbar({
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
       />
-    </div>
+    </Box>
   );
 });

@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { last, sumBy } from "lodash";
 import { ReactElement } from "react";
 
@@ -35,7 +35,7 @@ type PlaybackPerformanceItemProps = {
 
 function PlaybackPerformanceItem(props: PlaybackPerformanceItemProps): ReactElement {
   return (
-    <div style={{ margin: 8 }}>
+    <Box margin={1}>
       <Sparkline
         points={props.points}
         maximum={props.maximum}
@@ -43,14 +43,14 @@ function PlaybackPerformanceItem(props: PlaybackPerformanceItemProps): ReactElem
         height={30}
         timeRange={TIME_RANGE}
       />
-      <div style={{ display: "inline-block", marginLeft: 12, verticalAlign: "middle" }}>
+      <Box display="inline-block" marginLeft={1.5} sx={{ verticalAlign: "middle" }}>
         {(last(props.points) ?? { value: 0 }).value.toFixed(props.decimalPlaces)}
         {props.children}
-        <div style={{ color: "#aaa" }}>
+        <Box color="#aaa">
           {(sumBy(props.points, "value") / props.points.length).toFixed(props.decimalPlaces)} avg
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

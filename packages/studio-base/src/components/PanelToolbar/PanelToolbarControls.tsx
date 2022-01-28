@@ -13,6 +13,7 @@
 
 import { makeStyles } from "@fluentui/react";
 import DragIcon from "@mdi/svg/svg/drag.svg";
+import { Box } from "@mui/material";
 import cx from "classnames";
 import { useContext } from "react";
 
@@ -76,7 +77,7 @@ export const PanelToolbarControls = React.memo(function PanelToolbarControls({
   const shouldShow = showControls ? true : floating ? true : mousePresent;
 
   return (
-    <div style={{ display: shouldShow ? "flex" : "none" }} className={cx(styles.iconContainer)}>
+    <Box display={shouldShow ? "flex" : "none"} className={styles.iconContainer}>
       {additionalIcons}
       <PanelActionsDropdown
         isOpen={menuOpen}
@@ -90,6 +91,6 @@ export const PanelToolbarControls = React.memo(function PanelToolbarControls({
           </Icon>
         </span>
       )}
-    </div>
+    </Box>
   );
 });

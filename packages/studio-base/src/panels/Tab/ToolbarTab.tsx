@@ -14,6 +14,7 @@
 import { makeStyles } from "@fluentui/react";
 import CheckIcon from "@mdi/svg/svg/check.svg";
 import CloseIcon from "@mdi/svg/svg/close.svg";
+import { Box } from "@mui/material";
 import cx from "classnames";
 import React, { Ref as ReactRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import textMetrics from "text-metrics";
@@ -196,17 +197,17 @@ export function ToolbarTab(props: Props): JSX.Element {
   const tooltip = tabTitle ? tabTitle : "Enter tab name";
 
   return (
-    <div
+    <Box
       onClick={onClickTab}
       ref={innerRef}
       className={cx(styles.root, { isActive, isDragging, highlight, hidden })}
-      style={{
-        minWidth: isActive
+      minWidth={
+        isActive
           ? `calc(max(${MIN_ACTIVE_TAB_WIDTH}px,  min(${Math.ceil(
               measureText(tabTitle) + 30,
             )}px, ${MAX_TAB_WIDTH}px, 100% - ${MIN_OTHER_TAB_WIDTH * (tabCount - 1)}px)))`
-          : undefined,
-      }}
+          : undefined
+      }
     >
       <Tooltip contents={editingTitle ? "" : tooltip} placement="top">
         {/* This div has to be here because the <ToolTip> overwrites the ref of its child*/}
@@ -239,6 +240,6 @@ export function ToolbarTab(props: Props): JSX.Element {
           )}
         </Icon>
       ) : undefined}
-    </div>
+    </Box>
   );
 }

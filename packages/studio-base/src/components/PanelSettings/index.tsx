@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { DefaultButton, Link, Text, useTheme } from "@fluentui/react";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { StrictMode, useMemo, useState } from "react";
 import { useAsync, useUnmount } from "react-use";
 
@@ -161,7 +161,7 @@ export default function PanelSettings({
             </Text>
           )}
         </div>
-        <div style={{ height: theme.spacing.m }} />
+        <Box height={16} />
         <div>
           <DefaultButton
             text="Import/export settings…"

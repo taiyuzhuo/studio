@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 import { useTheme } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { ChartOptions, ScaleOptions } from "chart.js";
 import { AnnotationOptions } from "chartjs-plugin-annotation";
 import React, {
@@ -836,7 +837,7 @@ export default function TimeBasedChart(props: Props): JSX.Element {
   }
 
   return (
-    <div style={{ display: "flex", width: "100%" }}>
+    <Box display="flex" width="100%">
       <Tooltip
         shown
         noPointerEvents={true}
@@ -844,7 +845,7 @@ export default function TimeBasedChart(props: Props): JSX.Element {
         targetPosition={{ x: activeTooltip?.x ?? 0, y: activeTooltip?.y ?? 0 }}
         contents={tooltipContent}
       />
-      <div style={{ display: "flex", width }}>
+      <Box display="flex" width={width}>
         <SRoot onDoubleClick={onResetZoom}>
           <HoverBar
             componentId={componentId}
@@ -867,7 +868,7 @@ export default function TimeBasedChart(props: Props): JSX.Element {
           </SResetZoom>
           <KeyListener global keyDownHandlers={keyDownHandlers} keyUpHandlers={keyUphandlers} />
         </SRoot>
-      </div>
+      </Box>
       {drawLegend === true && (
         <SLegend>
           <TimeBasedChartLegend
@@ -879,6 +880,6 @@ export default function TimeBasedChart(props: Props): JSX.Element {
           />
         </SLegend>
       )}
-    </div>
+    </Box>
   );
 }

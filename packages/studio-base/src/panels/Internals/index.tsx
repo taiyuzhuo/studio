@@ -11,7 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { groupBy, sortBy } from "lodash";
 import { Fragment, useCallback } from "react";
 import styled from "styled-components";
@@ -130,7 +130,7 @@ function Internals() {
       .map((key) => {
         return (
           <Fragment key={key}>
-            <div style={{ marginTop: 16 }}>{key}:</div>
+            <Box marginTop={2}>{key}:</Box>
             <ul>
               {sortBy(groupedSubscriptions[key], (sub) => sub.topic).map((sub, i) => (
                 <li key={i}>
@@ -153,7 +153,7 @@ function Internals() {
       .map((key) => {
         return (
           <Fragment key={key}>
-            <div style={{ marginTop: 16 }}>{key}:</div>
+            <Box marginTop={2}>{key}:</Box>
             <ul>
               {sortBy(groupedPublishers[key], (sub) => sub.topic).map((sub, i) => (
                 <li key={i}>

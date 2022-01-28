@@ -226,13 +226,9 @@ export default function Sidebar<K extends string>({
               {id === "children" ? (
                 (children as JSX.Element)
               ) : (
-                <div
-                  style={{
-                    backgroundColor: theme.palette.neutralLighterAlt,
-                  }}
-                >
+                <Box bgcolor={theme.palette.neutralLighterAlt}>
                   <SelectedComponent />
-                </div>
+                </Box>
               )}
             </ErrorBoundary>
           )}

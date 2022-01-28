@@ -2,38 +2,37 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
-import { makeStyles } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { PropsWithChildren } from "react";
 
-const radius = 7;
-
-const useStyles = makeStyles((theme) => ({
-  badge: {
-    position: "absolute",
-    bottom: -radius,
-    right: -radius,
-    width: radius * 2,
-    height: radius * 2,
-    borderRadius: radius,
-    backgroundColor: theme.semanticColors.errorBackground ?? "red",
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: 8,
-    fontWeight: 700,
-    fontFeatureSettings: "normal",
-    letterSpacing: "-0.025em",
-    lineHeight: radius * 2,
-    textAlign: "center",
-  },
-}));
+const RADIUS = 7;
 
 export function Badge(props: PropsWithChildren<{ count?: number }>): JSX.Element {
-  const classes = useStyles();
   const { count } = props;
 
   return (
-    <span style={{ position: "relative" }}>
+    <Box component="span" position="relative">
       {props.children}
-      <div className={classes.badge}>{count == undefined ? "" : count}</div>
-    </span>
+      <Box
+        sx={{
+          position: "absolute",
+          bottom: -RADIUS,
+          right: -RADIUS,
+          width: RADIUS * 2,
+          height: RADIUS * 2,
+          borderRadius: RADIUS,
+          backgroundColor: "error.main",
+          color: "rgba(255, 255, 255, 0.8)",
+          fontSize: 8,
+          fontWeight: 700,
+          fontFeatureSettings: "normal",
+          letterSpacing: "-0.025em",
+          lineHeight: RADIUS * 2,
+          textAlign: "center",
+        }}
+      >
+        {count == undefined ? "" : count}
+      </Box>
+    </Box>
   );
 }

@@ -2,6 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import { Box } from "@mui/material";
 import Cytoscape from "cytoscape";
 import CytoscapeDagre from "cytoscape-dagre";
 import { MutableRefObject, useEffect, useRef } from "react";
@@ -90,5 +91,5 @@ export default function Graph(props: Props): JSX.Element {
     cy.current?.style(props.style);
   }, [props.style]);
 
-  return <div ref={graphRef} style={{ width: "100%", height: "100%" }} />;
+  return <Box ref={graphRef} width="100%" height="100%" />;
 }

@@ -11,7 +11,8 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
-import { mergeStyleSets, useTheme } from "@fluentui/react";
+import { useTheme } from "@fluentui/react";
+import { Box } from "@mui/material";
 import { groupBy } from "lodash";
 import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
@@ -138,23 +139,6 @@ export type ColorOverride = {
   active?: boolean;
 };
 export type ColorOverrideByVariable = Record<GlobalVariableName, ColorOverride>;
-
-const styles = mergeStyleSets({
-  container: {
-    display: "flex",
-    flex: "1 1 auto",
-    position: "relative",
-    width: "100%",
-    height: "100%",
-  },
-  world: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-  },
-});
 
 // generally supported datatypes
 const SUPPORTED_MARKER_DATATYPES_SET = new Set([
@@ -738,25 +722,22 @@ export default function Layout({
   return (
     <ThreeDimensionalVizContext.Provider value={threeDimensionalVizContextValue}>
       <TopicTreeContext.Provider value={topicTreeData}>
-        <div
+        <Box
           ref={containerRef}
           onClick={onControlsOverlayClick}
           tabIndex={-1}
-          className={styles.container}
-          style={{ cursor: cursorType }}
+          display="flex"
+          flex="auto"
+          position="relative"
+          width="100%"
+          height="100%"
           data-test="3dviz-layout"
+          sx={{ cursor: cursorType }}
         >
           <KeyListener keyDownHandlers={keyDownHandlers} />
           <PanelToolbar floating helpContent={helpContent} />
-          <div style={{ position: "absolute", width: "100%", height: "100%" }}>
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-              }}
-              ref={topicTreeSizeRef}
-            >
+          <Box position="absolute" width="100%" height="100%">
+            <Box position="relative" width="100%" height="100%" ref={topicTreeSizeRef}>
               <TopicTree
                 allKeys={allKeys}
                 availableNamespacesByTopic={availableNamespacesByTopic}
@@ -794,9 +775,9 @@ export default function Layout({
                   settingsByKey={settingsByKey}
                 />
               )}
-            </div>
-          </div>
-          <div className={styles.world}>
+            </Box>
+          </Box>
+          <Box position="absolute" top={0} left={0} bottom={0} right={0}>
             <World
               key={`${callbackInputsRef.current.autoSyncCameraState ? "synced" : "not-synced"}`}
               canvasBackgroundColor={canvasBackgroundColor}
@@ -860,8 +841,8 @@ export default function Layout({
                 <DebugStats />
               )}
             </World>
-          </div>
-        </div>
+          </Box>
+        </Box>
       </TopicTreeContext.Provider>
     </ThreeDimensionalVizContext.Provider>
   );

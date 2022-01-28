@@ -15,6 +15,7 @@
 
 import MinusIcon from "@mdi/svg/svg/minus-box-outline.svg";
 import PlusIcon from "@mdi/svg/svg/plus-box-outline.svg";
+import { Box } from "@mui/material";
 import { noop } from "lodash";
 import {
   useTable,
@@ -241,7 +242,7 @@ export default function Table({
         </tbody>
       </LegacyTable>
       {!isNested && (
-        <div style={{ margin: "4px auto 0" }}>
+        <Box marginTop={0.5} marginX="auto">
           <LegacyButton onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
             {"<<"}
           </LegacyButton>{" "}
@@ -272,7 +273,7 @@ export default function Table({
               </option>
             ))}
           </LegacySelect>
-        </div>
+        </Box>
       )}
     </>
   );

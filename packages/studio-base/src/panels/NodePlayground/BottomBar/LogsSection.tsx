@@ -11,25 +11,14 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box, Stack } from "@mui/material";
 import { ReactElement } from "react";
 import Tree from "react-json-tree";
-import styled from "styled-components";
 
 import { LegacyButton } from "@foxglove/studio-base/components/LegacyStyledComponents";
 import { UserNodeLog } from "@foxglove/studio-base/players/UserNodePlayer/types";
 import { useJsonTreeTheme } from "@foxglove/studio-base/util/globalConstants";
 import { colors } from "@foxglove/studio-base/util/sharedStyleConstants";
-
-const SListItem = styled.li`
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  cursor: default;
-
-  :hover {
-    background-color: ${colors.DARK4};
-  }
-`;
 
 type Props = {
   nodeId?: string;
@@ -74,9 +63,21 @@ const LogsSection = ({ nodeId, logs, clearLogs }: Props): ReactElement => {
         {logs.map(({ source, value }, idx) => {
           const renderTreeObj = value != undefined && typeof value === "object";
           return (
-            <SListItem
+            <Stack
               key={`${idx}${source}`}
-              style={{ padding: renderTreeObj ? "0px 3px" : "6px 3px 3px" }}
+              component="li"
+              direction="row"
+              alignItems="baseline"
+              justifyContent="space-between"
+              sx={{
+                cursor: "default",
+                padding: 0.375,
+                paddingTop: renderTreeObj ? 0 : 0.75,
+
+                "&:hover": {
+                  bgcolor: colors.DARK4,
+                },
+              }}
             >
               {renderTreeObj ? (
                 <Tree hideRoot data={value} invertTheme={false} theme={jsonTreeTheme} />
@@ -87,8 +88,8 @@ const LogsSection = ({ nodeId, logs, clearLogs }: Props): ReactElement => {
                     : (value as React.ReactNode)}
                 </span>
               )}
-              <div style={{ color: colors.DARK9, textDecoration: "underline" }}>{source}</div>
-            </SListItem>
+              <Box sx={{ color: colors.DARK9, textDecoration: "underline" }}>{source}</Box>
+            </Stack>
           );
         })}
       </ul>

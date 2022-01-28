@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import MinusIcon from "@mdi/svg/svg/minus-box-outline.svg";
+import { Box } from "@mui/material";
 import { PropsWithChildren } from "react";
 import { Row } from "react-table";
 import styled from "styled-components";
@@ -40,7 +41,7 @@ export default function TableCell({
 
   if (row.isExpanded || isExpanded) {
     return (
-      <div style={{ position: "relative" }}>
+      <Box position="relative">
         {isExpanded && (
           <Icon
             style={{ position: "absolute", top: "2px", right: "2px" }}
@@ -50,7 +51,7 @@ export default function TableCell({
           </Icon>
         )}
         {children}
-      </div>
+      </Box>
     );
   }
 

@@ -462,7 +462,7 @@ export default function LayoutBrowser({
             />
           )}
         </div>
-        <div style={{ flexGrow: 1 }} />
+        <Box flexGrow={1} />
         {showSignInPrompt && <SignInPrompt onDismiss={() => void setHideSignInPrompt(true)} />}
         {layoutDebug?.syncNow && (
           <Stack

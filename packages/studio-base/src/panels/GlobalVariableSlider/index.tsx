@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { Slider } from "@fluentui/react";
+import { Box } from "@mui/material";
 
 import Panel from "@foxglove/studio-base/components/Panel";
 import PanelToolbar from "@foxglove/studio-base/components/PanelToolbar";
@@ -48,7 +49,7 @@ function GlobalVariableSliderPanel(props: Props): React.ReactElement {
   };
 
   return (
-    <div style={{ padding: "25px 4px 4px" }}>
+    <Box padding={0.5} paddingTop={3}>
       <PanelToolbar helpContent={helpContent} floating />
       <Slider
         min={sliderProps.min}
@@ -85,7 +86,7 @@ function GlobalVariableSliderPanel(props: Props): React.ReactElement {
           },
         }}
       />
-    </div>
+    </Box>
   );
 }
 

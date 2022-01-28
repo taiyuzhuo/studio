@@ -3,7 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { makeStyles } from "@fluentui/react";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import cx from "classnames";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLatest } from "react-use";
@@ -181,7 +181,7 @@ export default function Scrubber(props: Props): JSX.Element {
       if (val == undefined) {
         return undefined;
       }
-      return <div className={classes.marker} style={{ left: `calc(${val * 100}% - 2px)` }} />;
+      return <Box className={classes.marker} left={`calc(${val * 100}% - 2px)`} />;
     },
     [classes.marker],
   );

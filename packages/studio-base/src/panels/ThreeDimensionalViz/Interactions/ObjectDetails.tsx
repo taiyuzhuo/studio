@@ -11,9 +11,9 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { first, omit, sortBy } from "lodash";
 import Tree from "react-json-tree";
-import styled from "styled-components";
 
 import useGetItemStringWithTimezone from "@foxglove/studio-base/components/JsonTree/useGetItemStringWithTimezone";
 import { RosValue } from "@foxglove/studio-base/players/types";
@@ -35,10 +35,6 @@ const PREFERRED_OBJECT_KEY_ORDER = [
   "pose",
   "points",
 ].reverse();
-
-const TreeContainer = styled.div`
-  padding: 12px 0 16px 0;
-`;
 
 type Props = {
   readonly interactionData?: InteractionData;
@@ -66,7 +62,7 @@ function ObjectDetails({ interactionData, selectedObject }: Props): JSX.Element 
   if (topic.length === 0) {
     // show the original object directly if there is no interaction data
     return (
-      <TreeContainer>
+      <Box paddingTop={1.5} paddingBottom={2}>
         <Tree
           data={selectedObject}
           shouldExpandNode={(_markerKeyPath, _data, level) => level < 2}
@@ -75,7 +71,7 @@ function ObjectDetails({ interactionData, selectedObject }: Props): JSX.Element 
           theme={{ ...jsonTreeTheme, tree: { margin: 0 } }}
           hideRoot
         />
-      </TreeContainer>
+      </Box>
     );
   }
 
@@ -86,7 +82,7 @@ function ObjectDetails({ interactionData, selectedObject }: Props): JSX.Element 
   );
 
   return (
-    <TreeContainer>
+    <Box paddingTop={1.5} paddingBottom={2}>
       <Tree
         data={sortedDataObject}
         shouldExpandNode={() => false}
@@ -98,7 +94,11 @@ function ObjectDetails({ interactionData, selectedObject }: Props): JSX.Element 
         labelRenderer={(markerKeyPath, _p1, _p2, hasChildren) => {
           const label = first(markerKeyPath);
           if (!hasChildren) {
-            return <span style={{ padding: "0 4px 0 0" }}>{label}</span>;
+            return (
+              <Box component="span" paddingRight={0.5}>
+                {label}
+              </Box>
+            );
           }
 
           let objectForPath: Record<string, unknown> | undefined = sortedDataObject;
@@ -139,7 +139,7 @@ function ObjectDetails({ interactionData, selectedObject }: Props): JSX.Element 
           );
         }}
       />
-    </TreeContainer>
+    </Box>
   );
 }
 

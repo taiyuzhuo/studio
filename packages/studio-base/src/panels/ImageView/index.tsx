@@ -17,7 +17,7 @@ import CheckboxMarkedIcon from "@mdi/svg/svg/checkbox-marked.svg";
 import CloseIcon from "@mdi/svg/svg/close.svg";
 import MenuDownIcon from "@mdi/svg/svg/menu-down.svg";
 import WavesIcon from "@mdi/svg/svg/waves.svg";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import cx from "classnames";
 import { last, uniq } from "lodash";
 import { useEffect, useState } from "react";
@@ -252,7 +252,7 @@ const AddTopic = ({
   topics: string[];
 }) => {
   return (
-    <div style={{ padding: "8px 12px", height: "31px" }}>
+    <Box paddingX={1.5} paddingY={1} height={31}>
       <Autocomplete
         placeholder="Add topic"
         items={topics}
@@ -260,7 +260,7 @@ const AddTopic = ({
         getItemValue={(s) => String(s)}
         getItemText={(s) => String(s)}
       />
-    </div>
+    </Box>
   );
 };
 

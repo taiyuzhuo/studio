@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { ChartOptions, ScaleOptions } from "chart.js";
 import { uniq } from "lodash";
 import { useCallback, useMemo, useRef } from "react";
@@ -69,13 +70,6 @@ const fontFamily = fonts.MONOSPACE;
 const fontSize = 10;
 const fontWeight = "bold";
 
-const SRoot = styled.div`
-  display: flex;
-  flex-grow: 1;
-  z-index: 0; // create new stacking context
-  overflow: hidden;
-`;
-
 const SAddButton = styled.div`
   position: absolute;
   top: 30px;
@@ -88,11 +82,6 @@ const SChartContainerOuter = styled.div`
   flex-grow: 1;
   overflow-x: hidden;
   overflow-y: auto;
-`;
-
-const SChartContainerInner = styled.div`
-  position: relative;
-  margin-top: 10px;
 `;
 
 const inputLeft = 20;
@@ -370,7 +359,15 @@ const StateTransitions = React.memo(function StateTransitions(props: Props) {
   const mousePresent = usePanelMousePresence(rootRef);
 
   return (
-    <SRoot ref={rootRef}>
+    <Box
+      ref={rootRef}
+      sx={{
+        display: "flex",
+        flex: "auto",
+        zIndex: 0, // create new stacking context
+        overflow: "hidden",
+      }}
+    >
       <PanelToolbar floating helpContent={helpContent} />
       <SAddButton style={{ visibility: mousePresent ? "visible" : "hidden" }}>
         <Button
@@ -384,7 +381,7 @@ const StateTransitions = React.memo(function StateTransitions(props: Props) {
         </Button>
       </SAddButton>
       <SChartContainerOuter>
-        <SChartContainerInner style={{ height }} ref={sizeRef}>
+        <Box ref={sizeRef} sx={{ height, position: "relative", marginTop: 1.25 }}>
           <TimeBasedChart
             zoom
             isSynced
@@ -434,9 +431,9 @@ const StateTransitions = React.memo(function StateTransitions(props: Props) {
               />
             </SInputContainer>
           ))}
-        </SChartContainerInner>
+        </Box>
       </SChartContainerOuter>
-    </SRoot>
+    </Box>
   );
 });
 

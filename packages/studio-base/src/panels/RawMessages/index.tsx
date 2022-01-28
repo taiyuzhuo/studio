@@ -17,7 +17,7 @@ import CheckboxMarkedIcon from "@mdi/svg/svg/checkbox-marked.svg";
 import PlusMinusIcon from "@mdi/svg/svg/plus-minus.svg";
 import LessIcon from "@mdi/svg/svg/unfold-less-horizontal.svg";
 import MoreIcon from "@mdi/svg/svg/unfold-more-horizontal.svg";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 // eslint-disable-next-line no-restricted-imports
 import { first, isEqual, get, last } from "lodash";
 import { useState, useCallback, useMemo } from "react";
@@ -401,15 +401,15 @@ function RawMessages(props: Props) {
         ) : (
           <>
             {diffEnabled && (
-              <div
-                style={{ cursor: "pointer", fontSize: "11px" }}
+              <Box
+                sx={{ cursor: "pointer", fontSize: "11px" }}
                 onClick={() => saveConfig({ showFullMessageForDiff: !showFullMessageForDiff })}
               >
                 <Icon style={{ verticalAlign: "middle" }}>
                   <CheckboxComponent />
                 </Icon>{" "}
                 Show full msg
-              </div>
+              </Box>
             )}
             <Tree
               labelRenderer={(raw) => (

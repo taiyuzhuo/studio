@@ -12,6 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import DotsVerticalIcon from "@mdi/svg/svg/dots-vertical.svg";
+import { Box } from "@mui/material";
 import { useState } from "react";
 import styled from "styled-components";
 
@@ -91,7 +92,7 @@ export default function TreeNodeMenu({
               }}
             >
               <SItemContent>
-                <span style={{ paddingRight: 8 }}>Toggle ancestors</span>
+                <Box paddingRight={1}>Toggle ancestors</Box>
                 <KeyboardShortcut keys={["Alt", "Enter"]} />
               </SItemContent>
             </Item>
@@ -103,7 +104,7 @@ export default function TreeNodeMenu({
               }}
             >
               <SItemContent>
-                <span style={{ paddingRight: 8 }}>Toggle descendants</span>
+                <Box paddingRight={1}>Toggle descendants</Box>
                 <KeyboardShortcut keys={["Shift", "Enter"]} />
               </SItemContent>
             </Item>

@@ -24,7 +24,7 @@ import {
   mergeStyleSets,
   useTheme,
 } from "@fluentui/react";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { clamp, groupBy } from "lodash";
 import Tree from "rc-tree";
 import React, { useCallback, useMemo, useRef } from "react";
@@ -523,7 +523,7 @@ function TopicTree({
           title={topLevelNodesCollapsed ? "Expand all" : "Collapse all"}
         />
       </Stack>
-      <div ref={scrollContainerRef} style={{ overflow: "auto", width: treeWidth }}>
+      <Box ref={scrollContainerRef} overflow="auto" width={treeWidth}>
         {showNoMatchesState ? (
           <Stack
             alignItems="center"
@@ -585,7 +585,7 @@ function TopicTree({
             }
           />
         )}
-      </div>
+      </Box>
     </Stack>
   );
 }
@@ -615,17 +615,17 @@ function TopicTreeWrapper({
   });
 
   return (
-    <div className={classes.wrapper} style={{ height: containerHeight - CONTAINER_SPACING * 3 }}>
-      <div
+    <Box className={classes.wrapper} sx={{ height: containerHeight - CONTAINER_SPACING * 3 }}>
+      <Box
         ref={sizeRef}
-        style={{
+        onClick={(ev) => ev.stopPropagation()}
+        sx={{
           width: defaultTreeWidth,
           resize: renderTopicTree ? "horizontal" : "none",
           overflow: renderTopicTree ? "hidden auto" : "visible",
           minWidth: DEFAULT_XS_WIDTH,
           maxWidth: containerWidth - 100,
         }}
-        onClick={(ev) => ev.stopPropagation()}
       >
         <TopicTreeSwitcher
           showErrorBadge={!renderTopicTree && Object.keys(sceneErrorsByKey).length > 0}
@@ -654,8 +654,8 @@ function TopicTreeWrapper({
             />
           </div>
         </CSSTransition>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 }
 

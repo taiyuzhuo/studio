@@ -13,6 +13,7 @@
 
 import DotsVerticalIcon from "@mdi/svg/svg/dots-vertical.svg";
 import EarthIcon from "@mdi/svg/svg/earth.svg";
+import { Box } from "@mui/material";
 import { groupBy } from "lodash";
 import { useCallback, useContext } from "react";
 import styled from "styled-components";
@@ -194,7 +195,7 @@ function StyleExpressionNode(props: {
           <Menu>
             <Item style={{ padding: "0 12px", height: 28 }}>
               <SItemContent>
-                <span style={{ paddingRight: 8 }}>Marker color</span>
+                <Box paddingRight={1}>Marker color</Box>
                 <ColorPicker
                   color={colorOverride?.color}
                   buttonShape={"circle"}

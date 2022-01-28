@@ -11,20 +11,11 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { CSSProperties, useMemo } from "react";
-import styled from "styled-components";
 
 import { RpcScales } from "@foxglove/studio-base/components/Chart/types";
 import { useHoverValue } from "@foxglove/studio-base/context/HoverValueContext";
-
-const SWrapper = styled.div`
-  top: 0;
-  bottom: 0;
-  position: absolute;
-  pointer-events: none;
-  will-change: transform;
-  visibility: hidden;
-`;
 
 type Props = {
   children?: React.ReactNode;
@@ -69,5 +60,19 @@ export default React.memo<Props>(function HoverBar({
     return { visibility: "visible", transform: `translateX(${positionX}px)` };
   }, [positionX]);
 
-  return <SWrapper style={{ visibility, transform }}>{children}</SWrapper>;
+  return (
+    <Box
+      sx={{
+        visibility,
+        transform,
+        top: 0,
+        bottom: 0,
+        position: "absolute",
+        pointerEvents: "none",
+        willChange: "transform",
+      }}
+    >
+      {children}
+    </Box>
+  );
 });

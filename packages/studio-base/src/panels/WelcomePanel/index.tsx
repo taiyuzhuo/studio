@@ -11,7 +11,7 @@ import {
   TextField,
   useTheme,
 } from "@fluentui/react";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { useMemo, useState } from "react";
 import { useAsyncFn } from "react-use";
 
@@ -140,11 +140,9 @@ function WelcomePanel() {
             </DefaultButton>
             &nbsp;
             {error ? (
-              <span style={{ color: theme.semanticColors.errorText }}>{error.toString()}</span>
+              <Box color={theme.semanticColors.errorText}>{error.toString()}</Box>
             ) : subscribed && !submitState.loading ? (
-              <span style={{ color: theme.semanticColors.successIcon }}>
-                Thanks for signing up!
-              </span>
+              <Box color={theme.semanticColors.successIcon}>Thanks for signing up!</Box>
             ) : undefined}
           </Stack>
         </Stack>

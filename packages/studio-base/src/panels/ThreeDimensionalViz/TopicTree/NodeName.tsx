@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import styled from "styled-components";
 
 import Tooltip from "@foxglove/studio-base/components/Tooltip";
@@ -20,10 +21,6 @@ import TextMiddleTruncate from "./TextMiddleTruncate";
 
 // Extra text length to make sure text such as `1000 visible topics` don't get truncated.
 const DEFAULT_END_TEXT_LENGTH = 22;
-
-export const STopicNameDisplay = styled.div`
-  display: inline-block;
-`;
 
 export const SDisplayName = styled.div`
   font-size: 13px;
@@ -41,10 +38,6 @@ export const SName = styled.div`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
-const SWrapper = styled.div`
-  display: flex;
-  align-items: center;
 `;
 
 type Props = {
@@ -98,7 +91,7 @@ export default function NodeName({
     />
   );
   return (
-    <STopicNameDisplay style={style}>
+    <Box display="inline-block" sx={style}>
       <SDisplayName style={{ maxWidth }}>
         {searchText ? (
           <TextHighlight targetStr={targetStr} searchText={searchText} />
@@ -107,16 +100,16 @@ export default function NodeName({
             {isXSWidth ? (
               xsWidthElem
             ) : additionalElem ? ( // eslint-disable-line @typescript-eslint/strict-boolean-expressions
-              <SWrapper style={{ width: maxWidth }}>
+              <Box display="flex" alignItems="center" width={maxWidth}>
                 {textTruncateElem}
                 {additionalElem}
-              </SWrapper>
+              </Box>
             ) : (
               textTruncateElem
             )}
           </>
         )}
       </SDisplayName>
-    </STopicNameDisplay>
+    </Box>
   );
 }

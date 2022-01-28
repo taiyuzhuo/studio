@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 import { Callout, DefaultButton, IconButton } from "@fluentui/react";
 import CloseIcon from "@mdi/svg/svg/close.svg";
-import { Stack } from "@mui/material";
+import { Box, Stack } from "@mui/material";
 import { partition, pick, union, without } from "lodash";
 import { useEffect, useMemo, useCallback, useRef, useState, ReactElement } from "react";
 import styled, { css, FlattenSimpleInterpolation, keyframes } from "styled-components";
@@ -210,13 +210,13 @@ function LinkedGlobalVariableRow({ name }: { name: string }): ReactElement {
               contents={
                 linkedTopicPaths.length > 0 ? (
                   <>
-                    <div style={{ fontWeight: "bold", opacity: 0.4 }}>
+                    <Box fontWeight="bold" sx={{ opacity: 0.4 }}>
                       {linkedTopicPaths.length} LINKED TOPIC{linkedTopicPaths.length > 1 ? "S" : ""}
-                    </div>
+                    </Box>
                     {linkedTopicPaths.map((path) => (
-                      <div key={path} style={{ paddingTop: "5px" }}>
+                      <Box key={path} paddingTop={0.625}>
                         {path}
-                      </div>
+                      </Box>
                     ))}
                   </>
                 ) : undefined

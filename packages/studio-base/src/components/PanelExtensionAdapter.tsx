@@ -3,6 +3,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
 import { useTheme } from "@fluentui/react";
+import { Box } from "@mui/material";
 import {
   CSSProperties,
   useCallback,
@@ -527,10 +528,10 @@ function PanelExtensionAdapter(props: PanelExtensionAdapterProps): JSX.Element {
   }
 
   return (
-    <div style={{ width: "100%", height: "100%", overflow: "hidden", zIndex: 0, ...style }}>
+    <Box width="100%" height="100%" overflow="hidden" zIndex={0} sx={style}>
       <PanelToolbar floating helpContent={props.help} />
-      <div style={{ width: "100%", height: "100%", overflow: "hidden" }} ref={panelContainerRef} />
-    </div>
+      <Box ref={panelContainerRef} width="100%" height="100%" overflow="hidden" />
+    </Box>
   );
 }
 

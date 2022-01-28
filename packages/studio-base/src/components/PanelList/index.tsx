@@ -148,7 +148,7 @@ function DraggablePanelItem({
         <Stack width={200}>
           {panel.thumbnail != undefined && <img src={panel.thumbnail} alt={panel.title} />}
           <Stack padding={1} spacing={0.5}>
-            <Typography variant="body2" style={{ fontWeight: "bold" }}>
+            <Typography variant="body2" fontWeight="bold">
               {panel.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">

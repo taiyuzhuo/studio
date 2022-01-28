@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import { Box } from "@mui/material";
 import { ReactNode, useCallback } from "react";
 
 import { AppSetting } from "@foxglove/studio-base/AppSetting";
@@ -25,7 +26,13 @@ function getArrow(x: number, y: number) {
     return;
   }
   return (
-    <span style={{ transform: `rotate(${Math.atan2(-y, x)}rad)`, display: "inline-block" }}>→</span>
+    <Box
+      component="span"
+      display="inline-block"
+      sx={{ transform: `rotate(${Math.atan2(-y, x)}rad)` }}
+    >
+      →
+    </Box>
   );
 }
 

@@ -278,7 +278,7 @@ function NodePlayground(props: Props) {
               </Icon>
             )}
             {selectedNodeId != undefined && selectedNode && (
-              <div style={{ position: "relative" }}>
+              <Box position="relative">
                 <LegacyInput
                   type="text"
                   placeholder="node name"
@@ -295,7 +295,7 @@ function NodePlayground(props: Props) {
                   }}
                 />
                 <UnsavedDot isSaved={isNodeSaved} />
-              </div>
+              </Box>
             )}
             <Icon
               size="large"
