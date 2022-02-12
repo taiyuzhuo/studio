@@ -11,14 +11,14 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import BagDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/BagDataProvider";
+import Ros1ParseMessagesDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/Ros1ParseMessagesDataProvider";
 import {
   PlayerState,
   SubscribePayload,
   Player,
   PlayerPresence,
 } from "@foxglove/studio-base/players/types";
-import BagDataProvider from "@foxglove/studio-base/randomAccessDataProviders/BagDataProvider";
-import Ros1ParseMessagesDataProvider from "@foxglove/studio-base/randomAccessDataProviders/Ros1ParseMessagesDataProvider";
 
 const noop = (): void => {};
 

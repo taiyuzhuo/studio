@@ -24,14 +24,14 @@ import {
   subtract as subtractTimes,
   toNanoSec,
 } from "@foxglove/rostime";
-import { MessageEvent } from "@foxglove/studio-base/players/types";
 import {
   RandomAccessDataProvider,
   ExtensionPoint,
   GetMessagesResult,
   GetMessagesTopics,
   InitializationResult,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import { MessageEvent } from "@foxglove/studio-base/players/types";
 import { getNewConnection } from "@foxglove/studio-base/util/getNewConnection";
 import {
   Range,

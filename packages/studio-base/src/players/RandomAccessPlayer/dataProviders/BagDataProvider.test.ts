@@ -19,7 +19,7 @@ import { compare } from "@foxglove/rostime";
 import BagDataProvider, {
   statsAreAdjacent,
   TimedDataThroughput,
-} from "@foxglove/studio-base/randomAccessDataProviders/BagDataProvider";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/BagDataProvider";
 import sendNotification from "@foxglove/studio-base/util/sendNotification";
 
 const dummyExtensionPoint = {
@@ -36,7 +36,7 @@ describe("BagDataProvider", () => {
     const provider = new BagDataProvider({
       bagPath: {
         type: "file",
-        file: new Blob([fs.readFileSync(`${__dirname}/../test/fixtures/example.bag`)]),
+        file: new Blob([fs.readFileSync(`${__dirname}/../../../test/fixtures/example.bag`)]),
       },
     });
     const result = await provider.initialize(dummyExtensionPoint);
@@ -74,7 +74,7 @@ describe("BagDataProvider", () => {
     const provider = new BagDataProvider({
       bagPath: {
         type: "file",
-        file: new Blob([fs.readFileSync(`${__dirname}/../test/fixtures/example-bz2.bag`)]),
+        file: new Blob([fs.readFileSync(`${__dirname}/../../../test/fixtures/example-bz2.bag`)]),
       },
     });
     const result = await provider.initialize(dummyExtensionPoint);
@@ -112,7 +112,7 @@ describe("BagDataProvider", () => {
     const provider = new BagDataProvider({
       bagPath: {
         type: "file",
-        file: new Blob([fs.readFileSync(`${__dirname}/../test/fixtures/example.bag`)]),
+        file: new Blob([fs.readFileSync(`${__dirname}/../../../test/fixtures/example.bag`)]),
       },
     });
     await provider.initialize(dummyExtensionPoint);
@@ -140,7 +140,7 @@ describe("BagDataProvider", () => {
     const provider = new BagDataProvider({
       bagPath: {
         type: "file",
-        file: new Blob([fs.readFileSync(`${__dirname}/../test/fixtures/demo-shuffled.bag`)]),
+        file: new Blob([fs.readFileSync(`${__dirname}/../../../test/fixtures/demo-shuffled.bag`)]),
       },
     });
     await provider.initialize(dummyExtensionPoint);

@@ -7,9 +7,9 @@ import {
   DataSourceFactoryInitializeArgs,
 } from "@foxglove/studio-base/context/PlayerSelectionContext";
 import RandomAccessPlayer from "@foxglove/studio-base/players/RandomAccessPlayer";
+import McapDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/McapDataProvider";
+import MemoryCacheDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/MemoryCacheDataProvider";
 import { Player } from "@foxglove/studio-base/players/types";
-import McapDataProvider from "@foxglove/studio-base/randomAccessDataProviders/McapDataProvider";
-import MemoryCacheDataProvider from "@foxglove/studio-base/randomAccessDataProviders/MemoryCacheDataProvider";
 import { getSeekToTime } from "@foxglove/studio-base/util/time";
 
 class McapLocalDataSourceFactory implements IDataSourceFactory {

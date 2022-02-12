@@ -27,6 +27,11 @@ import {
 import { ParameterValue } from "@foxglove/studio";
 import NoopMetricsCollector from "@foxglove/studio-base/players/NoopMetricsCollector";
 import {
+  Connection,
+  RandomAccessDataProvider,
+  RandomAccessDataProviderMetadata,
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import {
   AdvertiseOptions,
   MessageEvent,
   Player,
@@ -41,11 +46,6 @@ import {
   PlayerPresence,
   PlayerProblem,
 } from "@foxglove/studio-base/players/types";
-import {
-  Connection,
-  RandomAccessDataProvider,
-  RandomAccessDataProviderMetadata,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 import debouncePromise from "@foxglove/studio-base/util/debouncePromise";
 import delay from "@foxglove/studio-base/util/delay";

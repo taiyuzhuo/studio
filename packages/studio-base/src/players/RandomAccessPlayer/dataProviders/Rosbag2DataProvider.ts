@@ -9,11 +9,6 @@ import { stringify } from "@foxglove/rosmsg";
 import { Time } from "@foxglove/rostime";
 import { MessageEvent } from "@foxglove/studio";
 import {
-  MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
-  Topic,
-} from "@foxglove/studio-base/players/types";
-import {
   Connection,
   RandomAccessDataProvider,
   RandomAccessDataProviderProblem,
@@ -21,7 +16,12 @@ import {
   GetMessagesResult,
   GetMessagesTopics,
   InitializationResult,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import {
+  MessageDefinitionsByTopic,
+  ParsedMessageDefinitionsByTopic,
+  Topic,
+} from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 type BagPath = { type: "file"; file: File };

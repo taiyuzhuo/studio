@@ -8,11 +8,6 @@ import { definitions as rosCommonDefinitions } from "@foxglove/rosmsg-msgs-commo
 import { Time, fromMicros, isTimeInRangeInclusive, toMicroSec } from "@foxglove/rostime";
 import { MessageEvent, ParameterValue } from "@foxglove/studio";
 import {
-  MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
-  Topic,
-} from "@foxglove/studio-base/players/types";
-import {
   Connection,
   RandomAccessDataProvider,
   RandomAccessDataProviderProblem,
@@ -20,7 +15,12 @@ import {
   GetMessagesResult,
   GetMessagesTopics,
   InitializationResult,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import {
+  MessageDefinitionsByTopic,
+  ParsedMessageDefinitionsByTopic,
+  Topic,
+} from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 import {
   LogLevel,

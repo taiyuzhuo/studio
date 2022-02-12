@@ -22,8 +22,8 @@ import {
 } from "@foxglove/studio-base/components/MessagePipeline";
 import PanelContext from "@foxglove/studio-base/components/PanelContext";
 import useCleanup from "@foxglove/studio-base/hooks/useCleanup";
+import { MemoryCacheBlock } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/MemoryCacheDataProvider";
 import { SubscribePayload, MessageEvent } from "@foxglove/studio-base/players/types";
-import { MemoryCacheBlock } from "@foxglove/studio-base/randomAccessDataProviders/MemoryCacheDataProvider";
 
 export type MessageBlock = {
   readonly [topicName: string]: readonly MessageEvent<unknown>[];

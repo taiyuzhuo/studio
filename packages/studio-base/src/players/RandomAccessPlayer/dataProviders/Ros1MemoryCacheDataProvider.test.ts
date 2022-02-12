@@ -14,9 +14,9 @@
 import { first, flatten, last } from "lodash";
 
 import { compare } from "@foxglove/rostime";
+import MemoryDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/MemoryDataProvider";
+import { mockExtensionPoint } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/mockExtensionPoint";
 import { MessageEvent } from "@foxglove/studio-base/players/types";
-import MemoryDataProvider from "@foxglove/studio-base/randomAccessDataProviders/MemoryDataProvider";
-import { mockExtensionPoint } from "@foxglove/studio-base/randomAccessDataProviders/mockExtensionPoint";
 import delay from "@foxglove/studio-base/util/delay";
 import naturalSort from "@foxglove/studio-base/util/naturalSort";
 import sendNotification from "@foxglove/studio-base/util/sendNotification";

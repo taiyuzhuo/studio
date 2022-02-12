@@ -15,12 +15,12 @@ import { RosMsgDefinition } from "@foxglove/rosmsg";
 import { Time } from "@foxglove/rostime";
 import type { MessageEvent, ParameterValue } from "@foxglove/studio";
 import { GlobalVariables } from "@foxglove/studio-base/hooks/useGlobalVariables";
-import { BlockCache } from "@foxglove/studio-base/randomAccessDataProviders/MemoryCacheDataProvider";
+import { BlockCache } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/MemoryCacheDataProvider";
 import {
   AverageThroughput,
   RandomAccessDataProviderStall,
   InitializationPerformanceMetadata,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 import { Range } from "@foxglove/studio-base/util/ranges";
 import { NotificationSeverity } from "@foxglove/studio-base/util/sendNotification";

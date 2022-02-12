@@ -18,7 +18,6 @@ import {
   isGreaterThan,
   isTimeInRangeInclusive,
 } from "@foxglove/rostime";
-import { MessageEvent, Topic } from "@foxglove/studio-base/players/types";
 import {
   RandomAccessDataProvider,
   ExtensionPoint,
@@ -26,7 +25,8 @@ import {
   GetMessagesTopics,
   InitializationResult,
   Connection,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import { MessageEvent, Topic } from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 type Options = { file: File };

@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
-import { Options } from "@foxglove/studio-base/randomAccessDataProviders/Rosbag2DataProvider";
+import { Options } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/Rosbag2DataProvider";
 import Rpc from "@foxglove/studio-base/util/Rpc";
 import { setupReceiveReportErrorHandler } from "@foxglove/studio-base/util/RpcMainThreadUtils";
 

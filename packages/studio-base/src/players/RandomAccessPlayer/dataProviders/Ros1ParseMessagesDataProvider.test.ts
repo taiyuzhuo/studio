@@ -14,10 +14,10 @@
 
 import fs from "fs";
 
-import BagDataProvider from "@foxglove/studio-base/randomAccessDataProviders/BagDataProvider";
-import Ros1ParseMessagesDataProvider from "@foxglove/studio-base/randomAccessDataProviders/Ros1ParseMessagesDataProvider";
+import BagDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/BagDataProvider";
+import Ros1ParseMessagesDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/Ros1ParseMessagesDataProvider";
 
-const bagFileContent = fs.readFileSync(`${__dirname}/../test/fixtures/example.bag`);
+const bagFileContent = fs.readFileSync(`${__dirname}/../../../test/fixtures/example.bag`);
 
 function getProvider() {
   return new Ros1ParseMessagesDataProvider(

@@ -15,19 +15,19 @@ import { last } from "lodash";
 
 import { Time, compare, isGreaterThan, isLessThan } from "@foxglove/rostime";
 import {
-  Topic,
-  MessageDefinitionsByTopic,
-  ParsedMessageDefinitionsByTopic,
-  MessageEvent,
-} from "@foxglove/studio-base/players/types";
-import {
   ExtensionPoint,
   GetMessagesResult,
   GetMessagesTopics,
   InitializationResult,
   RandomAccessDataProvider,
   MessageDefinitions,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import {
+  Topic,
+  MessageDefinitionsByTopic,
+  ParsedMessageDefinitionsByTopic,
+  MessageEvent,
+} from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 function filterMessages<T>(

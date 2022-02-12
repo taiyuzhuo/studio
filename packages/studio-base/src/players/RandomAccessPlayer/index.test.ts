@@ -18,26 +18,23 @@ import { omit } from "lodash";
 
 import { Time, add, fromNanoSec } from "@foxglove/rostime";
 import {
+  GetMessagesResult,
+  GetMessagesTopics,
+  InitializationResult,
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import {
   MessageEvent,
   PlayerCapabilities,
   PlayerMetricsCollectorInterface,
   PlayerPresence,
   PlayerState,
 } from "@foxglove/studio-base/players/types";
-import {
-  GetMessagesResult,
-  GetMessagesTopics,
-  InitializationResult,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
 import delay from "@foxglove/studio-base/util/delay";
 import signal from "@foxglove/studio-base/util/signal";
 import { getSeekToTime, SEEK_ON_START_NS } from "@foxglove/studio-base/util/time";
 
-import RandomAccessPlayer, {
-  RandomAccessPlayerOptions,
-  SEEK_START_DELAY_MS,
-} from "./RandomAccessPlayer";
-import TestProvider from "./TestProvider";
+import RandomAccessPlayer, { RandomAccessPlayerOptions, SEEK_START_DELAY_MS } from ".";
+import TestProvider from "../TestProvider";
 
 // By default seek to the start of the bag, since that makes things a bit simpler to reason about.
 const playerOptions: RandomAccessPlayerOptions = {

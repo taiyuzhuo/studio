@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { toSec } from "@foxglove/rostime";
-import { RandomAccessDataProviderStall } from "@foxglove/studio-base/randomAccessDataProviders/types";
+import { RandomAccessDataProviderStall } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 
 import { mockExtensionPoint } from "./mockExtensionPoint";
 import { debounceReduce, getReportMetadataForChunk } from "./util";

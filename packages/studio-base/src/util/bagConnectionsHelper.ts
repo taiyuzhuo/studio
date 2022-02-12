@@ -13,8 +13,8 @@
 
 import type { Bag } from "@foxglove/rosbag";
 import { parse as parseMessageDefinition } from "@foxglove/rosmsg";
+import { Connection } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 import { Topic } from "@foxglove/studio-base/players/types";
-import { Connection } from "@foxglove/studio-base/randomAccessDataProviders/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 type DatatypeDescription = {

@@ -12,7 +12,7 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
-import BagDataProvider from "@foxglove/studio-base/randomAccessDataProviders/BagDataProvider";
+import BagDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/BagDataProvider";
 
 import rawMessageDefinitionsToParsed from "./rawMessageDefinitionsToParsed";
 import {

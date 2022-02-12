@@ -13,7 +13,7 @@
 import {
   RandomAccessDataProviderMetadata,
   ExtensionPoint,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 
 // ts-prune-ignore-next
 export function mockExtensionPoint(): {

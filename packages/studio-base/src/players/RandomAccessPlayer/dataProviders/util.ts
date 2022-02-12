@@ -14,7 +14,7 @@
 import { debounce } from "lodash";
 
 import { fromMillis } from "@foxglove/rostime";
-import { ExtensionPoint } from "@foxglove/studio-base/randomAccessDataProviders/types";
+import { ExtensionPoint } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 
 const STALL_THRESHOLD_MS = 2000;
 

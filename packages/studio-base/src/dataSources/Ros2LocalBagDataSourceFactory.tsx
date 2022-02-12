@@ -7,9 +7,9 @@ import {
   DataSourceFactoryInitializeArgs,
 } from "@foxglove/studio-base/context/PlayerSelectionContext";
 import RandomAccessPlayer from "@foxglove/studio-base/players/RandomAccessPlayer";
+import MemoryCacheDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/MemoryCacheDataProvider";
+import WorkerRosbag2DataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/WorkerRosbag2DataProvider";
 import { Player } from "@foxglove/studio-base/players/types";
-import MemoryCacheDataProvider from "@foxglove/studio-base/randomAccessDataProviders/MemoryCacheDataProvider";
-import WorkerRosbag2DataProvider from "@foxglove/studio-base/randomAccessDataProviders/WorkerRosbag2DataProvider";
 import { getSeekToTime } from "@foxglove/studio-base/util/time";
 
 class Ros2LocalBagDataSourceFactory implements IDataSourceFactory {

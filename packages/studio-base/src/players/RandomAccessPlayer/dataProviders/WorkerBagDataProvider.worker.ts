@@ -12,12 +12,12 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
-import BagDataProvider from "@foxglove/studio-base/randomAccessDataProviders/BagDataProvider";
+import BagDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/BagDataProvider";
 import {
   RandomAccessDataProvider,
   RandomAccessDataProviderMetadata,
   GetMessagesTopics,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 import Rpc, { Channel } from "@foxglove/studio-base/util/Rpc";
 import { setupWorker } from "@foxglove/studio-base/util/RpcWorkerUtils";
 import { inWebWorker } from "@foxglove/studio-base/util/workers";

@@ -17,7 +17,6 @@ import decompressLZ4 from "wasm-lz4";
 import { Bag } from "@foxglove/rosbag";
 import { BlobReader } from "@foxglove/rosbag/web";
 import { Time, add, compare, fromMillis, subtract as subtractTimes } from "@foxglove/rostime";
-import { MessageEvent } from "@foxglove/studio-base/players/types";
 import {
   RandomAccessDataProvider,
   Connection,
@@ -26,8 +25,9 @@ import {
   GetMessagesTopics,
   InitializationResult,
   AverageThroughput,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
-import { getReportMetadataForChunk } from "@foxglove/studio-base/randomAccessDataProviders/util";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import { getReportMetadataForChunk } from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/util";
+import { MessageEvent } from "@foxglove/studio-base/players/types";
 import BrowserHttpReader from "@foxglove/studio-base/util/BrowserHttpReader";
 import CachedFilelike, { FileReader } from "@foxglove/studio-base/util/CachedFilelike";
 import { bagConnectionsToTopics } from "@foxglove/studio-base/util/bagConnectionsHelper";

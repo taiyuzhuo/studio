@@ -12,14 +12,14 @@
 //   You may not use this file except in compliance with the License.
 
 import { Time } from "@foxglove/rostime";
-import { Topic } from "@foxglove/studio-base/players/types";
 import {
   ExtensionPoint,
   InitializationResult,
   RandomAccessDataProvider,
   GetMessagesResult,
   GetMessagesTopics,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
+import { Topic } from "@foxglove/studio-base/players/types";
 import { RosDatatypes } from "@foxglove/studio-base/types/RosDatatypes";
 
 const defaultStart = { sec: 10, nsec: 0 };

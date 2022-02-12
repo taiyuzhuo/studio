@@ -14,12 +14,12 @@
 import { Time } from "@foxglove/rostime";
 import Rosbag2DataProvider, {
   Options,
-} from "@foxglove/studio-base/randomAccessDataProviders/Rosbag2DataProvider";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/Rosbag2DataProvider";
 import {
   RandomAccessDataProvider,
   RandomAccessDataProviderMetadata,
   GetMessagesTopics,
-} from "@foxglove/studio-base/randomAccessDataProviders/types";
+} from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/types";
 import Rpc, { Channel } from "@foxglove/studio-base/util/Rpc";
 import { setupWorker } from "@foxglove/studio-base/util/RpcWorkerUtils";
 import { inWebWorker } from "@foxglove/studio-base/util/workers";

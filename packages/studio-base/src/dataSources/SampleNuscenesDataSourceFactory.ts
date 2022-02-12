@@ -7,8 +7,8 @@ import {
   DataSourceFactoryInitializeArgs,
 } from "@foxglove/studio-base/context/PlayerSelectionContext";
 import RandomAccessPlayer from "@foxglove/studio-base/players/RandomAccessPlayer";
-import Ros1MemoryCacheDataProvider from "@foxglove/studio-base/randomAccessDataProviders/Ros1MemoryCacheDataProvider";
-import WorkerBagDataProvider from "@foxglove/studio-base/randomAccessDataProviders/WorkerBagDataProvider";
+import Ros1MemoryCacheDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/Ros1MemoryCacheDataProvider";
+import WorkerBagDataProvider from "@foxglove/studio-base/players/RandomAccessPlayer/dataProviders/WorkerBagDataProvider";
 import { getSeekToTime } from "@foxglove/studio-base/util/time";
 
 import * as SampleNuscenesLayout from "./SampleNuscenesLayout.json";
