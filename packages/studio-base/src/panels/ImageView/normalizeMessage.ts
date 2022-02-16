@@ -2,6 +2,7 @@
 // License, v2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/
 
+import { fromNanoSec } from "@foxglove/rostime";
 import { CompressedImage, Image } from "@foxglove/studio-base/types/Messages";
 
 type RawImageMessage = {
@@ -63,11 +64,7 @@ export function normalizeImageMessage(
   switch (datatype) {
     case "foxglove.RawImage": {
       const typedMessage = message as FoxgloveRawImageMessage;
-      const sec = typedMessage.timestamp / 1000000000n;
-      const stamp = {
-        sec: Number(sec),
-        nsec: Number(typedMessage.timestamp - sec * 1000000000n),
-      };
+      const stamp = fromNanoSec(typedMessage.timestamp);
       return {
         type: "raw",
         stamp,
@@ -107,11 +104,7 @@ export function normalizeImageMessage(
     }
     case "foxglove.CompressedImage": {
       const typedMessage = message as FoxgloveCompressedImageMessage;
-      const sec = typedMessage.timestamp / 1000000000n;
-      const stamp = {
-        sec: Number(sec),
-        nsec: Number(typedMessage.timestamp - sec * 1000000000n),
-      };
+      const stamp = fromNanoSec(typedMessage.timestamp);
       return {
         type: "compressed",
         stamp,
