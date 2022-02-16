@@ -64,3 +64,14 @@ export type MarkerData = {
   originalHeight?: number; // undefined means no scaling is needed (use the image's size)
   cameraModel?: PinholeCameraModel; // undefined means no transformation is needed
 };
+
+export type FoxgloveCameraCalibration = {
+  timestamp: bigint;
+  width: number;
+  height: number;
+  distortion_model?: string;
+  D?: readonly number[];
+  K?: readonly number[];
+  P?: readonly number[];
+  R?: readonly number[];
+};
