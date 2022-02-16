@@ -31,6 +31,13 @@ type FoxgloveRawImageMessage = {
   data: Uint8Array;
 };
 
+type FoxgloveCompressedImageMessage = {
+  type: "compressed";
+  timestamp: bigint;
+  format: string;
+  data: Uint8Array;
+};
+
 export type NormalizedImageMessage = RawImageMessage | CompressedImageMessage;
 
 // Supported datatypes for normalization
@@ -42,6 +49,7 @@ export const NORMALIZABLE_IMAGE_DATATYPES = [
   "sensor_msgs/msg/CompressedImage",
   "ros.sensor_msgs.CompressedImage",
   "foxglove.RawImage",
+  "foxglove.CompressedImage",
 ];
 
 /**
@@ -93,6 +101,20 @@ export function normalizeImageMessage(
       return {
         type: "compressed",
         stamp: typedMessage.header.stamp,
+        format: typedMessage.format,
+        data: typedMessage.data,
+      };
+    }
+    case "foxglove.CompressedImage": {
+      const typedMessage = message as FoxgloveCompressedImageMessage;
+      const sec = typedMessage.timestamp / 1000000000n;
+      const stamp = {
+        sec: Number(sec),
+        nsec: Number(typedMessage.timestamp - sec * 1000000000n),
+      };
+      return {
+        type: "compressed",
+        stamp,
         format: typedMessage.format,
         data: typedMessage.data,
       };
